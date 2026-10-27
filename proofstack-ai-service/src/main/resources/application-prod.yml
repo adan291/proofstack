@@ -1,0 +1,17 @@
+# Production profile (SPRING_PROFILES_ACTIVE=prod). Expects to run behind the Caddy reverse proxy (deploy/).
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    org.springframework.ai: WARN
+
+server:
+  # Trust X-Forwarded-* ONLY because the service port is not published: Caddy is the sole client.
+  forward-headers-strategy: framework
+  shutdown: graceful
+
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 20s

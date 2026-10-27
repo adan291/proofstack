@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="{{lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="{{csp}}">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="generator" content="Proofstack">
+  <title>{{person.name}} · {{person.headline}}</title>
+  <meta name="description" content="{{person.headline}}">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">{{t.skipToContent}}</a>
+
+<header class="hero">
+  <div class="hero__avatar" aria-hidden="true">{{person.initials}}</div>
+  <div>
+    <h1 class="hero__name">{{person.name}}</h1>
+    <p class="hero__headline">{{person.headline}}</p>
+    {{#person.location}}<p class="hero__meta">{{.}}</p>{{/person.location}}
+    {{#person.summary}}<p class="hero__summary">{{.}}</p>{{/person.summary}}
+    {{#person.hasLinks}}
+    <ul class="hero__links" aria-label="{{t.links}}">
+      {{#person.links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/person.links}}
+      {{#person.email}}<li><a href="mailto:{{.}}">{{.}}</a></li>{{/person.email}}
+    </ul>
+    {{/person.hasLinks}}
+  </div>
+</header>
+
+<main id="main">
+  {{#assistant}}
+  <section class="ask" id="ask" aria-labelledby="ask-title" hidden data-ask
+           data-endpoint="{{endpoint}}"
+           data-msg-thinking="{{t.ask.thinking}}" data-msg-unknown="{{t.ask.unknown}}"
+           data-msg-busy="{{t.ask.busy}}" data-msg-unavailable="{{t.ask.unavailable}}">
+    <h2 id="ask-title" class="section-title">{{t.ask.title}}</h2>
+    <p class="ask__hint">{{t.ask.hint}}</p>
+    <form class="ask__form" data-ask-form>
+      <label for="ask-input" class="ask__label">{{t.ask.label}}</label>
+      <div class="ask__row">
+        <input id="ask-input" name="question" type="text" minlength="3" maxlength="500" required autocomplete="off">
+        <button type="submit" class="ask__button">{{t.ask.button}}</button>
+      </div>
+    </form>
+    <div class="ask__result" aria-live="polite">
+      <p class="ask__answer" data-ask-answer></p>
+      <p class="ask__sources" data-ask-sources-label hidden>{{t.ask.sources}}</p>
+      <ul class="chips" data-ask-sources></ul>
+    </div>
+  </section>
+  {{/assistant}}
+
+  {{#hasNodes}}
+  <section class="system" aria-labelledby="system-title">
+    <h2 id="system-title" class="section-title">{{t.systemTitle}}</h2>
+    <p class="system__hint">{{t.systemHint}}</p>
+
+    <div class="diagram">
+      <div class="diagram__core" aria-hidden="true">
+        <span class="diagram__core-label">{{t.core}}</span>
+        <span class="diagram__core-name">{{person.name}}</span>
+      </div>
+      <ul class="diagram__nodes" role="list">
+        {{#nodes}}
+        <li>
+          <button type="button" class="node" id="{{buttonId}}" aria-controls="{{panelId}}" aria-expanded="false" data-node>
+            <span class="node__label">{{label}}</span>
+            <span class="node__stats">{{stats}}</span>
+          </button>
+        </li>
+        {{/nodes}}
+      </ul>
+    </div>
+
+    <div class="panels">
+      {{#nodes}}
+      <section class="panel" id="{{panelId}}" aria-labelledby="{{panelId}}-title" data-panel>
+        <h3 class="panel__title" id="{{panelId}}-title" tabindex="-1">{{label}}</h3>
+
+        {{#hasSkills}}
+        <ul class="chips" aria-label="{{t.skills}}">
+          {{#skills}}<li class="chip">{{.}}</li>{{/skills}}
+        </ul>
+        {{/hasSkills}}
+
+        {{#hasLabs}}
+        <div class="labs">
+          {{#labs}}
+          <article class="lab">
+            <h4 class="lab__name">{{name}} <span class="tag">{{t.labLabel}} · {{type}}</span></h4>
+            <p>{{description}}</p>
+          </article>
+          {{/labs}}
+        </div>
+        {{/hasLabs}}
+
+        {{#hasProjects}}
+        <h4 class="panel__subtitle">{{t.projects}}</h4>
+        <div class="cards">
+          {{#projects}}
+          <article class="card">
+            <h5 class="card__title">{{name}}</h5>
+            <p class="card__summary">{{summary}}</p>
+            {{#problem}}<p><strong>{{t.problem}}</strong> {{.}}</p>{{/problem}}
+            {{#solution}}<p><strong>{{t.solution}}</strong> {{.}}</p>{{/solution}}
+            {{#hasLearnings}}
+            <p><strong>{{t.learnings}}</strong></p>
+            <ul>{{#learnings}}<li>{{.}}</li>{{/learnings}}</ul>
+            {{/hasLearnings}}
+            {{#hasTechStack}}
+            <ul class="chips chips--small" aria-label="{{t.techStack}}">{{#techStack}}<li class="chip">{{.}}</li>{{/techStack}}</ul>
+            {{/hasTechStack}}
+            {{#hasEvidence}}
+            <p class="card__evidence">{{t.backedBy}} {{#evidence}}<span class="tag">{{title}}</span> {{/evidence}}</p>
+            {{/hasEvidence}}
+            {{#hasLinks}}
+            <ul class="card__links">{{#links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/links}}</ul>
+            {{/hasLinks}}
+          </article>
+          {{/projects}}
+        </div>
+        {{/hasProjects}}
+
+        {{#hasEvidence}}
+        <h4 class="panel__subtitle">{{t.evidence}}</h4>
+        <div class="cards">
+          {{#evidence}}
+          <article class="card card--evidence">
+            <h5 class="card__title">{{title}} <span class="tag">{{category}}</span></h5>
+            <dl class="car">
+              <dt>{{t.context}}</dt><dd>{{context}}</dd>
+              <dt>{{t.action}}</dt><dd>{{action}}</dd>
+              <dt>{{t.result}}</dt><dd>{{result}}</dd>
+            </dl>
+            {{#link}}<p><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></p>{{/link}}
+          </article>
+          {{/evidence}}
+        </div>
+        {{/hasEvidence}}
+      </section>
+      {{/nodes}}
+    </div>
+  </section>
+  {{/hasNodes}}
+
+  {{#hasExperience}}
+  <section class="timeline" aria-labelledby="experience-title">
+    <h2 id="experience-title" class="section-title">{{t.experience}}</h2>
+    <ol class="timeline__list">
+      {{#experience}}
+      <li class="timeline__item">
+        <h3 class="timeline__role">{{role}} · <span>{{company}}</span></h3>
+        <p class="timeline__meta">{{period}}{{#location}} · {{.}}{{/location}}</p>
+        {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
+        {{#hasTechnologies}}<ul class="chips chips--small" aria-label="{{t.technologies}}">{{#technologies}}<li class="chip">{{.}}</li>{{/technologies}}</ul>{{/hasTechnologies}}
+      </li>
+      {{/experience}}
+    </ol>
+  </section>
+  {{/hasExperience}}
+
+  {{#hasEducation}}
+  <section class="timeline" aria-labelledby="education-title">
+    <h2 id="education-title" class="section-title">{{t.education}}</h2>
+    <ol class="timeline__list">
+      {{#education}}
+      <li class="timeline__item">
+        <h3 class="timeline__role">{{title}} · <span>{{institution}}</span></h3>
+        <p class="timeline__meta">{{period}}</p>
+        {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
+      </li>
+      {{/education}}
+    </ol>
+  </section>
+  {{/hasEducation}}
+</main>
+
+<footer class="footer">
+  <p>{{t.builtWith}}</p>
+</footer>
+</body>
+</html>

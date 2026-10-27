@@ -1,0 +1,62 @@
+{
+  "uid": "proofstack",
+  "title": "Proofstack · Ask my portfolio",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "tags": ["proofstack"],
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Questions (24h) by outcome",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "legendFormat": "{{status}}",
+        "expr": "sum by (status) (increase(proofstack_ask_seconds_count[24h]))" }]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Unknown answers (honest \"not in the portfolio\")",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" } },
+      "targets": [{ "refId": "A",
+        "expr": "sum(increase(proofstack_ask_seconds_count{status=\"unknown\"}[24h])) / clamp_min(sum(increase(proofstack_ask_seconds_count[24h])), 1)" }]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Indexed chunks",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "max(proofstack_knowledge_chunks)" }]
+    },
+    {
+      "id": 4, "type": "timeseries", "title": "Answer latency p50 / p95",
+      "gridPos": { "x": 0, "y": 6, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "s" } },
+      "targets": [
+        { "refId": "A", "legendFormat": "p50", "expr": "histogram_quantile(0.5, sum by (le) (rate(proofstack_ask_seconds_bucket[5m])))" },
+        { "refId": "B", "legendFormat": "p95", "expr": "histogram_quantile(0.95, sum by (le) (rate(proofstack_ask_seconds_bucket[5m])))" }
+      ]
+    },
+    {
+      "id": 5, "type": "timeseries", "title": "LLM calls (Spring AI observations)",
+      "gridPos": { "x": 12, "y": 6, "w": 12, "h": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "legendFormat": "{{gen_ai_operation_name}} · {{gen_ai_response_model}}",
+        "expr": "sum by (gen_ai_operation_name, gen_ai_response_model) (rate(gen_ai_client_operation_seconds_count[5m]))" }]
+    },
+    {
+      "id": 6, "type": "timeseries", "title": "Rate-limited requests",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "rate(proofstack_ask_rate_limited_total[5m])" }]
+    },
+    {
+      "id": 7, "type": "timeseries", "title": "JVM heap used",
+      "gridPos": { "x": 12, "y": 14, "w": 12, "h": 6 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "bytes" } },
+      "targets": [{ "refId": "A", "legendFormat": "{{id}}", "expr": "sum by (id) (jvm_memory_used_bytes{area=\"heap\"})" }]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dev.proofstack</groupId>
+        <artifactId>proofstack-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>proofstack-in-yaml</artifactId>
+    <name>Proofstack :: Adapter :: In :: YAML</name>
+    <description>Loads and validates profile.yaml against the public JSON Schema.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>dev.proofstack</groupId>
+            <artifactId>proofstack-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <!-- The public contract lives at the repo root; package it so the adapter can validate offline. -->
+            <resource>
+                <directory>${project.basedir}/../../schema</directory>
+                <targetPath>proofstack</targetPath>
+                <includes>
+                    <include>profile.schema.json</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

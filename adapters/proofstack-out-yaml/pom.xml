@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dev.proofstack</groupId>
+        <artifactId>proofstack-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>proofstack-out-yaml</artifactId>
+    <name>Proofstack :: Adapter :: Out :: YAML</name>
+    <description>Writes a profile as profile.yaml (used by importers).</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>dev.proofstack</groupId>
+            <artifactId>proofstack-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+        </dependency>
+        <!-- Round-trip tests read the written file back with the real reader. -->
+        <dependency>
+            <groupId>dev.proofstack</groupId>
+            <artifactId>proofstack-in-yaml</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

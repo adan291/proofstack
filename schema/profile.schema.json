@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://proofstack.dev/schema/profile.schema.json",
+  "title": "Proofstack profile",
+  "description": "Portfolio-as-code document. One source of truth for web, CV, README and posts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["person"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[A-Z]{2})?$",
+      "description": "Language of the profile content (BCP 47). Also selects the UI language. Default: en"
+    },
+    "person": { "$ref": "#/$defs/person" },
+    "skills": { "type": "array", "items": { "$ref": "#/$defs/skill" } },
+    "experience": { "type": "array", "items": { "$ref": "#/$defs/experience" } },
+    "education": { "type": "array", "items": { "$ref": "#/$defs/education" } },
+    "projects": { "type": "array", "items": { "$ref": "#/$defs/project" } },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
+    "labs": { "type": "array", "items": { "$ref": "#/$defs/lab" } }
+  },
+  "$defs": {
+    "text": { "type": "string", "minLength": 1, "maxLength": 4000 },
+    "shortText": { "type": "string", "minLength": 1, "maxLength": 300 },
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "idList": { "type": "array", "items": { "$ref": "#/$defs/id" }, "uniqueItems": true },
+    "textList": { "type": "array", "items": { "$ref": "#/$defs/text" } },
+    "yearMonth": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$",
+      "description": "Month precision date, e.g. 2024-03"
+    },
+    "area": {
+      "enum": ["backend", "architecture", "messaging", "data", "devops", "ai", "hardware", "leadership", "communication"]
+    },
+    "link": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "url"],
+      "properties": {
+        "label": { "$ref": "#/$defs/shortText" },
+        "url": { "type": "string", "pattern": "^(https?://|mailto:)\\S+$", "maxLength": 2000 }
+      }
+    },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "headline"],
+      "properties": {
+        "name": { "$ref": "#/$defs/shortText" },
+        "headline": { "$ref": "#/$defs/shortText" },
+        "summary": { "$ref": "#/$defs/text" },
+        "location": { "$ref": "#/$defs/shortText" },
+        "email": { "type": "string", "format": "email" },
+        "links": { "type": "array", "items": { "$ref": "#/$defs/link" } }
+      }
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "area"],
+      "properties": {
+        "name": { "$ref": "#/$defs/shortText" },
+        "area": { "$ref": "#/$defs/area" }
+      }
+    },
+    "experience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "company", "startDate"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "role": { "$ref": "#/$defs/shortText" },
+        "company": { "$ref": "#/$defs/shortText" },
+        "location": { "$ref": "#/$defs/shortText" },
+        "startDate": { "$ref": "#/$defs/yearMonth" },
+        "endDate": { "$ref": "#/$defs/yearMonth" },
+        "current": { "type": "boolean" },
+        "highlights": { "$ref": "#/$defs/textList" },
+        "technologies": { "type": "array", "items": { "$ref": "#/$defs/shortText" } },
+        "evidence": { "$ref": "#/$defs/idList" }
+      }
+    },
+    "education": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "institution", "startDate"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/shortText" },
+        "institution": { "$ref": "#/$defs/shortText" },
+        "startDate": { "$ref": "#/$defs/yearMonth" },
+        "endDate": { "$ref": "#/$defs/yearMonth" },
+        "highlights": { "$ref": "#/$defs/textList" }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "summary"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "summary": { "$ref": "#/$defs/text" },
+        "problem": { "$ref": "#/$defs/text" },
+        "solution": { "$ref": "#/$defs/text" },
+        "techStack": { "type": "array", "items": { "$ref": "#/$defs/shortText" } },
+        "learnings": { "$ref": "#/$defs/textList" },
+        "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
+        "areas": { "type": "array", "items": { "$ref": "#/$defs/area" }, "uniqueItems": true },
+        "evidence": { "$ref": "#/$defs/idList" }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "category", "title", "context", "action", "result"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "category": { "enum": ["leadership", "mentoring", "communication", "documentation", "technical"] },
+        "title": { "$ref": "#/$defs/shortText" },
+        "context": { "$ref": "#/$defs/text" },
+        "action": { "$ref": "#/$defs/text" },
+        "result": { "$ref": "#/$defs/text" },
+        "link": { "$ref": "#/$defs/link" },
+        "areas": { "type": "array", "items": { "$ref": "#/$defs/area" }, "uniqueItems": true }
+      }
+    },
+    "lab": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "type", "description"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "name": { "$ref": "#/$defs/shortText" },
+        "type": { "enum": ["software", "ai", "hardware", "automation"] },
+        "description": { "$ref": "#/$defs/text" },
+        "projects": { "$ref": "#/$defs/idList" }
+      }
+    }
+  }
+}

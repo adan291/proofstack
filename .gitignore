@@ -1,0 +1,21 @@
+target/
+dist/
+*.class
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (future AI service)
+.env
+.env.*
+!.env.example

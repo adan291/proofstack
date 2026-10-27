@@ -1,0 +1,3 @@
+*
+!target/proofstack-ai-service-*-SNAPSHOT.jar
+!docker/HealthProbe.java

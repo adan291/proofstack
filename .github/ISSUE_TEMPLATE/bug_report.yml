@@ -1,0 +1,24 @@
+name: Bug
+description: Algo no funciona como dice la documentación
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: ¿Qué pasó?
+      description: Comando ejecutado, salida completa y qué esperabas.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versión
+      description: Salida de `java -jar proofstack.jar --version` y de `java -version`
+    validations:
+      required: true
+  - type: textarea
+    id: profile
+    attributes:
+      label: Fragmento mínimo de profile.yaml que lo reproduce
+      description: Quita tus datos personales antes de pegarlo.
+      render: yaml

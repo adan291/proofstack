@@ -1,0 +1,19 @@
+# stdio MCP server: stdout is reserved for JSON-RPC messages.
+spring:
+  main:
+    web-application-type: none
+    banner-mode: off
+    log-startup-info: false
+  ai:
+    mcp:
+      server:
+        name: proofstack
+        version: 0.4.0
+        type: sync
+        stdio: true
+        instructions: >
+          Tools to read one developer's portfolio (projects, experience, evidence, skills).
+          Answer only with facts returned by the tools and cite their ids. If search_portfolio
+          returns nothing, say the portfolio does not mention it. Never invent metrics or dates.
+
+# Logging goes to stderr only (see logback-spring.xml).

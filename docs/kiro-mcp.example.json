@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "proofstack": {
+      "command": "java",
+      "args": ["-jar", "/path/to/proofstack/proofstack-mcp-server/target/proofstack-mcp-server-0.1.0-SNAPSHOT.jar"],
+      "env": {
+        "PROOFSTACK_PROFILE": "/path/to/proofstack/profiles/you/profile.yaml"
+      },
+      "disabled": false,
+      "autoApprove": ["get_profile_summary", "list_projects", "get_project", "search_portfolio", "get_content_facts"]
+    }
+  }
+}

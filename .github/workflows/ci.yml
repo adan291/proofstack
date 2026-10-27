@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Build, unit tests and architecture tests
+        run: mvn -B -ntp verify
+
+      - name: Validate bundled profiles
+        run: |
+          java -jar proofstack-cli/target/proofstack.jar validate profiles/example/profile.yaml
+          java -jar proofstack-cli/target/proofstack.jar validate profiles/adan/profile.yaml

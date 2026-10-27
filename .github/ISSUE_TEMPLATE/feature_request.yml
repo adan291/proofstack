@@ -1,0 +1,23 @@
+name: Propuesta
+description: Un tema, importador, proveedor de IA o cambio en el formato del perfil
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema
+      description: ¿Qué no puedes demostrar hoy en tu portfolio?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Propuesta
+      description: ¿Qué puerto o adaptador tocaría? ¿Cambia profile.schema.json?
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Principios
+      options:
+        - label: No requiere inventar contenido ni métricas (ADR-006)
+        - label: No envía datos personales innecesarios a terceros

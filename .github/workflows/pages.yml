@@ -1,0 +1,65 @@
+# Publishes your portfolio to GitHub Pages.
+#   1. Settings → Pages → Source: "GitHub Actions"
+#   2. Settings → Secrets and variables → Actions → Variables:
+#        PROOFSTACK_PROFILE        e.g. profiles/ada/profile.yaml   (required to publish your own profile)
+#        PROOFSTACK_ASSISTANT_URL  optional, https URL of your ask-my-portfolio service
+# The deploy is blocked while `proofstack doctor` reports errors (TODOs, sample links...).
+name: Deploy portfolio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'profiles/**'
+      - 'adapters/**'
+      - 'proofstack-*/**'
+      - 'schema/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      PROFILE: ${{ vars.PROOFSTACK_PROFILE || 'profiles/example/profile.yaml' }}
+      ASSISTANT_URL: ${{ vars.PROOFSTACK_ASSISTANT_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - run: mvn -B -ntp -DskipTests package -pl proofstack-cli -am
+
+      - name: Ready to publish?
+        run: java -jar proofstack-cli/target/proofstack.jar doctor "$PROFILE"
+
+      - name: Build site
+        run: |
+          if [ -n "$ASSISTANT_URL" ]; then
+            java -jar proofstack-cli/target/proofstack.jar build "$PROFILE" --out dist --assistant-url "$ASSISTANT_URL"
+          else
+            java -jar proofstack-cli/target/proofstack.jar build "$PROFILE" --out dist
+          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

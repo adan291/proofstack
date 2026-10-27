@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: proofstack-ai-service
+  ai:
+    ollama:
+      base-url: ${OLLAMA_HOST:http://localhost:11434}
+      chat:
+        model: ${PROOFSTACK_CHAT_MODEL:llama3.1}
+        temperature: 0.2
+      embedding:
+        model: ${PROOFSTACK_EMBEDDING_MODEL:nomic-embed-text}
+      init:
+        pull-model-strategy: never
+    retry:
+      max-attempts: 2
+
+server:
+  port: ${PORT:8080}
+  # Keep error pages free of stack traces and messages.
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  # Separate, never-published port: health and metrics are for the platform, not for visitors.
+  server:
+    port: ${MANAGEMENT_PORT:8081}
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      group:
+        readiness:
+          include: readinessState,knowledgeIndex
+      show-details: never
+  observations:
+    key-values:
+      application: proofstack-ai-service
+
+proofstack:
+  profile: ${PROOFSTACK_PROFILE:profiles/adan/profile.yaml}
+  requests-per-minute: ${PROOFSTACK_RATE_LIMIT:10}
+  rag:
+    top-k: 4
+    min-score: ${PROOFSTACK_MIN_SCORE:0.5}
+    # nomic-embed-text was trained with these task prefixes.
+    document-prefix: "search_document: "
+    query-prefix: "search_query: "
+  cors:
+    # Origin of the static portfolio, e.g. https://adan.github.io (comma separated). Empty = same origin only.
+    allowed-origins: ${PROOFSTACK_ALLOWED_ORIGINS:}

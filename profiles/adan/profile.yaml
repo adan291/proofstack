@@ -1,0 +1,109 @@
+# yaml-language-server: $schema=../../schema/profile.schema.json
+# Perfil real de Adán (dogfooding).
+# Antes de publicar: busca "TODO" y sustitúyelo por datos reales. No inventes métricas:
+# si no tienes un número, describe el resultado de forma cualitativa.
+
+language: es
+
+person:
+  name: Adán Sánchez Manzano
+  headline: Backend Developer · Java, Spring & AI
+  summary: >
+    Desarrollador backend (DAM) centrado en Java y Spring. Diseño sistemas con arquitectura
+    hexagonal, mensajería y observabilidad, y experimento con IA aplicada: búsqueda semántica,
+    LLMs locales y agentes. Documento y explico lo que construyo, y he coordinado equipos grandes.
+  location: España
+  links:
+    - { label: LinkedIn, url: "https://www.linkedin.com/in/asanchezmanzano/" }
+    - { label: GitHub, url: "https://github.com/adan291" }
+
+skills:
+  - { name: Java, area: backend }
+  - { name: Spring Boot, area: backend }
+  - { name: Jakarta EE / Tomcat, area: backend }
+  - { name: Arquitectura hexagonal, area: architecture }
+  - { name: Kafka, area: messaging }
+  - { name: RabbitMQ, area: messaging }
+  - { name: Docker, area: devops }
+  - { name: Observabilidad, area: devops }
+  - { name: Búsqueda semántica / embeddings, area: ai }
+  - { name: LLMs locales, area: ai }
+  - { name: Agentes y Spec-Driven Development (Kiro), area: ai }
+  - { name: NotebookLM / Google AI Studio, area: communication }
+  - { name: OBS / vídeo técnico, area: communication }
+  - { name: Coordinación de equipos, area: leadership }
+
+experience:
+  - id: current-job
+    role: Backend Developer
+    company: "TODO: empresa"
+    startDate: 2022-01            # TODO: fecha real (AAAA-MM)
+    current: true
+    highlights:
+      - Migración de aplicaciones de Tomcat 9 a Tomcat 10 (javax → jakarta).
+      - "TODO: otro logro concreto"
+    technologies: [Java, Spring, Tomcat, Jakarta EE, Docker]
+    evidence: [team-coordination]
+
+education:
+  - id: dam
+    title: CFGS Desarrollo de Aplicaciones Multiplataforma (DAM)
+    institution: "TODO: centro"
+    startDate: 2018-09            # TODO: fecha real
+    endDate: 2020-06              # TODO: fecha real
+
+projects:
+  - id: tomcat-jakarta-migration
+    name: Migración Tomcat 9 → Tomcat 10
+    summary: Paso de una aplicación Java del ecosistema javax a Jakarta EE para poder desplegar en Tomcat 10.
+    problem: La aplicación usaba APIs javax.* incompatibles con Tomcat 10, que solo soporta jakarta.*.
+    solution: Migración progresiva de dependencias, imports y configuración hacia Jakarta, validando por módulos.
+    techStack: [Java, Tomcat 10, Jakarta EE, Maven]
+    learnings:
+      - Inventariar primero las dependencias transitivas que siguen en javax.
+    areas: [backend]
+
+  - id: proofstack
+    name: Proofstack
+    summary: Generador open source de portfolios técnicos a partir de un profile.yaml. Este portfolio está hecho con él.
+    problem: Los portfolios de backend suelen ser listas de tecnologías sin pruebas.
+    solution: Portfolio como código, dominio hexagonal en Java 25 y renderers intercambiables (web, CV, posts).
+    techStack: [Java 25, Maven, ArchUnit, JSON Schema, Mustache]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/proofstack" }
+    learnings:
+      - Los tests de arquitectura convierten las decisiones en reglas que no se pueden saltar.
+    areas: [backend, architecture]
+
+  - id: semantic-search
+    name: Búsqueda semántica
+    summary: Búsqueda por significado usando embeddings en lugar de palabras clave.
+    techStack: [Java, Embeddings]   # TODO: completar stack real
+    areas: [ai]
+
+evidence:
+  - id: team-coordination
+    category: leadership
+    title: Coordinación de un equipo de ~20 personas
+    context: "TODO: proyecto / situación en la que coordinaste al equipo."
+    action: "TODO: qué hiciste (planificación, reparto, seguimiento, comunicación)."
+    result: "TODO: resultado concreto (entrega, plazos, mejora)."
+
+  - id: technical-content
+    category: communication
+    title: Divulgación técnica en LinkedIn y vídeo
+    context: Quería explicar migraciones e IA aplicada a perfiles técnicos y no técnicos.
+    action: Publico posts y vídeos cortos usando NotebookLM, Google AI Studio y OBS a partir de proyectos reales.
+    result: "TODO: alcance o feedback recibido."
+
+labs:
+  - id: ai-lab
+    name: AI Lab
+    type: ai
+    description: Experimentos de IA aplicada al backend. RAG, LLM local, agentes y MCP.
+    projects: [semantic-search]
+
+  - id: hardware-lab
+    name: Hardware & Automation Lab
+    type: automation
+    description: ESP32 + MQTT + Spring Boot. Del primer LED a "prepárame un café" con un agente.

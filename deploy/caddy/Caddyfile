@@ -1,0 +1,22 @@
+{$PROOFSTACK_DOMAIN} {
+	encode zstd gzip
+
+	# Only the public API is routed. Actuator (8081) is never reachable from outside.
+	@api path /api/ask /api/status
+	handle @api {
+		request_body {
+			max_size 8KB
+		}
+		reverse_proxy ai-service:8080
+	}
+	handle {
+		respond 404
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}

@@ -1,0 +1,33 @@
+# Production overlay: Caddy terminates TLS (automatic Let's Encrypt) and is the only public entry point.
+#   PROOFSTACK_DOMAIN=ai.example.dev PROOFSTACK_ALLOWED_ORIGINS=https://you.github.io GRAFANA_ADMIN_PASSWORD=... \
+#   docker compose -f deploy/compose.yaml -f deploy/compose.prod.yaml up -d
+services:
+  ai-service:
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      PROOFSTACK_ALLOWED_ORIGINS: ${PROOFSTACK_ALLOWED_ORIGINS:?set the origin of your static portfolio}
+    # Not published: only Caddy (same network) can reach it, which is what makes forward-headers trustworthy.
+    ports: !reset []
+    restart: unless-stopped
+
+  ollama:
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2.11.6-alpine
+    environment:
+      PROOFSTACK_DOMAIN: ${PROOFSTACK_DOMAIN:?set the public domain of the assistant}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [ai-service]
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:
