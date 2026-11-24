@@ -5,7 +5,9 @@ import java.util.List;
 /**
  * The CV as a neutral model, shared by the Markdown and the HTML output so both always agree.
  * The {@code has*} flags exist for the HTML template: a Mustache section over a list repeats its block per item.
+ * They and {@code linked()} are called by name from the template, which is why the IDE reports them as unused.
  */
+@SuppressWarnings("unused")
 record Cv(CvText t, String name, String headline, List<Contact> contact, String summary,
           List<SkillGroup> skills, List<Job> jobs, List<Proj> projects, List<Study> studies,
           List<Cert> certifications, List<Lang> languages) {
