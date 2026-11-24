@@ -26,7 +26,7 @@ import dev.proofstack.core.domain.Skill;
 
 /**
  * Picks and orders what goes on the CV. Pure function of the profile: no generated text, so the CV can only say
- * what the profile already proves. Text that still holds a {@code TODO} placeholder is left out, never printed.
+ * what the profile already proves. A text that still contains the profile's placeholder marker is left out, never printed.
  */
 final class CvBuilder {
 

@@ -65,7 +65,7 @@ final class CvCommand implements Callable<Integer> {
             return ProofstackCli.ERROR;
         }
         CvOptions options;
-        JobOffer offer = null;
+        JobOffer offer;
         try {
             offer = readJob();
             options = new CvOptions(parseFocus(), projects, offer);
