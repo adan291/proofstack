@@ -16,6 +16,8 @@ import dev.proofstack.core.domain.Education;
 import dev.proofstack.core.domain.Evidence;
 import dev.proofstack.core.domain.Experience;
 import dev.proofstack.core.domain.Lab;
+import dev.proofstack.core.domain.Certification;
+import dev.proofstack.core.domain.Language;
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.PersonalInfo;
@@ -94,6 +96,8 @@ public final class YamlProfileWriter implements ProfileWriter {
         put(doc, "projects", p.projects().stream().map(YamlProfileWriter::project).toList());
         put(doc, "evidence", p.evidence().stream().map(YamlProfileWriter::evidence).toList());
         put(doc, "labs", p.labs().stream().map(YamlProfileWriter::lab).toList());
+        put(doc, "languages", p.languages().stream().map(YamlProfileWriter::language).toList());
+        put(doc, "certifications", p.certifications().stream().map(YamlProfileWriter::certification).toList());
         return doc;
     }
 
@@ -170,6 +174,26 @@ public final class YamlProfileWriter implements ProfileWriter {
         // Areas equal to the category default are implicit; only write explicit ones.
         if (!e.areas().equals(e.category().defaultAreas())) {
             put(m, "areas", e.areas().stream().map(YamlProfileWriter::lower).toList());
+        }
+        return m;
+    }
+
+    private static Map<String, Object> language(Language l) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("name", l.name());
+        put(m, "level", l.level());
+        return m;
+    }
+
+    private static Map<String, Object> certification(Certification c) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("title", c.title());
+        put(m, "issuer", c.issuer());
+        if (c.issued() != null) {
+            m.put("date", c.issued().toString());
+        }
+        if (c.link() != null) {
+            m.put("link", link(c.link()));
         }
         return m;
     }

@@ -53,3 +53,11 @@ evidence:
     context: New engineers needed weeks to ship their first change.
     action: Wrote a guide with architecture diagrams and a first-PR checklist.
     result: First PR merged in the first week for the next three hires.
+languages:
+  - { name: English, level: C1 }
+  - { name: Spanish, level: Native }
+certifications:
+  - title: Oracle Certified Professional, Java SE
+    issuer: Oracle
+    date: 2023-05
+    link: { label: Credential, url: "https://example.com/credential/123" }

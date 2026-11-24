@@ -80,6 +80,26 @@ class LinkedInExportImporterTest {
     }
 
     @Test
+    void importsLanguagesAndCertifications() throws IOException {
+        Map<String, String> files = export();
+        files.put("Languages.csv", "Name,Proficiency\nEspañol,Native or bilingual proficiency\nEnglish,\n,Professional\n");
+        files.put("Certifications.csv", "Name,Url,Authority,Started On,Finished On,License Number\n"
+                + "Java SE 21,https://example.com/c/1,Oracle,Mar 2024,,123\n"
+                + "Sin enlace,,,,,\n");
+
+        Profile p = importer.importProfile(zip(files));
+
+        assertThat(p.languages()).extracting("name", "level").containsExactly(
+                org.assertj.core.groups.Tuple.tuple("Español", "Native or bilingual proficiency"),
+                org.assertj.core.groups.Tuple.tuple("English", null));
+        assertThat(p.certifications()).extracting("title").containsExactly("Java SE 21", "Sin enlace");
+        assertThat(p.certifications().getFirst().issuer()).isEqualTo("Oracle");
+        assertThat(p.certifications().getFirst().issued()).isEqualTo(YearMonth.of(2024, 3));
+        assertThat(p.certifications().getFirst().link().url()).isEqualTo("https://example.com/c/1");
+        assertThat(p.certifications().get(1).link()).isNull();
+    }
+
+    @Test
     void neverImportsEmailOrPhone() throws IOException {
         Profile p = importer.importProfile(zip(export()));
 

@@ -14,7 +14,7 @@ import java.util.Set;
  *
  * <p>Rule of ownership:
  * <ul>
- *   <li><b>The platform owns the career</b>: experience, education and skills come from it.</li>
+ *   <li><b>The platform owns the career</b>: experience, education, skills, languages and certifications come from it\n *       (when it has any; otherwise yours are kept).</li>
  *   <li><b>The profile owns the proofs and the presentation</b>: projects, evidence, labs, language and
  *       personal info are kept; imported values only fill fields that still contain a placeholder.</li>
  * </ul>
@@ -32,7 +32,9 @@ public final class ProfileMerge {
                 imported.education().isEmpty() ? existing.education() : imported.education(),
                 projects(existing.projects(), imported.projects()),
                 skills(existing.skills(), imported.skills()),
-                existing.evidence(), existing.labs());
+                existing.evidence(), existing.labs(),
+                imported.languages().isEmpty() ? existing.languages() : imported.languages(),
+                imported.certifications().isEmpty() ? existing.certifications() : imported.certifications());
     }
 
     private static PersonalInfo person(PersonalInfo mine, PersonalInfo theirs) {

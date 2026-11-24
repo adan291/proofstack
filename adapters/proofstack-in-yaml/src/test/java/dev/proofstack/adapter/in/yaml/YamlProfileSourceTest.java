@@ -25,6 +25,43 @@ class YamlProfileSourceTest {
     Path dir;
 
     @Test
+    void loadsLanguagesAndCertifications() throws IOException {
+        Profile profile = source.load(write("""
+                person: { name: Ada, headline: Engineer }
+                languages:
+                  - { name: Español, level: Nativo }
+                  - { name: English }
+                certifications:
+                  - title: Java SE 21
+                    issuer: Oracle
+                    date: 2024-03
+                    link: { label: Credential, url: "https://example.com/c/1" }
+                  - { title: Scrum Master }
+                """));
+
+        assertThat(profile.languages()).extracting("name", "level")
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("Español", "Nativo"),
+                        org.assertj.core.groups.Tuple.tuple("English", null));
+        assertThat(profile.certifications().getFirst().issued()).isEqualTo(YearMonth.of(2024, 3));
+        assertThat(profile.certifications().getFirst().link().url()).isEqualTo("https://example.com/c/1");
+        assertThat(profile.certifications().get(1).issuer()).isNull();
+    }
+
+    @Test
+    void rejectsACertificationWithoutTitleOrWithABadDate() throws IOException {
+        assertThatThrownBy(() -> source.load(write("""
+                person: { name: Ada, headline: Engineer }
+                certifications:
+                  - { issuer: Oracle }
+                """))).isInstanceOf(ProfileValidationException.class);
+        assertThatThrownBy(() -> source.load(write("""
+                person: { name: Ada, headline: Engineer }
+                certifications:
+                  - { title: Java, date: "March 2024" }
+                """))).isInstanceOf(ProfileValidationException.class);
+    }
+
+    @Test
     void loadsCompleteProfile() throws IOException {
         Profile profile = source.load(write("""
                 language: es

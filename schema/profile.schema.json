@@ -19,7 +19,9 @@
     "education": { "type": "array", "items": { "$ref": "#/$defs/education" } },
     "projects": { "type": "array", "items": { "$ref": "#/$defs/project" } },
     "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } },
-    "labs": { "type": "array", "items": { "$ref": "#/$defs/lab" } }
+    "labs": { "type": "array", "items": { "$ref": "#/$defs/lab" } },
+    "languages": { "type": "array", "items": { "$ref": "#/$defs/language" } },
+    "certifications": { "type": "array", "items": { "$ref": "#/$defs/certification" } }
   },
   "$defs": {
     "text": { "type": "string", "minLength": 1, "maxLength": 4000 },
@@ -55,6 +57,26 @@
         "location": { "$ref": "#/$defs/shortText" },
         "email": { "type": "string", "format": "email" },
         "links": { "type": "array", "items": { "$ref": "#/$defs/link" } }
+      }
+    },
+    "language": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "$ref": "#/$defs/shortText" },
+        "level": { "$ref": "#/$defs/shortText", "description": "Free text: Nativo, C1, Professional working..." }
+      }
+    },
+    "certification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "$ref": "#/$defs/shortText" },
+        "issuer": { "$ref": "#/$defs/shortText" },
+        "date": { "$ref": "#/$defs/yearMonth" },
+        "link": { "$ref": "#/$defs/link", "description": "Where the credential can be verified" }
       }
     },
     "skill": {

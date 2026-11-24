@@ -89,6 +89,8 @@ class LinkedInMemberDataSourceTest {
                 + "[{\"Company Name\":\"Old Co\",\"Title\":\"Junior\",\"Started On\":\"Mar 2019\",\"Finished On\":\"Dec 2021\"}]}]}");
         snapshot("EDUCATION", "[{\"School Name\":\"IES Ejemplo\",\"Degree Name\":\"CFGS DAM\",\"Start Date\":\"2018\",\"End Date\":\"2020\"}]");
         snapshot("SKILLS", "[{\"Name\":\"Java\"},{\"Name\":\"Apache Kafka\"}]");
+        snapshot("LANGUAGES", "[{\"Name\":\"Español\",\"Proficiency\":\"Native\"}]");
+        snapshot("CERTIFICATIONS", "[{\"Name\":\"Java SE 21\",\"Authority\":\"Oracle\",\"Started On\":\"Mar 2024\"}]");
         // PROJECTS deliberately missing: LinkedIn answers 404 "No data found".
     }
 
@@ -99,7 +101,7 @@ class LinkedInMemberDataSourceTest {
     }
 
     @Test
-    void importsTheFiveDomainsFollowingPagination() {
+    void importsTheSevenDomainsFollowingPagination() {
         fullProfile();
 
         Profile p = withToken().fetchProfile();
@@ -112,6 +114,8 @@ class LinkedInMemberDataSourceTest {
         assertThat(p.education().getFirst().period().start()).isEqualTo(YearMonth.of(2018, 1));
         assertThat(p.skills()).extracting("name").containsExactly("Java", "Apache Kafka");
         assertThat(p.projects()).isEmpty();
+        assertThat(p.languages()).extracting("name", "level").containsExactly(org.assertj.core.groups.Tuple.tuple("Español", "Native"));
+        assertThat(p.certifications()).extracting("title", "issuer").containsExactly(org.assertj.core.groups.Tuple.tuple("Java SE 21", "Oracle"));
         assertThat(requests).allMatch(r -> r.startsWith("Bearer preset-token 202312 q=criteria&domain="));
         assertThat(requests).anyMatch(r -> r.endsWith("domain=POSITIONS&start=1"));
         assertThat(requests).noneMatch(r -> r.contains("INBOX") || r.contains("CONNECTIONS") || r.contains("EMAIL"));

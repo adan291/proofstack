@@ -24,6 +24,8 @@ import java.util.zip.ZipFile;
 
 import dev.proofstack.adapter.in.linkedin.CsvParser.Row;
 import dev.proofstack.core.domain.Education;
+import dev.proofstack.core.domain.Language;
+import dev.proofstack.core.domain.Certification;
 import dev.proofstack.core.domain.Experience;
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
@@ -63,14 +65,17 @@ public final class LinkedInExportImporter implements ProfileImporter {
                 "POSITIONS", rows(files, "positions.csv"),
                 "EDUCATION", rows(files, "education.csv"),
                 "PROJECTS", rows(files, "projects.csv"),
-                "SKILLS", rows(files, "skills.csv")));
+                "SKILLS", rows(files, "skills.csv"),
+                "LANGUAGES", rows(files, "languages.csv"),
+                "CERTIFICATIONS", rows(files, "certifications.csv")));
     }
 
     /**
      * Shared mapping for every LinkedIn source. The ZIP export (CSV files) and the Member Data
      * Portability API (snapshot domains) use the same column names, so both end up here.
      *
-     * @param tables rows per snapshot domain: PROFILE, POSITIONS, EDUCATION, PROJECTS, SKILLS
+     * @param tables rows per snapshot domain: PROFILE, POSITIONS, EDUCATION, PROJECTS, SKILLS, LANGUAGES,
+     *               CERTIFICATIONS
      */
     static Profile fromTables(Map<String, List<Row>> tables) {
         Ids ids = new Ids();
@@ -83,8 +88,12 @@ public final class LinkedInExportImporter implements ProfileImporter {
                 .map(r -> project(r, ids)).toList();
         List<Skill> skills = skills(tables.getOrDefault("SKILLS", List.of()));
 
+        List<Language> languages = tables.getOrDefault("LANGUAGES", List.of()).stream()
+                .map(LinkedInExportImporter::language).flatMap(Optional::stream).toList();
+        List<Certification> certifications = tables.getOrDefault("CERTIFICATIONS", List.of()).stream()
+                .map(LinkedInExportImporter::certification).flatMap(Optional::stream).toList();
         return new Profile(Profile.DEFAULT_LANGUAGE, person, experience, education, projects, skills,
-                List.of(), List.of());
+                List.of(), List.of(), languages, certifications);
     }
 
     // ---------------------------------------------------------------- mapping
@@ -133,6 +142,22 @@ public final class LinkedInExportImporter implements ProfileImporter {
         return new Project(ids.unique(title, "project"), title, orTodo(r.get("Description"), "summary"),
                 TODO + ": what problem did it solve?", TODO + ": how did you solve it?",
                 List.of(), List.of(), links, List.of(), List.of());
+    }
+
+    private static Optional<Language> language(Row r) {
+        String name = r.get("Name");
+        return name.isEmpty() ? Optional.empty() : Optional.of(new Language(name, r.get("Proficiency")));
+    }
+
+    private static Optional<Certification> certification(Row r) {
+        String name = r.get("Name");
+        if (name.isEmpty()) {
+            return Optional.empty();
+        }
+        String url = r.get("Url");
+        Link link = URL.matcher(url).matches() ? new Link("Credential", url) : null;
+        return Optional.of(new Certification(name, r.get("Authority"),
+                LinkedInDates.parse(r.get("Started On")).orElse(null), link));
     }
 
     private static List<Skill> skills(List<Row> rows) {
@@ -197,7 +222,7 @@ public final class LinkedInExportImporter implements ProfileImporter {
     }
 
     private static final Set<String> WANTED = Set.of("profile.csv", "positions.csv", "education.csv",
-            "skills.csv", "projects.csv");
+            "skills.csv", "projects.csv", "languages.csv", "certifications.csv");
 
     static Map<String, String> readCsvFiles(Path zip) {
         Map<String, String> files = new HashMap<>();

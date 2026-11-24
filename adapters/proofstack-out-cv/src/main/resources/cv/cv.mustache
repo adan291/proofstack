@@ -74,6 +74,22 @@
     {{/studies}}
   </section>
   {{/hasStudies}}
+  {{#hasCertifications}}
+  <section>
+    <h2>{{t.certifications}}</h2>
+    <ul>
+      {{#certifications}}<li>{{#linked}}<a href="{{url}}">{{title}}</a>{{/linked}}{{^linked}}{{title}}{{/linked}}{{#detail}} — {{.}}{{/detail}}</li>{{/certifications}}
+    </ul>
+  </section>
+  {{/hasCertifications}}
+  {{#hasLanguages}}
+  <section>
+    <h2>{{t.languages}}</h2>
+    <ul>
+      {{#languages}}<li>{{name}}{{#level}} ({{.}}){{/level}}</li>{{/languages}}
+    </ul>
+  </section>
+  {{/hasLanguages}}
 </main>
 </body>
 </html>

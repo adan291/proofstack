@@ -1,5 +1,6 @@
 package dev.proofstack.adapter.in.yaml;
 
+import dev.proofstack.adapter.in.yaml.ProfileDocument.CertificationDoc;
 import dev.proofstack.adapter.in.yaml.ProfileDocument.EducationDoc;
 import dev.proofstack.adapter.in.yaml.ProfileDocument.EvidenceDoc;
 import dev.proofstack.adapter.in.yaml.ProfileDocument.ExperienceDoc;
@@ -8,12 +9,14 @@ import dev.proofstack.adapter.in.yaml.ProfileDocument.LinkDoc;
 import dev.proofstack.adapter.in.yaml.ProfileDocument.ProjectDoc;
 import dev.proofstack.adapter.in.yaml.ProfileDocument.SkillDoc;
 import dev.proofstack.core.domain.Area;
+import dev.proofstack.core.domain.Certification;
 import dev.proofstack.core.domain.Education;
 import dev.proofstack.core.domain.Evidence;
 import dev.proofstack.core.domain.EvidenceCategory;
 import dev.proofstack.core.domain.Experience;
 import dev.proofstack.core.domain.InvalidValueException;
 import dev.proofstack.core.domain.Lab;
+import dev.proofstack.core.domain.Language;
 import dev.proofstack.core.domain.LabType;
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
@@ -49,12 +52,15 @@ final class DocumentMapper {
         List<Project> projects = each("$.projects", doc.projects(), this::project);
         List<Evidence> evidence = each("$.evidence", doc.evidence(), this::evidence);
         List<Lab> labs = each("$.labs", doc.labs(), this::lab);
+        List<Language> languages = each("$.languages", doc.languages(), d -> new Language(d.name(), d.level()));
+        List<Certification> certifications = each("$.certifications", doc.certifications(), this::certification);
 
         if (!violations.isEmpty()) {
             throw new ProfileValidationException(violations);
         }
         // Cross-entity invariants (duplicate ids, dangling references) are checked by the aggregate itself.
-        return new Profile(doc.language(), person, experience, education, projects, skills, evidence, labs);
+        return new Profile(doc.language(), person, experience, education, projects, skills, evidence, labs,
+                languages, certifications);
     }
 
     private Skill skill(SkillDoc d) {
@@ -82,6 +88,11 @@ final class DocumentMapper {
         Link link = d.link() == null ? null : new Link(d.link().label(), d.link().url());
         return new Evidence(d.id(), enumValue(EvidenceCategory.class, d.category(), "category"), d.title(),
                 d.context(), d.action(), d.result(), link, areas(d.areas()));
+    }
+
+    private Certification certification(CertificationDoc d) {
+        Link link = d.link() == null ? null : new Link(d.link().label(), d.link().url());
+        return new Certification(d.title(), d.issuer(), d.date() == null ? null : yearMonth(d.date(), "date"), link);
     }
 
     private Lab lab(LabDoc d) {

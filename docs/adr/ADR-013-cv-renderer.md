@@ -16,6 +16,8 @@ El mismo `profile.yaml` ya genera la web, y el formato `cv-bullets` redacta viñ
 - **Los `TODO` se omiten**, nunca se imprimen. El comando avisa de cuántos hay en el perfil.
 - **Selección de proyectos** con una puntuación explicable: coincide con `--focus` (+4), tiene problema y solución (+2), tiene una evidencia con resultado (+2), tiene enlace (+1). Los empates conservan el orden que eligió el autor. Por defecto se muestran 5.
 - **`--focus <área>`** pone primero las skills y los proyectos de esa área, para tener un CV por objetivo desde un solo perfil.
+- **`--job oferta.txt`** adapta el orden a una oferta con coincidencia de palabras (`JobOffer`, `JobFit`), sin modelo. Solo reordena lo que el perfil ya dice: nunca añade texto. Descarta stop-words en español e inglés y tokens que empiezan por dígito (versiones, años, salarios), y conserva `c#`, `c++` o `node.js` enteros. Informa de los términos de la oferta que el perfil nunca menciona, como aviso para revisar a mano.
+- **Idiomas y certificaciones** son secciones del perfil (`languages`, `certifications`) y del CV, y las importa LinkedIn (ZIP y API).
 - **CSP estricta** en el HTML (`default-src 'none'; style-src 'self'`) y escape de HTML activado de forma explícita.
 
 ## Consecuencias

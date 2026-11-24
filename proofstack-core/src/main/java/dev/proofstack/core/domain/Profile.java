@@ -19,7 +19,9 @@ public record Profile(
         List<Project> projects,
         List<Skill> skills,
         List<Evidence> evidence,
-        List<Lab> labs) {
+        List<Lab> labs,
+        List<Language> languages,
+        List<Certification> certifications) {
 
     public static final String DEFAULT_LANGUAGE = "en";
 
@@ -27,6 +29,12 @@ public record Profile(
     public Profile(PersonalInfo person, List<Experience> experience, List<Education> education,
                    List<Project> projects, List<Skill> skills, List<Evidence> evidence, List<Lab> labs) {
         this(DEFAULT_LANGUAGE, person, experience, education, projects, skills, evidence, labs);
+    }
+
+    /** Profile without spoken languages or certifications. */
+    public Profile(String language, PersonalInfo person, List<Experience> experience, List<Education> education,
+                   List<Project> projects, List<Skill> skills, List<Evidence> evidence, List<Lab> labs) {
+        this(language, person, experience, education, projects, skills, evidence, labs, List.of(), List.of());
     }
 
     public Profile {
@@ -41,6 +49,8 @@ public record Profile(
         skills = Checks.list(skills, "skills");
         evidence = Checks.list(evidence, "evidence");
         labs = Checks.list(labs, "labs");
+        languages = Checks.list(languages, "languages");
+        certifications = Checks.list(certifications, "certifications");
 
         List<Violation> violations = new ArrayList<>();
         uniqueIds("experience", experience, Experience::id, violations);

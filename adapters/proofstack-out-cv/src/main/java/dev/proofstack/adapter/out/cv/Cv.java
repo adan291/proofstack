@@ -7,7 +7,8 @@ import java.util.List;
  * The {@code has*} flags exist for the HTML template: a Mustache section over a list repeats its block per item.
  */
 record Cv(CvText t, String name, String headline, List<Contact> contact, String summary,
-          List<SkillGroup> skills, List<Job> jobs, List<Proj> projects, List<Study> studies) {
+          List<SkillGroup> skills, List<Job> jobs, List<Proj> projects, List<Study> studies,
+          List<Cert> certifications, List<Lang> languages) {
 
     boolean hasContact() {
         return !contact.isEmpty();
@@ -27,6 +28,23 @@ record Cv(CvText t, String name, String headline, List<Contact> contact, String 
 
     boolean hasStudies() {
         return !studies.isEmpty();
+    }
+
+    boolean hasCertifications() {
+        return !certifications.isEmpty();
+    }
+
+    boolean hasLanguages() {
+        return !languages.isEmpty();
+    }
+
+    record Cert(String title, String detail, String url) {
+        boolean linked() {
+            return !url.isEmpty();
+        }
+    }
+
+    record Lang(String name, String level) {
     }
 
     record Contact(String text, String url) {

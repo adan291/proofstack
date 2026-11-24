@@ -7,10 +7,13 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
+import dev.proofstack.adapter.out.cv.Cv.Cert;
 import dev.proofstack.adapter.out.cv.Cv.Contact;
 import dev.proofstack.adapter.out.cv.Cv.Job;
+import dev.proofstack.adapter.out.cv.Cv.Lang;
 import dev.proofstack.adapter.out.cv.Cv.Proj;
 import dev.proofstack.adapter.out.cv.Cv.SkillGroup;
 import dev.proofstack.adapter.out.cv.Cv.Study;
@@ -29,6 +32,7 @@ final class CvBuilder {
 
     private static final String PLACEHOLDER = "TODO";
     private static final int MAX_STACK = 8;
+    private static final int MAX_JOB_BONUS = 6;
 
     private CvBuilder() {
     }
@@ -37,7 +41,7 @@ final class CvBuilder {
         var person = profile.person();
         return new Cv(t, clean(person.name()), clean(person.headline()), contact(profile),
                 clean(person.summary()), skills(profile, options, t), jobs(profile, t), projects(profile, options),
-                studies(profile, t));
+                studies(profile, t), certifications(profile, t), languages(profile));
     }
 
     private static List<Contact> contact(Profile profile) {
@@ -69,10 +73,25 @@ final class CvBuilder {
             order.remove(options.focus());
             order.addFirst(options.focus());
         }
+        Set<String> wanted = options.job() == null ? Set.of() : options.job().terms().keySet();
+        if (!wanted.isEmpty()) {
+            byArea.replaceAll((area, names) -> names.stream()
+                    .sorted(Comparator.comparingInt((String n) -> matches(n, wanted) ? 0 : 1)).toList());
+            List<Area> rest = order.stream().filter(a -> a != options.focus()).sorted(Comparator
+                    .comparingLong((Area a) -> -byArea.getOrDefault(a, List.of()).stream().filter(n -> matches(n, wanted)).count())).toList();
+            order = new ArrayList<>(rest);
+            if (options.focus() != null) {
+                order.addFirst(options.focus());
+            }
+        }
         return order.stream()
                 .filter(byArea::containsKey)
                 .map(area -> new SkillGroup(t.area(area), String.join(", ", byArea.get(area))))
                 .toList();
+    }
+
+    private static boolean matches(String skill, Set<String> wanted) {
+        return JobOffer.tokens(skill).stream().anyMatch(wanted::contains);
     }
 
     private static List<Job> jobs(Profile profile, CvText t) {
@@ -88,6 +107,26 @@ final class CvBuilder {
                 .sorted(Comparator.comparing((dev.proofstack.core.domain.Education e) -> e.period().start()).reversed())
                 .map(e -> new Study(clean(e.title()), clean(e.institution()), period(e.period(), t),
                         usable(e.highlights())))
+                .toList();
+    }
+
+    private static List<Cert> certifications(Profile profile, CvText t) {
+        DateTimeFormatter month = DateTimeFormatter.ofPattern("MMM yyyy", t.locale());
+        return profile.certifications().stream()
+                .filter(c -> !clean(c.title()).isEmpty())
+                .sorted(Comparator.comparing((dev.proofstack.core.domain.Certification c) -> c.issued() == null
+                        ? java.time.YearMonth.of(1900, 1) : c.issued()).reversed())
+                .map(c -> new Cert(clean(c.title()),
+                        String.join(" · ", java.util.stream.Stream.of(clean(c.issuer()),
+                                c.issued() == null ? "" : month.format(c.issued())).filter(s -> !s.isEmpty()).toList()),
+                        c.link() == null ? "" : c.link().url()))
+                .toList();
+    }
+
+    private static List<Lang> languages(Profile profile) {
+        return profile.languages().stream()
+                .filter(l -> !clean(l.name()).isEmpty())
+                .map(l -> new Lang(clean(l.name()), clean(l.level())))
                 .toList();
     }
 
@@ -117,6 +156,10 @@ final class CvBuilder {
         }
         if (!p.links().isEmpty()) {
             score += 1;
+        }
+        if (options.job() != null) {
+            Set<String> words = JobFit.projectWords(p);
+            score += (int) Math.min(MAX_JOB_BONUS, options.job().terms().keySet().stream().filter(words::contains).count());
         }
         return score;
     }

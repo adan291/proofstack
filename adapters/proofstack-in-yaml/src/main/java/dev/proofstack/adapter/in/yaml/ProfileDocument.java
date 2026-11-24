@@ -14,7 +14,9 @@ record ProfileDocument(
         List<EducationDoc> education,
         List<ProjectDoc> projects,
         List<EvidenceDoc> evidence,
-        List<LabDoc> labs) {
+        List<LabDoc> labs,
+        List<LanguageDoc> languages,
+        List<CertificationDoc> certifications) {
 
     record LinkDoc(String label, String url) {
     }
@@ -42,6 +44,12 @@ record ProfileDocument(
 
     record EvidenceDoc(String id, String category, String title, String context, String action, String result,
                        LinkDoc link, List<String> areas) {
+    }
+
+    record LanguageDoc(String name, String level) {
+    }
+
+    record CertificationDoc(String title, String issuer, String date, LinkDoc link) {
     }
 
     record LabDoc(String id, String name, String type, String description, List<String> projects) {

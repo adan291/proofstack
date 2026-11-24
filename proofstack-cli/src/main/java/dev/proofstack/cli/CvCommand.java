@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import dev.proofstack.adapter.in.yaml.YamlProfileSource;
 import dev.proofstack.adapter.out.cv.CvOptions;
 import dev.proofstack.adapter.out.cv.CvRenderer;
+import dev.proofstack.adapter.out.cv.JobFit;
+import dev.proofstack.adapter.out.cv.JobOffer;
 import dev.proofstack.core.application.PortfolioService;
 import dev.proofstack.core.domain.Area;
 import dev.proofstack.core.domain.ProfileValidationException;
@@ -46,6 +48,11 @@ final class CvCommand implements Callable<Integer> {
             description = "How many projects to show (default: ${DEFAULT-VALUE})")
     int projects;
 
+    @Option(names = {"-j", "--job"}, paramLabel = "FILE",
+            description = "Text of a job posting. Projects and skills that match it come first, and the output lists "
+                    + "what it asks for that your profile does not mention. Nothing is added to the CV.")
+    Path job;
+
     @Spec
     CommandLine.Model.CommandSpec spec;
 
@@ -58,19 +65,28 @@ final class CvCommand implements Callable<Integer> {
             return ProofstackCli.ERROR;
         }
         CvOptions options;
+        JobOffer offer = null;
         try {
-            options = new CvOptions(parseFocus(), projects);
+            offer = readJob();
+            options = new CvOptions(parseFocus(), projects, offer);
         } catch (IllegalArgumentException e) {
             err.println(e.getMessage());
             return ProofstackCli.INVALID;
         }
         try {
             YamlProfileSource source = new YamlProfileSource();
-            int todos = TodoCounter.count(source.load(profile));
+            var loaded = source.load(profile);
+            int todos = TodoCounter.count(loaded);
             var artifacts = new PortfolioService(source, new CvRenderer(options), new FileSystemArtifactSink())
                     .build(profile, out);
             stdout.println("OK Built " + artifacts.size() + " files into " + out.toAbsolutePath().normalize());
             artifacts.stream().map(Artifact::relativePath).forEach(path -> stdout.println("  " + path));
+            if (offer != null) {
+                JobFit fit = JobFit.of(loaded, offer);
+                stdout.println("Matches the posting: " + (fit.matched().isEmpty() ? "(none)" : String.join(", ", fit.matched())));
+                stdout.println("Posting asks, profile never says (review by hand, add only what is true): "
+                        + (fit.gaps().isEmpty() ? "(none)" : String.join(", ", fit.gaps())));
+            }
             if (todos > 0) {
                 stdout.println("WARN " + todos + " TODO placeholder" + (todos == 1 ? "" : "s")
                         + " in the profile. Any on the CV were left out; run 'proofstack doctor " + profile + "'.");
@@ -84,6 +100,20 @@ final class CvCommand implements Callable<Integer> {
         } catch (UncheckedIOException e) {
             err.println(e.getMessage());
             return ProofstackCli.ERROR;
+        }
+    }
+
+    private JobOffer readJob() {
+        if (job == null) {
+            return null;
+        }
+        try {
+            if (Files.size(job) > JobOffer.MAX_CHARS * 4L) {
+                throw new IllegalArgumentException("The job posting file is too large: " + job);
+            }
+            return JobOffer.parse(Files.readString(job));
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("Cannot read the job posting " + job + ": " + e.getMessage());
         }
     }
 

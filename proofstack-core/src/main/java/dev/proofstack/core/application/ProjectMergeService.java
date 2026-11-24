@@ -62,7 +62,8 @@ public final class ProjectMergeService implements MergeProjectsUseCase {
         }
 
         Profile result = new Profile(profile.language(), profile.person(), profile.experience(), profile.education(),
-                merged, profile.skills(), profile.evidence(), profile.labs());
+                merged, profile.skills(), profile.evidence(), profile.labs(), profile.languages(),
+                profile.certifications());
         writer.write(result, target, overwrite);
         return new MergeReport(added, skipped, TodoCounter.count(result));
     }

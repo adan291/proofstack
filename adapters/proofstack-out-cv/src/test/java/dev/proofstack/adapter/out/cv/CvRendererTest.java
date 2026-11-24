@@ -9,10 +9,12 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import dev.proofstack.core.domain.Area;
+import dev.proofstack.core.domain.Certification;
 import dev.proofstack.core.domain.Education;
 import dev.proofstack.core.domain.Evidence;
 import dev.proofstack.core.domain.EvidenceCategory;
 import dev.proofstack.core.domain.Experience;
+import dev.proofstack.core.domain.Language;
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.PersonalInfo;
@@ -152,6 +154,65 @@ class CvRendererTest {
 
         assertThat(md).doesNotContain("## Skills").doesNotContain("## Experience").doesNotContain("## Education");
         assertThat(html(profile)).doesNotContain("<h2>Skills</h2>").doesNotContain("<h2>Experience</h2>");
+    }
+
+    @Test
+    void showsLanguagesAndCertificationsLastWithTheirLinks() {
+        Profile base = profile("es", "Ada");
+        Profile profile = new Profile(base.language(), base.person(), base.experience(), base.education(),
+                base.projects(), base.skills(), base.evidence(), base.labs(),
+                List.of(new Language("Español", "Nativo"), new Language("Inglés", null)),
+                List.of(new Certification("Java SE 21", "Oracle", YearMonth.of(2024, 3),
+                        new Link("Credential", "https://example.com/c/1")),
+                        new Certification("Scrum Master", null, null, null)));
+
+        String md = markdown(new CvRenderer(), profile);
+        String html = html(profile);
+
+        assertThat(md).contains("## Certificaciones", "- [Java SE 21](https://example.com/c/1) — Oracle · mar 2024",
+                "- Scrum Master", "## Idiomas", "- Español (Nativo)", "- Inglés\n");
+        assertThat(md.indexOf("## Formación")).isLessThan(md.indexOf("## Certificaciones"));
+        assertThat(md.indexOf("## Certificaciones")).isLessThan(md.indexOf("## Idiomas"));
+        assertThat(html).contains("<h2>Certificaciones</h2>", "<h2>Idiomas</h2>", "href=\"https://example.com/c/1\"");
+    }
+
+    @Test
+    void omitsLanguagesAndCertificationsWhenThereAreNone() {
+        String md = markdown(new CvRenderer(), profile("es", "Ada"));
+
+        assertThat(md).doesNotContain("## Idiomas").doesNotContain("## Certificaciones");
+    }
+
+    @Test
+    void aJobPostingReordersProjectsAndSkillsButAddsNothing() {
+        Profile profile = new Profile("en", person("Ada"), List.of(), List.of(),
+                List.of(project("a", "Search engine", "Elasticsearch based search", List.of(Area.BACKEND)),
+                        project("b", "Billing events", "Outbox pattern with Kafka", List.of(Area.BACKEND))),
+                List.of(new Skill("Java", Area.BACKEND), new Skill("Kafka", Area.MESSAGING),
+                        new Skill("Swing", Area.BACKEND)), List.of(), List.of());
+        JobOffer offer = JobOffer.parse("We need someone with Kafka and the outbox pattern. Kafka is key.");
+
+        String neutral = markdown(new CvRenderer(), profile);
+        String tailored = markdown(new CvRenderer(new CvOptions(null, 5, offer)), profile);
+
+        assertThat(neutral.indexOf("Search engine")).isLessThan(neutral.indexOf("Billing events"));
+        assertThat(tailored.indexOf("Billing events")).isLessThan(tailored.indexOf("Search engine"));
+        assertThat(tailored.indexOf("**Messaging:**")).isLessThan(tailored.indexOf("**Backend:**"));
+        assertThat(tailored.lines().filter(l -> !l.isBlank()).count())
+                .isEqualTo(neutral.lines().filter(l -> !l.isBlank()).count());
+    }
+
+    @Test
+    void jobFitListsWhatMatchesAndWhatTheProfileNeverSays() {
+        Profile profile = new Profile("en", person("Ada"), List.of(), List.of(),
+                List.of(project("b", "Billing events", "Outbox pattern with Kafka", List.of(Area.BACKEND))),
+                List.of(new Skill("Java", Area.BACKEND)), List.of(), List.of());
+        JobOffer offer = JobOffer.parse("Kafka, Kubernetes, Kubernetes, Terraform, Java 21, Node.js. Experience required.");
+
+        JobFit fit = JobFit.of(profile, offer);
+
+        assertThat(fit.matched()).contains("kafka", "java");
+        assertThat(fit.gaps()).contains("kubernetes", "node.js").doesNotContain("kafka", "experience");
     }
 
     @Test

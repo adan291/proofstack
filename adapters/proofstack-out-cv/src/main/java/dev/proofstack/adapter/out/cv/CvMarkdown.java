@@ -63,6 +63,23 @@ final class CvMarkdown {
                 bullets(md, s.highlights());
             });
         }
+        if (!cv.certifications().isEmpty()) {
+            section(md, t.certifications());
+            cv.certifications().forEach(c -> {
+                md.append("- ").append(c.linked() ? "[" + c.title() + "](" + c.url() + ")" : c.title());
+                if (!c.detail().isEmpty()) {
+                    md.append(" — ").append(c.detail());
+                }
+                md.append('\n');
+            });
+            md.append('\n');
+        }
+        if (!cv.languages().isEmpty()) {
+            section(md, t.languages());
+            cv.languages().forEach(l -> md.append("- ").append(l.name())
+                    .append(l.level().isEmpty() ? "" : " (" + l.level() + ")").append('\n'));
+            md.append('\n');
+        }
         return md.toString().stripTrailing() + "\n";
     }
 

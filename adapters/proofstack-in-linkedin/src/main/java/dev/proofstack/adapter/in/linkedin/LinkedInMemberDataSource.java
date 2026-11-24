@@ -45,7 +45,8 @@ public final class LinkedInMemberDataSource implements MemberProfileSource {
     static final URI DEFAULT_API = URI.create("https://api.linkedin.com");
     /** The snapshot endpoint only accepts this version (426 NONEXISTENT_VERSION otherwise). */
     static final String API_VERSION = "202312";
-    static final List<String> DOMAINS = List.of("PROFILE", "POSITIONS", "EDUCATION", "SKILLS", "PROJECTS");
+    static final List<String> DOMAINS = List.of("PROFILE", "POSITIONS", "EDUCATION", "SKILLS", "PROJECTS", "LANGUAGES",
+            "CERTIFICATIONS");
     private static final int MAX_PAGES_PER_DOMAIN = 50;
 
     private final HttpClient http;

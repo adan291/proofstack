@@ -1,6 +1,6 @@
 # Importar tu perfil directamente de LinkedIn (sin ZIP)
 
-`proofstack import linkedin-api` usa la **Member Data Portability API** de LinkedIn. Por la Digital Markets Act está disponible para miembros de la UE y sirve para leer **tus propios datos**. Solo pide cinco dominios: perfil, puestos, formación, aptitudes y proyectos. No pide ni mensajes, ni contactos, ni email ni teléfono.
+`proofstack import linkedin-api` usa la **Member Data Portability API** de LinkedIn. Por la Digital Markets Act está disponible para miembros de la UE y sirve para leer **tus propios datos**. Solo pide siete dominios: perfil, puestos, formación, aptitudes, proyectos, idiomas y certificaciones. No pide ni mensajes, ni contactos, ni email ni teléfono.
 
 ## Configuración (una sola vez)
 
@@ -28,7 +28,7 @@ proofstack import linkedin-api --merge-into profiles/adan/profile.yaml --out pro
 3. Revisa las diferencias, renombra el fichero al original y pasa `proofstack doctor`.
 
 Con `--merge-into`:
-- **De LinkedIn:** experiencia, formación, aptitudes, y titular o resumen solo si los tuyos eran `TODO`.
+- **De LinkedIn:** experiencia, formación, aptitudes, idiomas, certificaciones, y titular o resumen solo si los tuyos eran `TODO`.
 - **De tu perfil:** nombre, enlaces, proyectos, evidencias y labs. Las evidencias siguen enlazadas al puesto que corresponde.
 
 La primera vez que autorizas, LinkedIn puede tardar unos minutos en preparar los datos. Si el comando dice *"no profile data yet"*, repítelo más tarde.
