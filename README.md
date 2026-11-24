@@ -33,6 +33,17 @@ proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/yo/profil
 
 Importa perfil, experiencia, formación, proyectos y skills (clasificadas por área). **Nunca importa email ni teléfono.** Lo que falte queda marcado como `TODO`.
 
+**Sin ZIP (miembros de la UE):** `proofstack import linkedin-api --merge-into profiles/yo/profile.yaml --out profiles/yo/profile.linkedin.yaml` trae tu trayectoria directamente de la API oficial de portabilidad de LinkedIn. Tus proyectos y evidencias se conservan. La configuración de una sola vez está en [`docs/linkedin-api.md`](docs/linkedin-api.md).
+
+### Genera tu CV
+
+```bash
+proofstack cv profiles/yo/profile.yaml --out dist/cv                        # cv.md + cv.html
+proofstack cv profiles/yo/profile.yaml --out dist/cv-ia --focus ai -p 4     # un CV por objetivo
+```
+
+No usa ningún modelo: el CV solo contiene lo que dice tu perfil, y los `TODO` se omiten. Abre `cv.html` en el navegador y usa *Imprimir → Guardar como PDF*. Formato de una columna y solo texto, apto para filtros ATS. Decisiones en [`ADR-013`](docs/adr/ADR-013-cv-renderer.md).
+
 ### Genera contenido a partir de tus proyectos
 
 ```bash

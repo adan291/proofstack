@@ -23,6 +23,7 @@ class HexagonalArchitectureTest {
         assertThat(all.containPackage("dev.proofstack.core.domain")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.yaml")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.web")).isTrue();
+        assertThat(all.containPackage("dev.proofstack.adapter.out.cv")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.llm")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.yaml")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.linkedin")).isTrue();
@@ -58,10 +59,10 @@ class HexagonalArchitectureTest {
 
     @Test
     void outboundAdaptersAreIndependentOfEachOther() {
-        for (String adapter : new String[]{"web", "llm", "yaml"}) {
+        for (String adapter : new String[]{"web", "cv", "llm", "yaml"}) {
             noClasses().that().resideInAPackage("dev.proofstack.adapter.out." + adapter + "..")
                     .should().dependOnClassesThat().resideInAnyPackage(
-                            java.util.stream.Stream.of("web", "llm", "yaml")
+                            java.util.stream.Stream.of("web", "cv", "llm", "yaml")
                                     .filter(other -> !other.equals(adapter))
                                     .map(other -> "dev.proofstack.adapter.out." + other + "..")
                                     .toArray(String[]::new))

@@ -12,6 +12,8 @@ public enum ContentFormat {
     README("readme", 0),
     CV_BULLETS("cv-bullets", 1500),
     VIDEO_SCRIPT("video-script", 6000),
+    /** Proposal for the context / action / result of an evidence, to be reviewed and pasted by the author. */
+    EVIDENCE_DRAFT("evidence-draft", 1500),
     NOTEBOOKLM_BRIEF("notebooklm-brief", 0);
 
     private final String slug;

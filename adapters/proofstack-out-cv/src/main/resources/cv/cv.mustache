@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="{{t.lang}}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="generator" content="Proofstack">
+  <title>{{name}} · {{headline}}</title>
+  <link rel="stylesheet" href="cv.css">
+</head>
+<body>
+<main class="cv">
+  <header>
+    <h1>{{name}}</h1>
+    <p class="headline">{{headline}}</p>
+    {{#hasContact}}
+    <ul class="contact">
+      {{#contact}}<li>{{#linked}}<a href="{{url}}">{{text}}</a>{{/linked}}{{^linked}}{{text}}{{/linked}}</li>{{/contact}}
+    </ul>
+    {{/hasContact}}
+  </header>
+  {{#summary}}
+  <section>
+    <h2>{{t.profile}}</h2>
+    <p>{{.}}</p>
+  </section>
+  {{/summary}}
+  {{#hasSkills}}
+  <section>
+    <h2>{{t.skills}}</h2>
+    <ul class="skills">
+      {{#skills}}<li><strong>{{area}}:</strong> {{names}}</li>{{/skills}}
+    </ul>
+  </section>
+  {{/hasSkills}}
+  {{#hasJobs}}
+  <section>
+    <h2>{{t.experience}}</h2>
+    {{#jobs}}
+    <article>
+      <h3>{{role}} · {{company}}</h3>
+      <p class="meta">{{#location}}{{.}} · {{/location}}{{period}}</p>
+      {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
+      {{#technologies}}<p class="tech">{{t.technologies}}: {{.}}</p>{{/technologies}}
+    </article>
+    {{/jobs}}
+  </section>
+  {{/hasJobs}}
+  {{#hasProjects}}
+  <section>
+    <h2>{{t.projects}}</h2>
+    {{#projects}}
+    <article>
+      <h3>{{name}}</h3>
+      <p>{{summary}}</p>
+      <ul>
+        {{#stack}}<li>{{t.stack}}: {{.}}</li>{{/stack}}
+        {{#result}}<li>{{t.result}}: {{.}}</li>{{/result}}
+        {{#hasLink}}<li><a href="{{linkUrl}}">{{#linkLabel}}{{.}}{{/linkLabel}}{{^linkLabel}}{{linkUrl}}{{/linkLabel}}</a></li>{{/hasLink}}
+      </ul>
+    </article>
+    {{/projects}}
+  </section>
+  {{/hasProjects}}
+  {{#hasStudies}}
+  <section>
+    <h2>{{t.education}}</h2>
+    {{#studies}}
+    <article>
+      <h3>{{title}} · {{institution}}</h3>
+      <p class="meta">{{period}}</p>
+      {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
+    </article>
+    {{/studies}}
+  </section>
+  {{/hasStudies}}
+</main>
+</body>
+</html>

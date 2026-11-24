@@ -29,6 +29,10 @@
         </dependency>
         <dependency>
             <groupId>dev.proofstack</groupId>
+            <artifactId>proofstack-out-cv</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.proofstack</groupId>
             <artifactId>proofstack-out-llm</artifactId>
         </dependency>
         <dependency>

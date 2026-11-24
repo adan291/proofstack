@@ -1,12 +1,23 @@
 package dev.proofstack.cli;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
+
 import dev.proofstack.adapter.in.linkedin.LinkedInExportImporter;
 import dev.proofstack.adapter.in.yaml.YamlProfileSource;
 import dev.proofstack.adapter.out.llm.LlmProviders;
 import dev.proofstack.adapter.out.web.ArchitectureThemeRenderer;
 import dev.proofstack.adapter.out.yaml.YamlProfileWriter;
 import dev.proofstack.core.application.ContentService;
-import dev.proofstack.core.application.ImportService;
 import dev.proofstack.core.application.PortfolioService;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.domain.Violation;
@@ -24,18 +35,6 @@ import picocli.CommandLine.Parameters;
 import picocli.CommandLine.ParentCommand;
 import picocli.CommandLine.Spec;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-
 /**
  * Composition root: wires adapters into the core and exposes the use cases as commands.
  * Exit codes: 0 ok, 1 invalid input (profile, subject, format), 2 environment error (I/O, provider).
@@ -44,7 +43,7 @@ import java.util.stream.Collectors;
         mixinStandardHelpOptions = true,
         version = "proofstack 0.6.0",
         description = "Portfolio-as-code for backend engineers.",
-        subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, ProofstackCli.Generate.class,
+        subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, ProofstackCli.Generate.class,
                 ProofstackCli.Import.class})
 public final class ProofstackCli implements Runnable {
 
@@ -56,6 +55,10 @@ public final class ProofstackCli implements Runnable {
     CommandLine.Model.CommandSpec spec;
 
     private final Map<String, String> env;
+
+    Map<String, String> env() {
+        return env;
+    }
 
     ProofstackCli(Map<String, String> env) {
         this.env = Map.copyOf(env);
@@ -183,7 +186,7 @@ public final class ProofstackCli implements Runnable {
 
     @Command(name = "generate",
             description = {"Draft content about a project or evidence with an LLM.",
-                    "FORMAT: linkedin-post, readme, cv-bullets, video-script, notebooklm-brief.",
+                    "FORMAT: linkedin-post, readme, cv-bullets, video-script, evidence-draft, notebooklm-brief.",
                     "Gemini reads the key from the GEMINI_API_KEY environment variable; Ollama uses OLLAMA_HOST."})
     static final class Generate implements Callable<Integer> {
 
@@ -271,7 +274,7 @@ public final class ProofstackCli implements Runnable {
     // ------------------------------------------------------------------ import
 
     @Command(name = "import", description = "Bootstrap a profile.yaml from an external source.",
-            subcommands = {Import.LinkedIn.class, Import.GitHub.class})
+            subcommands = {Import.LinkedIn.class, LinkedInApiCommand.class, Import.GitHub.class})
     static final class Import implements Runnable {
 
         @ParentCommand
@@ -367,6 +370,10 @@ public final class ProofstackCli implements Runnable {
             @Option(names = "--force", description = "Overwrite FILE if it exists")
             boolean force;
 
+            @Option(names = {"-m", "--merge-into"}, paramLabel = "PROFILE",
+                    description = "Update this existing profile (kept unchanged) instead of starting from scratch")
+            Path mergeInto;
+
             @Spec
             CommandLine.Model.CommandSpec spec;
 
@@ -377,9 +384,14 @@ public final class ProofstackCli implements Runnable {
                 if (!Files.isRegularFile(export)) {
                     return missing(export, err);
                 }
+                if (mergeInto != null && !Files.isRegularFile(mergeInto)) {
+                    return missing(mergeInto, err);
+                }
                 try {
-                    ImportReport report = new ImportService(new LinkedInExportImporter(), new YamlProfileWriter())
-                            .importProfile(export, out, force);
+                    LinkedInExportImporter zip = new LinkedInExportImporter();
+                    ImportReport report = new dev.proofstack.core.application.CareerImportService(
+                            new YamlProfileSource(), new YamlProfileWriter())
+                            .importCareer(() -> zip.importProfile(export), mergeInto, out, force);
                     stdout.println("OK Imported " + report.counts().entrySet().stream()
                             .filter(e -> e.getValue() > 0)
                             .map(e -> e.getValue() + " " + e.getKey())
@@ -389,7 +401,7 @@ public final class ProofstackCli implements Runnable {
                     }
                     stdout.println("  Next: proofstack validate " + out);
                     return OK;
-                } catch (ProfileWriter.TargetExistsException e) {
+                } catch (ProfileWriter.TargetExistsException | IllegalArgumentException e) {
                     err.println(e.getMessage());
                     return INVALID;
                 } catch (ProfileValidationException e) {

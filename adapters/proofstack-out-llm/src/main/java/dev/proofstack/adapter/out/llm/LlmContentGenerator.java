@@ -122,6 +122,19 @@ public final class LlmContentGenerator implements ContentGenerator {
         if (!brief.relatedEvidence().isEmpty()) {
             data.put("relatedEvidence", brief.relatedEvidence().stream().map(LlmContentGenerator::evidence).toList());
         }
+        if (!brief.relatedExperience().isEmpty()) {
+            data.put("relatedExperience", brief.relatedExperience().stream().map(x -> {
+                Map<String, Object> m = new LinkedHashMap<>();
+                m.put("role", x.role());
+                m.put("company", x.company());
+                m.put("period", x.period().start() + " – " + x.period().endDate().map(Object::toString).orElse("present"));
+                m.put("highlights", x.highlights());
+                if (!x.technologies().isEmpty()) {
+                    m.put("technologies", x.technologies());
+                }
+                return m;
+            }).toList());
+        }
         return data;
     }
 

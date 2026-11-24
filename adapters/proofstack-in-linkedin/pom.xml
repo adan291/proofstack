@@ -15,11 +15,15 @@
     <name>Proofstack :: Adapter :: In :: LinkedIn export</name>
     <description>Builds a draft profile from the official LinkedIn data export (ZIP of CSV files).</description>
 
-    <!-- Only the core: the CSV and ZIP handling use the JDK. -->
+    <!-- CSV, ZIP, HTTP and OAuth use the JDK; Jackson only parses the API's JSON. -->
     <dependencies>
         <dependency>
             <groupId>dev.proofstack</groupId>
             <artifactId>proofstack-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 </project>

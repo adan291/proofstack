@@ -1,19 +1,5 @@
 package dev.proofstack.adapter.in.linkedin;
 
-import dev.proofstack.adapter.in.linkedin.CsvParser.Row;
-import dev.proofstack.core.domain.Education;
-import dev.proofstack.core.domain.Experience;
-import dev.proofstack.core.domain.Link;
-import dev.proofstack.core.domain.Period;
-import dev.proofstack.core.domain.PersonalInfo;
-import dev.proofstack.core.domain.Profile;
-import dev.proofstack.core.domain.ProfileValidationException;
-import dev.proofstack.core.domain.Project;
-import dev.proofstack.core.domain.Skill;
-import dev.proofstack.core.domain.TodoCounter;
-import dev.proofstack.core.domain.Violation;
-import dev.proofstack.core.port.out.ProfileImporter;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -35,6 +21,20 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
+import dev.proofstack.adapter.in.linkedin.CsvParser.Row;
+import dev.proofstack.core.domain.Education;
+import dev.proofstack.core.domain.Experience;
+import dev.proofstack.core.domain.Link;
+import dev.proofstack.core.domain.Period;
+import dev.proofstack.core.domain.PersonalInfo;
+import dev.proofstack.core.domain.Profile;
+import dev.proofstack.core.domain.ProfileValidationException;
+import dev.proofstack.core.domain.Project;
+import dev.proofstack.core.domain.Skill;
+import dev.proofstack.core.domain.TodoCounter;
+import dev.proofstack.core.domain.Violation;
+import dev.proofstack.core.port.out.ProfileImporter;
 
 /**
  * Driven adapter: reads the official LinkedIn "Get a copy of your data" ZIP.
@@ -58,12 +58,30 @@ public final class LinkedInExportImporter implements ProfileImporter {
                     "not a LinkedIn data export: Profile.csv / Positions.csv not found in " + source.getFileName()));
         }
 
+        return fromTables(Map.of(
+                "PROFILE", rows(files, "profile.csv"),
+                "POSITIONS", rows(files, "positions.csv"),
+                "EDUCATION", rows(files, "education.csv"),
+                "PROJECTS", rows(files, "projects.csv"),
+                "SKILLS", rows(files, "skills.csv")));
+    }
+
+    /**
+     * Shared mapping for every LinkedIn source. The ZIP export (CSV files) and the Member Data
+     * Portability API (snapshot domains) use the same column names, so both end up here.
+     *
+     * @param tables rows per snapshot domain: PROFILE, POSITIONS, EDUCATION, PROJECTS, SKILLS
+     */
+    static Profile fromTables(Map<String, List<Row>> tables) {
         Ids ids = new Ids();
-        PersonalInfo person = person(rows(files, "profile.csv"));
-        List<Experience> experience = rows(files, "positions.csv").stream().map(r -> experience(r, ids)).toList();
-        List<Education> education = rows(files, "education.csv").stream().map(r -> education(r, ids)).toList();
-        List<Project> projects = rows(files, "projects.csv").stream().map(r -> project(r, ids)).toList();
-        List<Skill> skills = skills(rows(files, "skills.csv"));
+        PersonalInfo person = person(tables.getOrDefault("PROFILE", List.of()));
+        List<Experience> experience = tables.getOrDefault("POSITIONS", List.of()).stream()
+                .map(r -> experience(r, ids)).toList();
+        List<Education> education = tables.getOrDefault("EDUCATION", List.of()).stream()
+                .map(r -> education(r, ids)).toList();
+        List<Project> projects = tables.getOrDefault("PROJECTS", List.of()).stream()
+                .map(r -> project(r, ids)).toList();
+        List<Skill> skills = skills(tables.getOrDefault("SKILLS", List.of()));
 
         return new Profile(Profile.DEFAULT_LANGUAGE, person, experience, education, projects, skills,
                 List.of(), List.of());
@@ -129,7 +147,7 @@ public final class LinkedInExportImporter implements ProfileImporter {
         return skills;
     }
 
-    /** Missing start dates become a visible TODO instead of an invented date. */
+    /** Missing start dates become a visible placeholder (see TodoCounter.MARKER) instead of an invented date. */
     private static Period period(String start, String end, List<String> highlights) {
         Optional<YearMonth> from = LinkedInDates.parse(start);
         Optional<YearMonth> to = LinkedInDates.parse(end);

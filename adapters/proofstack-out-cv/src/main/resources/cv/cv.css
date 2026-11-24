@@ -1,0 +1,44 @@
+/* CV: single column, text only. Print to PDF from the browser (A4, margins come from @page). */
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: #f1f3f5;
+  color: #1b1f23;
+  font: 10.5pt/1.4 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.cv {
+  max-width: 190mm;
+  margin: 12mm auto;
+  padding: 14mm 16mm;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .15);
+}
+h1 { margin: 0; font-size: 22pt; line-height: 1.15; }
+h2 {
+  margin: 14pt 0 5pt;
+  padding-bottom: 2pt;
+  border-bottom: 1px solid #1b1f23;
+  font-size: 11pt;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+h3 { margin: 8pt 0 0; font-size: 10.5pt; }
+p { margin: 3pt 0; }
+ul { margin: 3pt 0; padding-left: 14pt; }
+li { margin: 1.5pt 0; }
+a { color: #0b4f9e; text-decoration: none; }
+.headline { margin-top: 2pt; font-size: 12pt; color: #3b434b; }
+.contact { display: flex; flex-wrap: wrap; gap: 0 12pt; margin: 6pt 0 0; padding: 0; list-style: none; }
+.skills { padding-left: 0; list-style: none; }
+.meta { color: #5a636b; font-size: 9.5pt; }
+.tech { font-size: 9.5pt; color: #3b434b; }
+article { break-inside: avoid; }
+h2 { break-after: avoid; }
+
+@page { size: A4; margin: 12mm; }
+@media print {
+  body { background: #fff; font-size: 10pt; }
+  .cv { max-width: none; margin: 0; padding: 0; box-shadow: none; }
+  a { color: inherit; }
+}
