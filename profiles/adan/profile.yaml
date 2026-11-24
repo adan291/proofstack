@@ -1,17 +1,17 @@
 # yaml-language-server: $schema=../../schema/profile.schema.json
-# Perfil real de Adán (dogfooding).
-# Antes de publicar: busca "TODO" y sustitúyelo por datos reales. No inventes métricas:
-# si no tienes un número, describe el resultado de forma cualitativa.
+# Perfil real de Adán. El portfolio y el CV se generan desde este fichero.
+# Cada cifra sale de git o del código del proyecto. No se añaden métricas que no se puedan comprobar.
 
 language: es
 
 person:
   name: Adán Sánchez Manzano
-  headline: Backend Developer · Java, Spring & AI
+  headline: Backend Developer · Java, Spring & arquitectura con IA
   summary: >
-    Desarrollador backend (DAM) centrado en Java y Spring. Diseño sistemas con arquitectura
-    hexagonal, mensajería y observabilidad, y experimento con IA aplicada: búsqueda semántica,
-    LLMs locales y agentes. Documento y explico lo que construyo.
+    Desarrollador backend (DAM) con base en Java y Spring Boot. Diseño APIs REST con JPA y
+    seguridad JWT, aplico arquitectura hexagonal y migro sistemas legacy hacia arquitecturas
+    modernas. Construyo sistemas con agentes de IA que trabajan sobre código real, con pruebas
+    automáticas y límites de seguridad explícitos. Documento las decisiones antes de programarlas.
   location: España
   links:
     - { label: LinkedIn, url: "https://www.linkedin.com/in/asanchezmanzano/" }
@@ -20,41 +20,238 @@ person:
 skills:
   - { name: Java, area: backend }
   - { name: Spring Boot, area: backend }
+  - { name: Spring MVC, area: backend }
+  - { name: Spring Security y JWT, area: backend }
   - { name: Jakarta EE / Tomcat, area: backend }
+  - { name: JavaFX, area: backend }
+  - { name: TypeScript y Node.js, area: backend }
+  - { name: Python, area: backend }
+  - { name: Ada, area: backend }
+  - { name: JUnit y Mockito, area: backend }
+  - { name: React, area: backend }
+  - { name: Sockets y programación multihilo, area: backend }
+  - { name: Bots y scraping con Python, area: backend }
   - { name: Arquitectura hexagonal, area: architecture }
-  - { name: Kafka, area: messaging }
-  - { name: RabbitMQ, area: messaging }
+  - { name: API REST y OpenAPI, area: architecture }
+  - { name: Desarrollo guiado por specs (Kiro), area: architecture }
+  - { name: PostgreSQL, area: data }
+  - { name: MySQL, area: data }
+  - { name: MongoDB, area: data }
+  - { name: Hibernate / JPA, area: data }
+  - { name: SQL y JDBC, area: data }
   - { name: Docker, area: devops }
-  - { name: Observabilidad, area: devops }
+  - { name: Maven y Git, area: devops }
+  - { name: Jenkins, area: devops }
+  - { name: "Despliegue en Vercel, Render y Fly.io", area: devops }
+  - { name: SonarQube, area: devops }
+  - { name: Linux y administración de servidores, area: devops }
+  - { name: Observabilidad (Actuator), area: devops }
+  - { name: Agentes de IA y orquestación multi-agente, area: ai }
+  - { name: LLMs locales (Ollama), area: ai }
   - { name: Búsqueda semántica / embeddings, area: ai }
-  - { name: LLMs locales, area: ai }
-  - { name: Agentes y Spec-Driven Development (Kiro), area: ai }
   - { name: NotebookLM / Google AI Studio, area: communication }
   - { name: OBS / vídeo técnico, area: communication }
   - { name: Coordinación de equipos, area: leadership }
 
 experience:
-  - id: current-job
-    role: Backend Developer
-    company: "TODO: empresa"
-    startDate: 2022-01            # TODO: fecha real (AAAA-MM)
+  - id: serbatic
+    role: Desarrollador de software
+    company: Serbatic
+    location: "Valladolid, Castilla y León, España"
+    startDate: 2022-11
     current: true
     highlights:
-      - Migración de aplicaciones de Tomcat 9 a Tomcat 10 (javax → jakarta).
-      - "TODO: otro logro concreto"
-    technologies: [Java, Spring, Tomcat, Jakarta EE, Docker]
+      - Desarrollo de funcionalidades y resolución de errores en Java (backend) y React (frontend), con soporte e incidencias del cliente.
+      - Microservicios con Spring Boot y APIs REST con Spring MVC, sobre MongoDB y MySQL.
+      - Pruebas con JUnit y Mockito.
+      - Backend de una plataforma interna de gestión de eventos (API REST con Spring Boot, MongoDB y almacenamiento de objetos).
+      - Migración de aplicaciones de Tomcat 9 a Tomcat 10 (javax a jakarta).
+    technologies: [Java, Spring Boot, React, MongoDB, MySQL, JUnit, Mockito, Jenkins, Tomcat, Jakarta EE, Docker]
+    evidence: [event-platform-backend]
+
+  - id: indra
+    role: Desarrollador de software
+    company: Indra
+    location: "León, Castilla y León, España"
+    startDate: 2021-09
+    endDate: 2022-10
+    highlights:
+      - Desarrollo de software de supervisión para el sector ATM (gestión del tráfico aéreo) y resolución de incidencias.
+      - Backend y frontend en Ada y Bash, y diseño y gestión de la base de datos.
+      - Coordinación y mentoría de un equipo de hasta 5 personas, con soporte y formación.
+    technologies: [Ada, Bash, SQL]
+
+  - id: transcom
+    role: Teleoperador
+    company: Transcom
+    location: "Castilla y León, España"
+    startDate: 2020-05
+    endDate: 2021-08
+    highlights:
+      - Atención al cliente y marketing.
+
+  - id: cex
+    role: Dependiente
+    company: CeX Webuy.com
+    startDate: 2018-09
+    endDate: 2020-01
+    highlights:
+      - Atención al cliente, marketing, control de stock y gestión de tienda.
+
+  - id: hotusa
+    role: Responsable de sala
+    company: Hotusa
+    startDate: 2016-06
+    endDate: 2018-10
+    highlights:
+      - Responsable de la hostelería del hotel Riosol, con un equipo de 5 a 7 personas.
+      - Gestión y organización del equipo, control de stock y atención al cliente.
     evidence: [team-coordination]
 
 education:
-  - id: dam
-    title: CFGS Desarrollo de Aplicaciones Multiplataforma (DAM)
-    institution: "TODO: centro"
-    startDate: 2018-09            # TODO: fecha real
-    endDate: 2020-06              # TODO: fecha real
+  - id: foc-dam
+    title: Desarrollo de aplicaciones multiplataforma
+    institution: Instituto FOC - FP Informática Online
+    startDate: 2021-06
+    endDate: 2022-06
+    highlights:
+      - Java, Python, patrón MVC y desarrollo web con PHP y HTML.
+
+  - id: ies-san-andres
+    title: Ciclo Formativo de Grado Superior
+    institution: I.E.S San Andrés
+    startDate: 2019-09
+    endDate: 2020-12
+
+  - id: efp-virgen-buen-suceso
+    title: Técnico en sistemas microinformáticos y redes
+    institution: E.F.P Virgen del Buen Suceso
+    startDate: 2012-10
+    endDate: 2014-06
+    highlights:
+      - Entornos y servidores Linux y Windows.
 
 projects:
+  - id: event-platform
+    name: Plataforma interna de gestión de eventos
+    summary: >
+      API REST del backend de una plataforma interna de eventos en Serbatic: usuarios, eventos, ubicaciones,
+      archivos multimedia y envío de correo. Proyecto de empresa, sin repositorio público.
+    problem: La empresa necesitaba gestionar eventos, sus ubicaciones y sus archivos desde un backend propio y seguro.
+    solution: >
+      Spring Boot 3 con Java 21 y MongoDB, organizado en capas app, domain e infra, con comandos y consultas
+      separados. Autenticación JWT con refresh tokens, almacenamiento de archivos en un servicio compatible con S3,
+      validación de ficheros, manejo global de excepciones, un planificador que actualiza el estado de los eventos
+      y OpenAPI para documentar la API. Se despliega con Docker Compose y un pipeline de CI con fases de
+      verificación, build y despliegue.
+    techStack: [Java 21, Spring Boot 3, MongoDB, JWT, MapStruct, MinIO (S3), OpenAPI, Docker, GitLab CI, JUnit, Mockito]
+    learnings:
+      - Separar app, domain e infra permitió cambiar el mapeo y el almacenamiento sin tocar las reglas del dominio.
+    areas: [backend, architecture]
+    evidence: [event-platform-backend]
+
+  - id: agent-life
+    name: Agent Life
+    summary: >
+      Hotel isométrico donde agentes de IA reales (Arquitecto, Desarrollador, QA) hacen trabajo de software
+      verificable sobre un repositorio git y entregan el resultado como una rama. Participación en Kiroween 2026.
+    problem: >
+      Un agente que escribe código sin límites es un riesgo: puede tocar el repositorio, la red o los secretos,
+      y nadie comprueba su resultado antes de aceptarlo.
+    solution: >
+      Una máquina de estados por trabajo. El Arquitecto propone un plan y nada se escribe hasta que el usuario lo
+      aprueba. El Desarrollador trabaja en un git worktree aislado, sin shell ni red. El motor valida el diff y
+      ejecuta las pruebas del proyecto en Docker con --network none, límites de CPU, memoria y tiempo, y usuario
+      sin privilegios. QA revisa el diff y el log, y el resultado se entrega como rama sin tocar la copia de trabajo.
+    techStack: [TypeScript, pnpm monorepo, PixiJS, Vite, zod, SQLite, Docker, kiro-cli, Vitest]
+    links:
+      - { label: Demo en vivo, url: "https://adan291.github.io/agentlife-/" }
+      - { label: GitHub, url: "https://github.com/adan291/agentlife-" }
+    learnings:
+      - El cliente solo habla con el world-server y este nunca llama a un modelo. Los proveedores quedan detrás de la interfaz AgentRuntime y cambiar de uno a otro no toca el resto.
+      - Un pre-push hook ejecuta un escáner de seguridad y bloquea publicar con hallazgos altos o medios.
+    areas: [ai, architecture, devops]
+    evidence: [agentlife-safety]
+
+  - id: ges
+    name: "GES: migración de Swing a Spring Boot"
+    summary: >
+      Aplicación de eventos con camareros, salones y asignaciones, migrada de Java Swing con NeoDatis ODB
+      a una API REST con Spring Boot y un cliente JavaFX independiente.
+    problem: >
+      El sistema original mezclaba interfaz y persistencia en una aplicación de escritorio con una base de
+      datos de objetos poco habitual, difícil de evolucionar y de consumir desde otros clientes.
+    solution: >
+      Arquitectura en capas con Spring Boot 3.2 y Java 21, Spring Data JPA sobre H2, endpoints CRUD para
+      camareros, salones y eventos, autenticación JWT con roles y un cliente JavaFX que solo consume la API.
+      Cada fase se definió antes como spec (capas, API REST, roles, facturación).
+    techStack: [Java 21, Spring Boot 3.2, Spring Data JPA, H2, JWT, JavaFX, Maven]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/GestionDeEventos2" }
+    learnings:
+      - Separar el cliente de la API permitió sustituir la interfaz sin tocar el dominio.
+    areas: [backend, architecture]
+    evidence: [ges-migration]
+
+  - id: backend-factory
+    name: Fábrica de backends
+    summary: >
+      Cuatro piezas que generan un backend Spring Boot a partir de un asistente web: interfaz y BFF en TypeScript,
+      generador en Java 25, API de sugerencia de relaciones y revisión con IA.
+    problem: Crear el esqueleto de un backend (entidades, relaciones, DTOs, servicios, tests, Docker) es repetitivo y se hace a mano.
+    solution: >
+      Un asistente React define proyecto, entidades y relaciones. Un BFF en Express orquesta el generador en Java,
+      la API de relaciones de RelacionarClases y la revisión con IA, y devuelve el ZIP. Cada pieza vive en su propio
+      repositorio y se integra por HTTP. Los contratos y los puertos están en un documento de decisiones que se cambia
+      antes que el código.
+    techStack: [Java 25, Javalin, React 19, Vite, Tailwind, Express, TypeScript, Spring Boot]
+    links:
+      - { label: GitHub (Backend-Skeleton), url: "https://github.com/adan291/Backend-Skeleton" }
+    learnings:
+      - El BFF existe porque el navegador no puede llamar a algunos servicios (sin CORS) y las API keys deben quedarse en el servidor.
+      - Decidí medir antes de optimizar. El coste estaba en el algoritmo, no en el boxing, así que el perfil con Valhalla (JEP 401) se limita al único proyecto con cálculo intensivo.
+    areas: [architecture, backend, ai]
+
+  - id: relacionar-clases
+    name: RelacionarClases
+    summary: >
+      Aplicación JavaFX que analiza clases Java y detecta relaciones entre entidades (OneToOne, OneToMany...),
+      y que aprende de las decisiones del usuario.
+    problem: Deducir las relaciones entre entidades a mano es lento y propenso a errores.
+    solution: >
+      Dos análisis combinados. El estructural lee campos, colecciones y tipos del código fuente. El semántico
+      sugiere relaciones por similitud de nombres y por la memoria de aceptaciones y rechazos previos,
+      guardada en un JSON. Expone una API HTTP con Javalin.
+    techStack: [Java, JavaFX, Javalin, Gson, JMH]
+    areas: [ai, backend]
+
+  - id: ai-devos
+    name: AI DevOS (Discord)
+    summary: >
+      Orquestador multi-agente sobre Discord con memoria persistente. Cada hilo es una tarea y varios agentes
+      (coordinador, arquitecto, planificador, desarrollador, revisor, QA, DevOps) actúan según el contexto.
+    problem: Los bots de chat no conservan contexto del proyecto ni coordinan varios roles sobre una misma tarea.
+    solution: >
+      Un gateway de Discord sin lógica de negocio reenvía los eventos a un orquestador event-driven. Este carga el
+      contexto de organización, proyecto e hilo, decide qué agentes actúan, construye los prompts y guarda el
+      conocimiento generado. Incluye un router de modelos.
+    techStack: [TypeScript, Node.js, PostgreSQL, Drizzle, Redis, Vitest]
+    areas: [ai, architecture]
+
+  - id: pedidos-api
+    name: API de pedidos
+    summary: >
+      API Spring Boot de pedidos con PostgreSQL y seguridad JWT, organizada en controladores, servicios y repositorios,
+      con tres clases de test. El entorno local se levanta con Docker Compose (PostgreSQL, RabbitMQ y SonarQube).
+    techStack: [Java, Spring Boot, Spring Data JPA, PostgreSQL, JWT, MapStruct, Docker Compose, SonarQube]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/Pedidos" }
+    learnings:
+      - RabbitMQ y WebSocket están configurados (cola, emisor, receptor, notificación de cambios de estado), pero el flujo de pedidos todavía no los llama. Conectarlos es el paso pendiente.
+    areas: [backend, messaging]
+
   - id: tomcat-jakarta-migration
-    name: Migración Tomcat 9 → Tomcat 10
+    name: Migración Tomcat 9 a Tomcat 10
     summary: Paso de una aplicación Java del ecosistema javax a Jakarta EE para poder desplegar en Tomcat 10.
     problem: La aplicación usaba APIs javax.* incompatibles con Tomcat 10, que solo soporta jakarta.*.
     solution: Migración progresiva de dependencias, imports y configuración hacia Jakarta, validando por módulos.
@@ -75,35 +272,91 @@ projects:
       - Los tests de arquitectura convierten las decisiones en reglas que no se pueden saltar.
     areas: [backend, architecture]
 
+  - id: streamcrowd
+    name: StreamCrowd
+    summary: Suite de herramientas interactivas para streamers, con votaciones del público en directo.
+    techStack: [React 19, TypeScript, Vite, Tailwind]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/StreamCrowd" }
+    areas: [backend]
+
   - id: semantic-search
-    name: Búsqueda semántica
-    summary: Búsqueda por significado usando embeddings en lugar de palabras clave.
-    techStack: [Java, Embeddings]   # TODO: completar stack real
-    areas: [ai]
+    name: Búsqueda semántica con LLM local (RAG)
+    summary: Prototipo en Spring Boot que busca por significado y responde con un LLM local, todo en la propia máquina.
+    problem: Buscar por palabras clave no encuentra un documento si la pregunta usa otras palabras ("pedir vacaciones" frente a "solicitar días libres").
+    solution: >
+      Cada documento y cada consulta se convierten en embeddings con nomic-embed-text sobre Ollama. Se ordenan por
+      similitud del coseno y los mejores resultados se pasan como contexto a un LLM local, que redacta la respuesta.
+      Los documentos se mantienen en memoria y el endpoint es GET /search.
+    techStack: [Java 21, Spring Boot 3.3, Ollama, nomic-embed-text, similitud del coseno]
+    learnings:
+      - Es un prototipo para entender el flujo de RAG. El siguiente paso sería persistir los vectores y añadir pruebas.
+    areas: [ai, backend]
 
 evidence:
+  - id: agentlife-safety
+    category: technical
+    title: Agentes de IA con límites verificables en Agent Life
+    context: Los agentes escriben código sobre repositorios reales, y un fallo o una instrucción maliciosa en el repositorio podría tocar la copia de trabajo, la red o los secretos.
+    action: >
+      Separé permisos por rol (Arquitecto y QA solo leen, el Desarrollador solo escribe en su worktree),
+      validé cada diff antes de usarlo, ejecuté las pruebas en Docker sin red y traté el contenido del
+      repositorio y la salida del modelo como datos, nunca como instrucciones.
+    result: >
+      Ningún agente puede hacer push, merge ni tocar .git ni CI. El proyecto tiene 376 commits y unos 200
+      ficheros de test, y un pre-push hook bloquea publicar con hallazgos de seguridad altos o medios.
+    areas: [ai, devops]
+
+  - id: ges-migration
+    category: technical
+    title: Migración de un sistema legacy a API REST y cliente independiente (GES)
+    context: Gestión de Eventos era una aplicación de escritorio Java Swing con NeoDatis ODB, difícil de evolucionar.
+    action: >
+      Definí cada fase como spec antes de programarla (arquitectura en capas, API REST, roles, facturación)
+      y migré a Spring Boot 3.2 con Java 21, JPA y JWT, con un cliente JavaFX que consume la API.
+    result: El proyecto tiene 44 commits y 51 ficheros de test, y la API la puede consumir cualquier cliente.
+    areas: [backend, architecture]
+
+  - id: event-platform-backend
+    category: technical
+    title: Backend de una plataforma interna de eventos en Serbatic
+    context: Un equipo de 4 desarrolladores construyó entre abril y julio de 2025 una plataforma interna de eventos, y yo me encargué de la parte backend.
+    action: >
+      Diseñé la API REST en capas (app, domain, infra) con Spring Boot y MongoDB, la seguridad con JWT y refresh
+      tokens, la gestión de archivos sobre almacenamiento S3 y el despliegue con Docker Compose y CI.
+    result: >
+      La API expone 7 controladores y 32 endpoints. El repositorio tiene 38 commits, 32 de ellos míos,
+      y 7 clases de test.
+    areas: [backend, architecture]
+
   - id: team-coordination
     category: leadership
     title: Coordinación de un equipo de 5 a 7 personas en hostelería
-    context: "TODO: proyecto / situación en la que coordinaste al equipo."
-    action: "TODO: qué hiciste (planificación, reparto, seguimiento, comunicación)."
-    result: "TODO: resultado concreto (entrega, plazos, mejora)."
+    context: Como responsable de sala de Hotusa llevé la hostelería del hotel Riosol, con un equipo de entre 5 y 7 personas a mi cargo.
+    action: Organicé y gestioné el equipo, controlé el stock y atendí al cliente.
+    result: Durante mi etapa el hotel alcanzó el mayor porcentaje de grupos procedentes de fuera de España que había tenido.
 
   - id: technical-content
     category: communication
-    title: Divulgación técnica en LinkedIn y vídeo
+    title: Divulgación técnica en LinkedIn y YouTube
     context: Quería explicar migraciones e IA aplicada a perfiles técnicos y no técnicos.
     action: Publico posts y vídeos cortos usando NotebookLM, Google AI Studio y OBS a partir de proyectos reales.
-    result: "TODO: alcance o feedback recibido."
+    result: Estimo un alcance de entre 50 y 200 personas por publicación en LinkedIn y YouTube, con algún vídeo que ha llegado a unas 1.000.
 
 labs:
   - id: ai-lab
     name: AI Lab
     type: ai
-    description: Experimentos de IA aplicada al backend. RAG, LLM local, agentes y MCP.
-    projects: [semantic-search]
+    description: Experimentos de IA aplicada al backend. Agentes, orquestación multi-agente, LLM local y MCP.
+    projects: [agent-life, ai-devos, relacionar-clases, semantic-search]
 
   - id: hardware-lab
     name: Hardware & Automation Lab
     type: automation
     description: ESP32 + MQTT + Spring Boot. Del primer LED a "prepárame un café" con un agente.
+
+languages:
+  - { name: Español, level: Nativo }
+  - { name: Inglés, level: B1 }
+  - { name: Francés, level: Nociones }
+  - { name: Rumano, level: En aprendizaje }

@@ -18,11 +18,11 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** "Coger todo de LinkedIn": API import merged into the real profile, which must stay untouched. */
+/** "Coger todo de LinkedIn": API import merged into a hand-written profile, which must stay untouched. */
 class LinkedInImportCommandsTest {
 
-    private static final Path REPO = Path.of(System.getProperty("proofstack.repoRoot", ".."));
-    private static final Path ADAN = REPO.resolve("profiles/adan/profile.yaml");
+    /** A hand-written profile with placeholders. Never a real profile: those change and must not break the build. */
+    private static final Path HAND_WRITTEN = Path.of("src/test/resources/fixtures/hand-written-profile.yaml");
 
     @TempDir
     Path tmp;
@@ -65,27 +65,27 @@ class LinkedInImportCommandsTest {
     }
 
     @Test
-    void apiImportMergedIntoTheRealProfileFillsCareerAndKeepsProofs() throws IOException {
-        byte[] before = Files.readAllBytes(ADAN);
+    void apiImportMergedIntoAHandWrittenProfileFillsCareerAndKeepsProofs() throws IOException {
+        byte[] before = Files.readAllBytes(HAND_WRITTEN);
         Path merged = tmp.resolve("profile.linkedin.yaml");
         Map<String, String> env = Map.of("PROOFSTACK_LINKEDIN_API", "http://127.0.0.1:" + linkedIn.getAddress().getPort(),
                 "LINKEDIN_ACCESS_TOKEN", "test-token");
 
-        int code = run(env, "import", "linkedin-api", "--merge-into", ADAN.toString(), "--out", merged.toString());
+        int code = run(env, "import", "linkedin-api", "--merge-into", HAND_WRITTEN.toString(), "--out", merged.toString());
 
         assertThat(code).as(err.toString()).isZero();
         String yaml = Files.readString(merged);
         assertThat(yaml).contains("company: Empresa Real").contains("institution: IES Real")
-                .contains("name: Adán Sánchez Manzano")        // the profile's own name wins
+                .contains("name: Ada Lovelace")                  // the profile's own name wins
                 .contains("tomcat-jakarta-migration")          // projects kept
                 .contains("team-coordination")                 // evidence kept and still linked from the job
                 .contains("Migración de aplicaciones de Tomcat 9 a Tomcat 10")
                 .doesNotContain("TODO: empresa").doesNotContain("TODO: centro")
                 .doesNotContain("test-token");
-        assertThat(Files.readAllBytes(ADAN)).isEqualTo(before);
+        assertThat(Files.readAllBytes(HAND_WRITTEN)).isEqualTo(before);
         assertThat(run(env, "validate", merged.toString())).as(err.toString()).isZero();
 
-        assertThat(run(env, "import", "linkedin-api", "-m", ADAN.toString(), "-o", ADAN.toString(), "--force"))
+        assertThat(run(env, "import", "linkedin-api", "-m", HAND_WRITTEN.toString(), "-o", HAND_WRITTEN.toString(), "--force"))
                 .isEqualTo(1);
     }
 

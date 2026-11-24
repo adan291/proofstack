@@ -20,3 +20,5 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+# Importaciones de LinkedIn: datos personales, no se publican
+profiles/*/profile.linkedin.yaml
