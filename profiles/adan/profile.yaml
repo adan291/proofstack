@@ -11,7 +11,7 @@ person:
   summary: >
     Desarrollador backend (DAM) centrado en Java y Spring. Diseño sistemas con arquitectura
     hexagonal, mensajería y observabilidad, y experimento con IA aplicada: búsqueda semántica,
-    LLMs locales y agentes. Documento y explico lo que construyo, y he coordinado equipos grandes.
+    LLMs locales y agentes. Documento y explico lo que construyo.
   location: España
   links:
     - { label: LinkedIn, url: "https://www.linkedin.com/in/asanchezmanzano/" }
@@ -84,7 +84,7 @@ projects:
 evidence:
   - id: team-coordination
     category: leadership
-    title: Coordinación de un equipo de ~20 personas
+    title: Coordinación de un equipo de 5 a 7 personas en hostelería
     context: "TODO: proyecto / situación en la que coordinaste al equipo."
     action: "TODO: qué hiciste (planificación, reparto, seguimiento, comunicación)."
     result: "TODO: resultado concreto (entrega, plazos, mejora)."
