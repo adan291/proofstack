@@ -130,6 +130,16 @@ public final class ProofstackCli implements Runnable {
         return ERROR;
     }
 
+    /** Jobs of the user's profile that the import does not list: not in the new file, so say which ones. */
+    static void printLeftOut(ImportReport report, PrintWriter err) {
+        if (report.leftOut().isEmpty()) {
+            return;
+        }
+        err.println("WARN " + report.leftOut().size() + " job(s) of your profile are not in the import and were left out"
+                + " of the new file (your profile still has them):");
+        report.leftOut().forEach(job -> err.println("  - " + job));
+    }
+
     private static void printViolations(List<Violation> violations, PrintWriter err) {
         err.println("Invalid input (" + violations.size() + " problem" + (violations.size() == 1 ? "" : "s") + "):");
         violations.forEach(v -> err.println("  - " + v));
@@ -447,6 +457,7 @@ public final class ProofstackCli implements Runnable {
                     if (report.todoCount() > 0) {
                         stdout.println("  " + report.todoCount() + " TODO placeholders to review before publishing.");
                     }
+                    printLeftOut(report, err);
                     stdout.println("  Next: proofstack validate " + out);
                     return OK;
                 } catch (ProfileWriter.TargetExistsException | IllegalArgumentException e) {

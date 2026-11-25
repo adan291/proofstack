@@ -2,6 +2,7 @@ package dev.proofstack.core.application;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -35,7 +36,9 @@ public final class CareerImportService {
         }
         Profile existing = mergeInto == null ? null : reader.load(mergeInto); // fail fast before any network call
         Profile imported = source.fetchProfile();
-        Profile result = existing == null ? imported : ProfileMerge.careerFrom(existing, imported);
+        ProfileMerge.Result merged = existing == null ? new ProfileMerge.Result(imported, List.of())
+                : ProfileMerge.merge(existing, imported);
+        Profile result = merged.profile();
         writer.write(result, target, overwrite);
 
         Map<String, Integer> counts = new LinkedHashMap<>();
@@ -43,6 +46,10 @@ public final class CareerImportService {
         counts.put("education", result.education().size());
         counts.put("projects", result.projects().size());
         counts.put("skills", result.skills().size());
-        return new ImportReport(TodoCounter.count(result), counts);
+        List<String> leftOut = merged.notInImport().stream()
+                .map(e -> e.role() + " @ " + e.company()
+                        + (e.evidenceIds().isEmpty() ? "" : " (evidence: " + String.join(", ", e.evidenceIds()) + ")"))
+                .toList();
+        return new ImportReport(TodoCounter.count(result), counts, leftOut);
     }
 }

@@ -76,6 +76,34 @@ class ProfileMergeTest {
     }
 
     @Test
+    void theSameCompanyWrittenDifferentlyIsStillTheSameJob() {
+        Profile handWritten = new Profile("en", mine.person(),
+                List.of(job("example", "Example Corp", "Split the billing monolith", List.of("team"), true)),
+                List.of(), List.of(), List.of(), mine.evidence(), List.of());
+        Profile imported = new Profile("en", linkedIn.person(),
+                List.of(job("example-corporation-s-l", "Example Corporation, S.L.", "Billing", List.of(), true)),
+                List.of(), List.of(), List.of(), List.of(), List.of());
+
+        ProfileMerge.Result result = ProfileMerge.merge(handWritten, imported);
+
+        assertThat(result.profile().experience().getFirst().evidenceIds()).containsExactly("team");
+        assertThat(result.notInImport()).isEmpty();
+    }
+
+    /** LinkedIn owns the career (ADR-012), but a job it does not list must not vanish silently with its evidence. */
+    @Test
+    void handWrittenJobsTheImportDoesNotHaveAreReported() {
+        Profile handWritten = new Profile("en", mine.person(),
+                List.of(job("side", "Freelance", "Built a shop", List.of("team"), false)),
+                List.of(), List.of(), List.of(), mine.evidence(), List.of());
+
+        ProfileMerge.Result result = ProfileMerge.merge(handWritten, linkedIn);
+
+        assertThat(result.profile().experience()).extracting(Experience::company).containsExactly("ACME", "Old Co");
+        assertThat(result.notInImport()).extracting(Experience::id).containsExactly("side");
+    }
+
+    @Test
     void emptyImportKeepsEverything() {
         Profile empty = new Profile(new PersonalInfo("X", "Y", null, null, null, List.of()),
                 List.of(), List.of(), List.of(), List.of(), List.of(), List.of());

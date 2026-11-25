@@ -70,6 +70,7 @@ final class LinkedInApiCommand implements Callable<Integer> {
             if (report.todoCount() > 0) {
                 stdout.println("  " + report.todoCount() + " TODO placeholders left. Next: proofstack doctor " + out);
             }
+            ProofstackCli.printLeftOut(report, err);
             return ProofstackCli.OK;
         } catch (ImportException e) {
             err.println(e.getMessage());

@@ -26,15 +26,31 @@ public final class ProfileMerge {
     private ProfileMerge() {
     }
 
+    /**
+     * @param notInImport hand-written jobs the import has no match for. The platform owns the career, so they are not
+     *                    in the result, but the caller must tell the user: they may carry evidence links.
+     */
+    public record Result(Profile profile, List<Experience> notInImport) {
+        public Result {
+            notInImport = List.copyOf(notInImport);
+        }
+    }
+
     public static Profile careerFrom(Profile existing, Profile imported) {
-        return new Profile(existing.language(), person(existing.person(), imported.person()),
-                experience(existing.experience(), imported.experience()),
+        return merge(existing, imported).profile();
+    }
+
+    public static Result merge(Profile existing, Profile imported) {
+        List<Experience> notInImport = new ArrayList<>();
+        Profile profile = new Profile(existing.language(), person(existing.person(), imported.person()),
+                experience(existing.experience(), imported.experience(), notInImport),
                 imported.education().isEmpty() ? existing.education() : imported.education(),
                 projects(existing.projects(), imported.projects()),
                 skills(existing.skills(), imported.skills()),
                 existing.evidence(), existing.labs(),
                 imported.languages().isEmpty() ? existing.languages() : imported.languages(),
                 imported.certifications().isEmpty() ? existing.certifications() : imported.certifications());
+        return new Result(profile, notInImport);
     }
 
     private static PersonalInfo person(PersonalInfo mine, PersonalInfo theirs) {
@@ -51,7 +67,8 @@ public final class ProfileMerge {
                 links);
     }
 
-    private static List<Experience> experience(List<Experience> mine, List<Experience> theirs) {
+    private static List<Experience> experience(List<Experience> mine, List<Experience> theirs,
+                                               List<Experience> notInImport) {
         if (theirs.isEmpty()) {
             return mine;
         }
@@ -59,7 +76,7 @@ public final class ProfileMerge {
         List<Experience> result = new ArrayList<>();
         for (Experience job : theirs) {
             Optional<Experience> match = pending.stream()
-                    .filter(m -> !isTodo(m.company()) && m.company().equalsIgnoreCase(job.company()))
+                    .filter(m -> !isTodo(m.company()) && company(m.company()).equals(company(job.company())))
                     .findFirst()
                     .or(() -> job.current()
                             ? pending.stream().filter(m -> isTodo(m.company()) && m.current()).findFirst()
@@ -67,7 +84,24 @@ public final class ProfileMerge {
             match.ifPresent(pending::remove);
             result.add(match.map(m -> inherit(job, m)).orElse(job));
         }
+        notInImport.addAll(pending);
         return result;
+    }
+
+    private static final Set<String> LEGAL_FORMS = Set.of("sl", "slu", "sa", "sau", "sll", "scoop", "sc", "cb",
+            "inc", "incorporated", "ltd", "limited", "llc", "llp", "plc", "corp", "corporation", "co", "company",
+            "gmbh", "ag", "kg", "bv", "nv", "sas", "sarl", "srl", "spa", "ab", "as", "oy", "group");
+
+    /** "Example Corporation, S.L." and "Example Corp" are the same employer: no accents, punctuation or legal form. */
+    static String company(String name) {
+        String ascii = java.text.Normalizer.normalize(name, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}+", "");
+        List<String> words = new ArrayList<>(List.of(ascii.toLowerCase(Locale.ROOT)
+                .replaceAll("\\b([a-z])\\.(?=[a-z]\\b)", "$1")   // s.l. -> sl, s.a. -> sa
+                .replaceAll("[^a-z0-9]+", " ").strip().split(" ")));
+        while (words.size() > 1 && LEGAL_FORMS.contains(words.getLast())) {
+            words.removeLast();
+        }
+        return String.join(" ", words);
     }
 
     /**
