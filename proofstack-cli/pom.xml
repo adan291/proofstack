@@ -17,6 +17,8 @@
     <properties>
         <!-- Repository the tests read profiles from; override with -Dproofstack.repoRoot=... to test a fork. -->
         <proofstack.repoRoot>${project.basedir}/..</proofstack.repoRoot>
+        <!-- Browser tests: one retry in CI (-De2e.reruns=1), none locally so flakiness is visible. -->
+        <e2e.reruns>0</e2e.reruns>
     </properties>
 
     <dependencies>
@@ -72,6 +74,78 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <!--
+          Studio in a real browser (docs/specs/proofstack-studio-browser-tests): mvn -Pe2e verify -pl proofstack-cli -am
+          Uses the installed Chrome; nothing of this is compiled or downloaded without -Pe2e.
+        -->
+        <profile>
+            <id>e2e</id>
+            <dependencies>
+                <dependency>
+                    <groupId>com.microsoft.playwright</groupId>
+                    <artifactId>playwright</artifactId>
+                    <version>1.65.1</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.webjars.npm</groupId>
+                    <artifactId>axe-core</artifactId>
+                    <version>4.14.0</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>3.8.0</version>
+                        <executions>
+                            <execution>
+                                <id>e2e-sources</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/e2e/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-surefire-plugin.version}</version>
+                        <configuration>
+                            <includes>
+                                <include>**/*E2E.java</include>
+                            </includes>
+                            <environmentVariables>
+                                <PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD>1</PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD>
+                            </environmentVariables>
+                            <systemPropertyVariables>
+                                <proofstack.repoRoot>${proofstack.repoRoot}</proofstack.repoRoot>
+                            </systemPropertyVariables>
+                            <rerunFailingTestsCount>${e2e.reruns}</rerunFailingTestsCount>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <resources>
