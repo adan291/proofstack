@@ -67,7 +67,55 @@ public final class ProofstackCli implements Runnable {
     }
 
     public static void main(String[] args) {
-        System.exit(run(args, writer(System.out), writer(System.err), System.getenv()));
+        PrintWriter err = writer(System.err);
+        warnIfStale(err);
+        System.exit(run(args, writer(System.out), err, System.getenv()));
+    }
+
+    /** The launcher prefers the jar in target/: after a git pull that jar may be older than the code. */
+    private static void warnIfStale(PrintWriter err) {
+        try {
+            Path jar = Path.of(ProofstackCli.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            newerSource(jar).ifPresent(source -> err.println("WARN proofstack.jar is older than " + source.getFileName()
+                    + ": you are running the previous code. Rebuild with: mvn -DskipTests package -pl proofstack-cli -am"));
+        } catch (RuntimeException | java.net.URISyntaxException e) {
+            // Only a hint: never stop the command because of it.
+        }
+    }
+
+    private static final java.util.Set<String> NOT_SOURCES = java.util.Set.of("target", ".git", "node_modules");
+
+    /**
+     * A source of the checkout newer than {@code jar}, when {@code jar} is the one built in
+     * {@code proofstack-cli/target/}. A downloaded {@code proofstack.jar} is never compared: it has no sources.
+     */
+    static java.util.Optional<Path> newerSource(Path jar) {
+        Path target = jar.toAbsolutePath().getParent();
+        if (target == null || !target.getFileName().toString().equals("target") || target.getParent() == null
+                || !target.getParent().getFileName().toString().equals("proofstack-cli")) {
+            return java.util.Optional.empty();
+        }
+        Path repo = target.getParent().getParent();
+        try {
+            java.nio.file.attribute.FileTime built = Files.getLastModifiedTime(jar);
+            try (var files = Files.walk(repo)) {
+                return files
+                        .filter(p -> repo.relativize(p).toString().replace('\\', '/').matches(".*src/main/.*|(.*/)?pom\\.xml"))
+                        .filter(p -> java.util.stream.StreamSupport.stream(repo.relativize(p).spliterator(), false)
+                                .noneMatch(part -> NOT_SOURCES.contains(part.toString())))
+                        .filter(Files::isRegularFile)
+                        .filter(p -> {
+                            try {
+                                return Files.getLastModifiedTime(p).compareTo(built) > 0;
+                            } catch (IOException e) {
+                                return false;
+                            }
+                        })
+                        .findFirst();
+            }
+        } catch (IOException | UncheckedIOException e) {
+            return java.util.Optional.empty();
+        }
     }
 
     /**
