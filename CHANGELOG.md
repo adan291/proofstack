@@ -14,6 +14,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - `doctor` no revisaba skills, la ubicación y las tecnologías de cada puesto, el stack de los proyectos, los idiomas, las certificaciones (ni su enlace) ni el nombre de los labs. Un `TODO` o una URL de ejemplo en esos campos se publicaba. Ahora bloquea la publicación, y `TodoCounter` cuenta los mismos campos.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
+### Seguridad
+- Dependencias con vulnerabilidades conocidas: Jackson 3.1.5 → 3.1.8 (DoS en jackson-core y jackson-databind) y Spring Boot 4.1.1 → 4.1.3 (Tomcat 11.0.24 → 11.0.27). OSV no da avisos para las 133 dependencias de ejecución.
+
 ## [0.7.0] - 2026-11
 
 ### Añadido
