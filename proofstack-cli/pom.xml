@@ -33,6 +33,10 @@
         </dependency>
         <dependency>
             <groupId>dev.proofstack</groupId>
+            <artifactId>proofstack-in-studio</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>dev.proofstack</groupId>
             <artifactId>proofstack-out-llm</artifactId>
         </dependency>
         <dependency>

@@ -28,6 +28,7 @@
         <module>adapters/proofstack-in-linkedin</module>
         <module>adapters/proofstack-out-yaml</module>
         <module>adapters/proofstack-in-github</module>
+        <module>adapters/proofstack-in-studio</module>
         <module>proofstack-cli</module>
         <module>proofstack-ai-service</module>
         <module>proofstack-mcp-server</module>
@@ -75,6 +76,11 @@
             <dependency>
                 <groupId>dev.proofstack</groupId>
                 <artifactId>proofstack-out-cv</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>dev.proofstack</groupId>
+                <artifactId>proofstack-in-studio</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
