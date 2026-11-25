@@ -9,14 +9,11 @@ import java.util.Objects;
 import java.util.Set;
 
 import dev.proofstack.core.domain.Certification;
-import dev.proofstack.core.domain.Education;
 import dev.proofstack.core.domain.Evidence;
-import dev.proofstack.core.domain.Experience;
-import dev.proofstack.core.domain.Lab;
-import dev.proofstack.core.domain.Language;
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.PersonalInfo;
 import dev.proofstack.core.domain.Profile;
+import dev.proofstack.core.domain.ProfileTexts;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.TodoCounter;
 
@@ -47,10 +44,15 @@ public final class PublishReadiness {
         List<Finding> findings = new ArrayList<>();
         PersonalInfo p = profile.person();
 
-        text(findings, "$.person.name", p.name());
-        text(findings, "$.person.headline", p.headline());
-        text(findings, "$.person.summary", p.summary());
-        text(findings, "$.person.location", p.location());
+        // Placeholders: every published text, from the one list that knows them all.
+        for (ProfileTexts.Text t : ProfileTexts.of(profile)) {
+            if (TodoCounter.isPlaceholder(t.value())) {
+                findings.add(new Finding(Severity.ERROR, t.path(),
+                        "placeholder still present: \"" + abbreviate(t.value()) + "\"",
+                        "replace it with real information or remove the field"));
+            }
+        }
+
         links(findings, "$.person.links", p.links());
         if (p.email() != null && isPlaceholderUrl("mailto:" + p.email())) {
             findings.add(new Finding(Severity.ERROR, "$.person.email", "sample email address: " + p.email(),
@@ -68,56 +70,25 @@ public final class PublishReadiness {
             findings.add(warn("$.experience", "no experience listed", "even one entry gives context to your projects"));
         }
         for (int i = 0; i < profile.experience().size(); i++) {
-            Experience e = profile.experience().get(i);
-            String path = "$.experience[" + i + "]";
-            text(findings, path + ".role", e.role());
-            text(findings, path + ".company", e.company());
-            text(findings, path + ".location", e.location());
-            texts(findings, path + ".highlights", e.highlights());
-            texts(findings, path + ".technologies", e.technologies());
-            if (e.highlights().isEmpty()) {
-                findings.add(warn(path + ".highlights", "no highlights", "1-3 concrete achievements, no buzzwords"));
+            if (profile.experience().get(i).highlights().isEmpty()) {
+                findings.add(warn("$.experience[" + i + "].highlights", "no highlights",
+                        "1-3 concrete achievements, no buzzwords"));
             }
-        }
-
-        for (int i = 0; i < profile.education().size(); i++) {
-            Education e = profile.education().get(i);
-            String path = "$.education[" + i + "]";
-            text(findings, path + ".title", e.title());
-            text(findings, path + ".institution", e.institution());
-            texts(findings, path + ".highlights", e.highlights());
         }
 
         if (profile.skills().isEmpty()) {
             findings.add(warn("$.skills", "no skills", "skills place you on the architecture map"));
         }
-        for (int i = 0; i < profile.skills().size(); i++) {
-            text(findings, "$.skills[" + i + "].name", profile.skills().get(i).name());
-        }
-        for (int i = 0; i < profile.languages().size(); i++) {
-            Language l = profile.languages().get(i);
-            text(findings, "$.languages[" + i + "].name", l.name());
-            text(findings, "$.languages[" + i + "].level", l.level());
-        }
         for (int i = 0; i < profile.certifications().size(); i++) {
             Certification c = profile.certifications().get(i);
-            String path = "$.certifications[" + i + "]";
-            text(findings, path + ".title", c.title());
-            text(findings, path + ".issuer", c.issuer());
             if (c.link() != null) {
-                links(findings, path + ".link", List.of(c.link()));
+                links(findings, "$.certifications[" + i + "].link", List.of(c.link()));
             }
         }
 
         for (int i = 0; i < profile.projects().size(); i++) {
             Project pr = profile.projects().get(i);
             String path = "$.projects[" + i + "]";
-            text(findings, path + ".name", pr.name());
-            text(findings, path + ".summary", pr.summary());
-            text(findings, path + ".problem", pr.problem());
-            text(findings, path + ".solution", pr.solution());
-            texts(findings, path + ".techStack", pr.techStack());
-            texts(findings, path + ".learnings", pr.learnings());
             links(findings, path + ".links", pr.links());
             if (pr.problem() == null || pr.solution() == null) {
                 findings.add(warn(path, "'" + pr.id() + "' does not say which problem it solved or how",
@@ -135,10 +106,6 @@ public final class PublishReadiness {
         for (int i = 0; i < profile.evidence().size(); i++) {
             Evidence e = profile.evidence().get(i);
             String path = "$.evidence[" + i + "]";
-            text(findings, path + ".title", e.title());
-            text(findings, path + ".context", e.context());
-            text(findings, path + ".action", e.action());
-            text(findings, path + ".result", e.result());
             if (e.link() != null) {
                 links(findings, path + ".link", List.of(e.link()));
             }
@@ -146,12 +113,6 @@ public final class PublishReadiness {
                 findings.add(warn(path, "'" + e.id() + "' is not linked to any experience or project",
                         "add its id to the 'evidence' list of the job or project it proves"));
             }
-        }
-
-        for (int i = 0; i < profile.labs().size(); i++) {
-            Lab l = profile.labs().get(i);
-            text(findings, "$.labs[" + i + "].name", l.name());
-            text(findings, "$.labs[" + i + "].description", l.description());
         }
 
         // Errors first, then by path, so the most important problems are always on top.
@@ -164,24 +125,10 @@ public final class PublishReadiness {
         return findings.stream().anyMatch(f -> f.severity() == Severity.ERROR);
     }
 
-    private static void text(List<Finding> findings, String path, String value) {
-        if (value != null && value.contains(TodoCounter.MARKER)) {
-            findings.add(new Finding(Severity.ERROR, path, "placeholder still present: \"" + abbreviate(value) + "\"",
-                    "replace it with real information or remove the field"));
-        }
-    }
-
-    private static void texts(List<Finding> findings, String path, List<String> values) {
-        for (int i = 0; i < values.size(); i++) {
-            text(findings, path + "[" + i + "]", values.get(i));
-        }
-    }
-
     private static void links(List<Finding> findings, String path, List<Link> links) {
         for (int i = 0; i < links.size(); i++) {
             Link link = links.get(i);
             String at = links.size() == 1 && path.endsWith(".link") ? path : path + "[" + i + "]";
-            text(findings, at + ".label", link.label());
             if (isPlaceholderUrl(link.url())) {
                 findings.add(new Finding(Severity.ERROR, at + ".url", "sample or generic URL: " + link.url(),
                         "point it to your own profile, repository or demo"));

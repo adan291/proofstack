@@ -21,6 +21,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - `build` no avisaba de los `TODO` que la web iba a mostrar. Ahora lo dice, igual que `cv`, y remite a `doctor`.
 - El CV imprimía fechas que nadie había escrito. Cuando LinkedIn no da fecha de inicio, o solo da el año, el importador guarda una fecha provisional (el esquema exige mes), y el CV la mostraba como "Jan 2019 – Jan 2019". Ahora el importador lo marca con `TODO: dates`, `doctor` lo bloquea, el CV omite ese periodo y el merge conserva las fechas del perfil propio si las tiene.
 - `import ... --merge-into` emparejaba los puestos por el nombre exacto de la empresa: "Example Corp" y "Example Corporation, S.L." eran puestos distintos, y el tuyo desaparecía del fichero nuevo con sus evidencias, sin aviso. Ahora se ignoran mayúsculas, acentos, puntuación y forma jurídica. Los puestos de tu perfil que LinkedIn no tiene se listan en un `WARN`; siguen fuera del fichero nuevo, porque la trayectoria la manda LinkedIn (ADR-012).
+- `doctor`, el contador de `TODO` y el CV recorrían los campos del perfil cada uno a su manera. Por eso `doctor` no veía un `TODO` en la URL de un enlace que el contador sí contaba. Ahora los tres usan un único recorrido del dominio (`ProfileTexts`).
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado

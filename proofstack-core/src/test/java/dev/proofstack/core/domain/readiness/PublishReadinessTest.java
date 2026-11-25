@@ -64,6 +64,20 @@ class PublishReadinessTest {
         assertThat(dev.proofstack.core.domain.TodoCounter.count(profile)).isEqualTo(11);
     }
 
+    /** doctor and the TODO counter must look at the same fields, or one says "ready" while the other counts TODOs. */
+    @Test
+    void doctorAndTheTodoCounterAgree() {
+        Profile profile = new Profile("en",
+                new PersonalInfo("Ada", "Backend", "Summary", null, null,
+                        List.of(new Link("GitHub", "https://github.com/ada/TODO-repo"))),
+                List.of(), List.of(), List.of(), List.of(new Skill("Java", Area.BACKEND)), List.of(), List.of());
+
+        long placeholders = PublishReadiness.check(profile).stream()
+                .filter(f -> f.message().startsWith("placeholder")).count();
+
+        assertThat(placeholders).isEqualTo(dev.proofstack.core.domain.TodoCounter.count(profile)).isEqualTo(1);
+    }
+
     @Test
     void completeProfileHasNoErrors() {
         Project project = new Project("billing", "Billing events", "Outbox + Kafka", "Monolith deploys",

@@ -31,7 +31,6 @@ import dev.proofstack.core.domain.TodoCounter;
  */
 final class CvBuilder {
 
-    private static final String PLACEHOLDER = TodoCounter.MARKER;
     private static final int MAX_STACK = 8;
     private static final int MAX_JOB_BONUS = 6;
 
@@ -205,7 +204,7 @@ final class CvBuilder {
 
     /** One line, trimmed; empty when missing or still a placeholder. */
     static String clean(String text) {
-        if (text == null || text.contains(PLACEHOLDER)) {
+        if (text == null || TodoCounter.isPlaceholder(text)) {
             return "";
         }
         return text.strip().replaceAll("\\s+", " ");
