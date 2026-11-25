@@ -77,27 +77,31 @@ final class LinkedInOAuth {
         String path = redirectUri.getPath() == null || redirectUri.getPath().isEmpty() ? "/" : redirectUri.getPath();
         server.createContext(path, exchange -> {
             Map<String, String> params = query(exchange.getRequestURI().getRawQuery());
-            byte[] page = "Proofstack: you can close this tab and go back to the terminal."
-                    .getBytes(StandardCharsets.UTF_8);
+            // Only the redirect of this login counts. Anything else (another local page, a stale tab) gets a 400
+            // and the login keeps waiting, so it can neither abort the login nor inject a code.
+            boolean ours = exchange.getRequestURI().getPath().equals(path)
+                    && MessageDigest.isEqual(state.getBytes(StandardCharsets.UTF_8),
+                    params.getOrDefault("state", "").getBytes(StandardCharsets.UTF_8));
+            byte[] page = (ours ? "Proofstack: you can close this tab and go back to the terminal."
+                    : "Proofstack: this is not the answer to the login in progress.").getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "text/plain; charset=utf-8");
             exchange.getResponseHeaders().add("Cache-Control", "no-store");
-            exchange.sendResponseHeaders(200, page.length);
+            exchange.sendResponseHeaders(ours ? 200 : 400, page.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(page);
             }
-            callback.complete(params);
+            if (ours) {
+                callback.complete(params);
+            }
         });
         server.start();
         try {
             openBrowser.accept(authorizationUri(state));
             Map<String, String> params = callback.get(timeout.toSeconds(), TimeUnit.SECONDS);
             if (params.containsKey("error")) {
-                throw new ImportException("LinkedIn authorisation was not granted (" + params.get("error") + ")",
-                        Kind.INVALID_INPUT);
-            }
-            if (!MessageDigest.isEqual(state.getBytes(StandardCharsets.UTF_8),
-                    params.getOrDefault("state", "").getBytes(StandardCharsets.UTF_8))) {
-                throw new ImportException("OAuth state mismatch: the callback did not come from this login",
+                // OAuth error codes are plain words; drop anything else before it reaches the terminal.
+                String error = params.get("error").replaceAll("[^A-Za-z0-9_.-]", "");
+                throw new ImportException("LinkedIn authorisation was not granted (" + error + ")",
                         Kind.INVALID_INPUT);
             }
             String code = params.get("code");

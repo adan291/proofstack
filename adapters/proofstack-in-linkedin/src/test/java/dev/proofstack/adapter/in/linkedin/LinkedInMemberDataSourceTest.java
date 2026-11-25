@@ -172,16 +172,45 @@ class LinkedInMemberDataSourceTest {
         assertThat(requests).allMatch(r -> r.startsWith("Bearer tok-123 "));
     }
 
+    private LinkedInOAuth oauth(int port, java.time.Duration timeout) {
+        return new LinkedInOAuth(HttpClient.newHttpClient(), URI.create(base()), "c", "s",
+                URI.create("http://127.0.0.1:" + port + "/callback"), timeout);
+    }
+
     @Test
-    void forgedStateIsRejected() throws IOException {
+    void aForgedCallbackIsIgnoredAndNeverExchangesACode() throws IOException {
         int port = freePort();
         Consumer<URI> attacker = uri -> hit("http://127.0.0.1:" + port + "/callback?code=evil&state=forged");
 
-        assertThatThrownBy(() -> LinkedInMemberDataSource.fromEnvironment(Map.of(
-                LinkedInMemberDataSource.API_ENV, base(), LinkedInMemberDataSource.AUTH_ENV, base(),
-                LinkedInMemberDataSource.CLIENT_ID_ENV, "c", LinkedInMemberDataSource.CLIENT_SECRET_ENV, "s",
-                LinkedInMemberDataSource.REDIRECT_ENV, "http://127.0.0.1:" + port + "/callback"), attacker).fetchProfile())
-                .isInstanceOfSatisfying(ImportException.class, e -> assertThat(e.getMessage()).contains("state mismatch"));
+        assertThatThrownBy(() -> oauth(port, java.time.Duration.ofSeconds(2)).login(attacker))
+                .isInstanceOfSatisfying(ImportException.class, e -> assertThat(e.getMessage()).contains("no LinkedIn login"));
+        assertThat(tokenForm).isNull();
+    }
+
+    @Test
+    void aForgedCallbackCannotAbortTheLoginNorWriteToTheTerminal() throws IOException {
+        int port = freePort();
+        Consumer<URI> browser = uri -> {
+            // Another local page gets there first, with a wrong state and an "error" full of terminal escapes...
+            hit("http://127.0.0.1:" + port + "/callback?error=%1B%5B2J%1B%5B31mpwned&state=forged");
+            // ...then LinkedIn redirects the real browser back.
+            hit("http://127.0.0.1:" + port + "/callback?code=auth-code&state="
+                    + LinkedInOAuth.query(uri.getRawQuery()).get("state"));
+        };
+
+        assertThat(oauth(port, java.time.Duration.ofSeconds(10)).login(browser)).isEqualTo("tok-123");
+        assertThat(tokenForm).contains("code=auth-code");
+    }
+
+    @Test
+    void aRefusalFromLinkedInIsReportedWithoutControlCharacters() throws IOException {
+        int port = freePort();
+        Consumer<URI> browser = uri -> hit("http://127.0.0.1:" + port + "/callback?error=access_denied%1B%5B31m&state="
+                + LinkedInOAuth.query(uri.getRawQuery()).get("state"));
+
+        assertThatThrownBy(() -> oauth(port, java.time.Duration.ofSeconds(10)).login(browser))
+                .isInstanceOfSatisfying(ImportException.class, e -> assertThat(e.getMessage())
+                        .contains("(access_denied31m)").doesNotContain("\u001b"));
         assertThat(tokenForm).isNull();
     }
 
