@@ -70,7 +70,7 @@ final class StudioCommand implements Callable<Integer> {
         }));
         out.println("OK Studio is editing " + profile.toAbsolutePath().normalize());
         out.println("  Open: " + server.url());
-        out.println("  The link carries a one-time token: do not share it. Ctrl+C to stop.");
+        out.println("  The link carries a token that works until you stop Studio: do not share it. Ctrl+C to stop.");
         out.flush();
         if (!noBrowser) {
             openBrowser(server, err);
