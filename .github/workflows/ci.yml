@@ -12,9 +12,9 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      - uses: actions/setup-java@v5
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
           distribution: temurin
           java-version: '25'
@@ -31,3 +31,22 @@ jobs:
           for profile in profiles/*/profile.yaml; do
             java -jar proofstack-cli/target/proofstack.jar validate "$profile"
           done
+
+  # The launcher and paths have a Windows flavour (proofstack.cmd, backslashes): build and run them there too.
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - name: Build and test
+        run: mvn -B -ntp verify
+      - name: Launcher passes the exit code through
+        shell: cmd
+        run: |
+          call proofstack.cmd --version || exit /b 1
+          call proofstack.cmd doctor profiles\example\profile.yaml
+          if %ERRORLEVEL% NEQ 1 (echo doctor on the example must exit 1, got %ERRORLEVEL% & exit /b 1)
