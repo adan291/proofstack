@@ -41,7 +41,7 @@ import picocli.CommandLine.Spec;
  */
 @Command(name = "proofstack",
         mixinStandardHelpOptions = true,
-        version = "proofstack 0.6.0",
+        version = "proofstack 0.7.0",
         description = "Portfolio-as-code for backend engineers.",
         subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, StudioCommand.class, ProofstackCli.Generate.class,
                 ProofstackCli.Import.class})

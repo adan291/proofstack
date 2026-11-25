@@ -5,7 +5,7 @@
 # ---------- stage 1: split the Spring Boot jar into cacheable layers + compile the health probe ----------
 FROM eclipse-temurin:25.0.4.1_1-jdk-noble AS build
 WORKDIR /build
-COPY target/proofstack-ai-service-*-SNAPSHOT.jar app.jar
+COPY target/proofstack-ai-service-*.jar app.jar
 RUN java -Djarmode=tools -jar app.jar extract --layers --launcher --destination extracted
 COPY docker/HealthProbe.java .
 RUN javac --release 25 -d probe HealthProbe.java

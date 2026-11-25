@@ -14,6 +14,7 @@ on:
       - 'adapters/**'
       - 'proofstack-*/**'
       - 'schema/**'
+      - 'docs/guide/**'
   workflow_dispatch:
 
 permissions:
@@ -54,6 +55,8 @@ jobs:
           google-chrome --headless=new --disable-gpu --no-sandbox --no-pdf-header-footer \
             --print-to-pdf=dist/cv/cv.pdf "file://$PWD/dist/cv/cv.html"
           test -s dist/cv/cv.pdf
+      - name: Guide
+        run: cp -r docs/guide dist/guide
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

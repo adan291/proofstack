@@ -10,5 +10,6 @@ Cada fase de Proofstack empezó como un spec de Kiro con tres partes: requisitos
 | 4 · Servidor MCP e importador de GitHub | [`proofstack-mcp-github`](proofstack-mcp-github/requirements.md) |
 | 5 · Observabilidad, contenedores y Valhalla | [`proofstack-ops-valhalla`](proofstack-ops-valhalla/requirements.md) |
 | 6 · Plantilla pública | [`proofstack-template`](proofstack-template/requirements.md) |
+| 7 · Studio: editor local, CV en Word y PDF | [`proofstack-studio`](proofstack-studio/requirements.md) |
 
 Las tareas sin marcar (`- [ ]`) son pasos que dependen de cuentas o hardware del autor.

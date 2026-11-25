@@ -2,38 +2,45 @@
 
 > Tu carrera como código: un `profile.yaml`, muchas salidas, todo demostrable.
 
-Proofstack genera portfolios técnicos para perfiles backend desde un único fichero versionado en Git. En lugar de listar tecnologías, cada área (Backend, Arquitectura, IA, Hardware, Liderazgo…) enlaza a **proyectos** (problema → solución → aprendizajes) y a **evidencias** (contexto → acción → resultado). Con el mismo fichero genera borradores de posts, README, viñetas de CV y guiones de vídeo.
+Proofstack genera el portfolio técnico y el CV de un perfil backend desde un único fichero versionado en Git. En lugar de listar tecnologías, cada área (Backend, Arquitectura, IA, Liderazgo…) enlaza a **proyectos** (problema → solución → aprendizajes) y a **evidencias** (contexto → acción → resultado). Nada se inventa: lo que no está en tu perfil no aparece, y lo que está a medias (`TODO`) bloquea la publicación.
 
-El portfolio de su autor está hecho con Proofstack: [`profiles/adan`](profiles/adan/profile.yaml).
+**Ejemplo real:** [adan291.github.io/proofstack](https://adan291.github.io/proofstack/), generado desde [`profiles/adan/profile.yaml`](profiles/adan/profile.yaml).
 
-## Uso rápido
+## Qué obtienes con un solo fichero
 
-**¿Quieres el tuyo?** Usa esta plantilla y sigue [`docs/getting-started.md`](docs/getting-started.md). Son unos 15 minutos y no necesitas saber Java.
+| Salida | Comando |
+|---|---|
+| Web estática, accesible y con CSP, publicada en GitHub Pages | `proofstack build` |
+| CV en PDF (desde la web), HTML, Markdown y Word, apto para filtros ATS | `proofstack cv` |
+| CV adaptado a una oferta, sin añadir nada que no tengas | `proofstack cv --job oferta.txt` |
+| Editor en el navegador, con validación y vista previa | `proofstack studio` |
+| Importación desde LinkedIn (ZIP o API) y GitHub | `proofstack import …` |
+| Borradores de posts, README y guiones con un LLM local o Gemini | `proofstack generate …` |
+| Respuestas sobre tu perfil desde Kiro u otro cliente MCP | `proofstack-mcp-server` |
+
+## Empieza desde cero
+
+Pulsa **Use this template**, descarga `proofstack.jar` de la última [Release](../../releases) y sigue la guía:
+
+- **Guía paso a paso:** [`docs/getting-started.md`](docs/getting-started.md), unos 15 minutos y sin saber Java.
+- **Guía visual:** [`docs/guide/index.html`](docs/guide/index.html). Ábrela en el navegador, o en la web publicada en `/guide/`.
 
 ```bash
 proofstack init   profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
-proofstack doctor profiles/tu-nombre/profile.yaml     # ¿se puede publicar ya? Bloquea TODOs y enlaces de ejemplo
-proofstack build  profiles/tu-nombre/profile.yaml --out dist
+proofstack studio profiles/tu-nombre/profile.yaml     # rellénalo en el navegador
+proofstack doctor profiles/tu-nombre/profile.yaml     # ¿se puede publicar? Bloquea TODOs y enlaces de ejemplo
+proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv
 ```
 
 Para compilar desde el código necesitas JDK 25 y Maven 3.9 o superior:
 
 ```bash
-mvn verify                                   # build + tests + reglas de arquitectura
+mvn verify                                    # build + tests + reglas de arquitectura
 alias proofstack="java -jar proofstack-cli/target/proofstack.jar"
+# PowerShell: function proofstack { java -jar proofstack-cli\target\proofstack.jar @args }
 ```
 
-### Empieza desde tu LinkedIn
-
-Descarga tus datos en LinkedIn: *Ajustes → Privacidad de datos → Obtener una copia de tus datos*. Después:
-
-```bash
-proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/yo/profile.yaml
-```
-
-Importa perfil, experiencia, formación, proyectos y skills (clasificadas por área). **Nunca importa email ni teléfono.** Lo que falte queda marcado como `TODO`.
-
-**Sin ZIP (miembros de la UE):** `proofstack import linkedin-api --merge-into profiles/yo/profile.yaml --out profiles/yo/profile.linkedin.yaml` trae tu trayectoria directamente de la API oficial de portabilidad de LinkedIn. Tus proyectos y evidencias se conservan. La configuración de una sola vez está en [`docs/linkedin-api.md`](docs/linkedin-api.md).
+## Comandos
 
 ### Edita tu perfil sin tocar YAML
 
@@ -41,53 +48,73 @@ Importa perfil, experiencia, formación, proyectos y skills (clasificadas por á
 proofstack studio profiles/yo/profile.yaml
 ```
 
-Abre en el navegador un editor con un formulario por sección, los avisos de `doctor` junto a cada campo y una vista previa del CV y de la web. Solo escucha en `127.0.0.1`, nunca guarda un perfil inválido y deja una copia `profile.yaml.bak` antes de cada guardado. Si el fichero cambia en disco mientras editas (otro editor, `git pull`), te pide recargar en vez de pisar esos cambios. Los comentarios de la cabecera del YAML se conservan; los que haya dentro del fichero, no. Decisiones en [`ADR-014`](docs/adr/ADR-014-studio-local-editor.md).
+Abre en el navegador un editor con un formulario por sección, los avisos de `doctor` junto a cada campo y una vista previa del CV y de la web.
+- Solo escucha en `127.0.0.1` y la URL lleva un token de un solo uso.
+- Nunca guarda un perfil inválido, y antes de cada guardado deja una copia `profile.yaml.bak`.
+- Si el fichero cambia en disco mientras editas (otro editor, `git pull`), te pide recargar en vez de pisar esos cambios.
+- Conserva los comentarios de la cabecera del YAML; los que haya dentro del fichero, no.
+
+Decisiones en [ADR-014](docs/adr/ADR-014-studio-local-editor.md).
+
 ### Genera tu CV
 
 ```bash
 proofstack cv profiles/yo/profile.yaml --out dist/cv                        # cv.md, cv.html y cv.docx
 proofstack cv profiles/yo/profile.yaml --out dist/cv-ia --focus ai -p 4     # un CV por objetivo
+proofstack build profiles/yo/profile.yaml --out dist --with-cv              # la web con botón "Descargar CV"
 ```
 
-Incluye idiomas y certificaciones si tu perfil los tiene (el importador de LinkedIn los trae). No usa ningún modelo: el CV solo contiene lo que dice tu perfil, y los `TODO` se omiten.
+- **Sin IA:** el CV solo contiene lo que dice tu perfil, y los `TODO` se omiten.
+- **Apto para ATS:** una columna, solo texto, títulos nativos en el Word.
+- **PDF:** el workflow de Pages lo genera con Chrome en cada despliegue, y el botón de la web lo descarga. En local, abre `cv.html` y usa *Imprimir → Guardar como PDF*.
+- Incluye idiomas y certificaciones si tu perfil los tiene.
 
-**Publícalo con tu portfolio:** `proofstack build profiles/yo/profile.yaml --out dist --with-cv` deja el CV en `dist/cv/` y añade un botón *Descargar CV*. El workflow de GitHub Pages ya lo hace y además genera `cv.pdf` con Chrome, así que en la web el botón descarga un PDF.
-
-**Adáptalo a una oferta, sin inventar nada.** Guarda el texto de la oferta en un fichero y pásalo con `--job`:
+**Adáptalo a una oferta.** Guarda el texto de la oferta en un fichero:
 
 ```bash
 proofstack cv profiles/yo/profile.yaml --out dist/cv-oferta --job oferta.txt
-```n
-Los proyectos y las skills que coinciden con la oferta pasan delante. La salida te dice qué términos de la oferta aparecen en tu perfil y cuáles **tu perfil nunca menciona**, para que decidas tú si los tienes y los añadas al `profile.yaml`. Es una heurística: puede listar alguna palabra corriente. Abre `cv.html` en el navegador y usa *Imprimir → Guardar como PDF*, o entrega `cv.docx` a quien te pida un Word. Formato de una columna y solo texto, apto para filtros ATS. Decisiones en [`ADR-013`](docs/adr/ADR-013-cv-renderer.md).
+```
+
+Los proyectos y las skills que coinciden pasan delante, y la salida te dice qué pide la oferta que **tu perfil nunca menciona**. Decides tú si lo tienes y lo añades. Es una heurística y puede listar alguna palabra corriente. Decisiones en [ADR-013](docs/adr/ADR-013-cv-renderer.md).
+
+### Importa tu trayectoria
+
+```bash
+# LinkedIn, export ZIP (Ajustes → Privacidad de datos → Obtener una copia de tus datos)
+proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/yo/profile.yaml
+
+# LinkedIn, API oficial (miembros del EEE y Suiza). Configuración en docs/linkedin-api.md
+proofstack import linkedin-api --merge-into profiles/yo/profile.yaml --out profiles/yo/profile.linkedin.yaml
+
+# GitHub: añade como proyectos tus repos públicos que aún no estén en el perfil
+proofstack import github tu-usuario --profile profiles/yo/profile.yaml --out profiles/yo/profile.github.yaml
+```
+
+- Importa perfil, experiencia, formación, proyectos, skills, idiomas y certificaciones. **Nunca importa email ni teléfono.**
+- Con `--merge-into`, LinkedIn aporta la trayectoria y tu perfil conserva sus proyectos y evidencias.
+- Siempre escribe en un fichero nuevo: tu perfil original no se toca. Lo que falte queda marcado como `TODO`.
+- GitHub se salta forks y archivados (`--include-forks` para incluir los forks). `GITHUB_TOKEN` es opcional y solo sube el límite de peticiones.
 
 ### Genera contenido a partir de tus proyectos
 
 ```bash
-# Local y gratis con Ollama (por defecto)
-proofstack generate linkedin-post profiles/yo/profile.yaml --subject mi-proyecto -m llama3.1
-
-# Gemini: la clave solo se lee de la variable de entorno
+proofstack generate linkedin-post profiles/yo/profile.yaml --subject mi-proyecto -m llama3.1    # Ollama, local
 export GEMINI_API_KEY=...        # PowerShell: $env:GEMINI_API_KEY="..."
 proofstack generate readme profiles/yo/profile.yaml -s mi-proyecto -p gemini -o README.draft.md
 ```
 
-Formatos disponibles: `linkedin-post`, `readme`, `cv-bullets`, `video-script` (para grabar con OBS) y `notebooklm-brief` (fuente para NotebookLM).
-
-Reglas de honestidad ([ADR-006](docs/adr/ADR-006-honest-content.md)):
+Formatos: `linkedin-post`, `readme`, `cv-bullets`, `video-script`, `evidence-draft` y `notebooklm-brief`. Reglas de honestidad ([ADR-006](docs/adr/ADR-006-honest-content.md)):
 - Si el modelo falla, no se inventa nada: obtienes un error.
 - Cualquier número que el modelo añada y no esté en tu perfil sale como `WARNING`.
 
 ### "Pregúntale a mi portfolio" (opcional)
 
-Servicio RAG con Spring Boot 4.1 y Spring AI 2.0 que responde preguntas usando **solo** tu perfil y cita las fuentes ([ADR-007](docs/adr/ADR-007-rag-service.md)). Si no encuentra la respuesta en el perfil, dice que no está.
+Servicio RAG con Spring Boot y Spring AI que responde preguntas usando **solo** tu perfil y cita las fuentes ([ADR-007](docs/adr/ADR-007-rag-service.md)). Si no encuentra la respuesta, dice que no está.
 
 ```bash
 ollama pull nomic-embed-text && ollama pull llama3.1
-PROOFSTACK_PROFILE=profiles/yo/profile.yaml \
-PROOFSTACK_ALLOWED_ORIGINS=https://yo.github.io \
-java -jar proofstack-ai-service/target/proofstack-ai-service-0.1.0-SNAPSHOT.jar
-
-curl -X POST localhost:8080/api/ask -H 'Content-Type: application/json' -d '{"question":"¿Ha usado Kafka?"}'
+PROOFSTACK_PROFILE=profiles/yo/profile.yaml PROOFSTACK_ALLOWED_ORIGINS=https://yo.github.io \
+java -jar proofstack-ai-service/target/proofstack-ai-service-*.jar
 proofstack build profiles/yo/profile.yaml --out dist --assistant-url https://ai.yo.dev   # añade el widget
 ```
 
@@ -100,94 +127,58 @@ proofstack build profiles/yo/profile.yaml --out dist --assistant-url https://ai.
 | `PROOFSTACK_RATE_LIMIT` | `10` preguntas por minuto y por IP |
 | `PROOFSTACK_MIN_SCORE` | `0.5` |
 
-La API es pública y no tiene autenticación, por diseño. La protegen el rate limit, el límite de longitud de las preguntas, el CORS restringido y unos errores que no revelan detalles internos. Si la pones detrás de un proxy, activa `server.forward-headers-strategy` para que el rate limit vea la IP real.
-
-### Importa tus repositorios de GitHub
-
-```bash
-proofstack import github tu-usuario --profile profiles/yo/profile.yaml --out profiles/yo/profile.github.yaml
-```
-
-Añade como proyectos los repos públicos que aún no estén en tu perfil, comparando por id y por URL. Se salta forks y archivados (`--include-forks` para incluir los forks). Escribe **siempre en un fichero nuevo**: tu perfil original no se toca. `GITHUB_TOKEN` es opcional y solo sirve para subir el límite de peticiones a la API.
+La API es pública y sin autenticación, por diseño. La protegen el rate limit, el límite de longitud, el CORS restringido y unos errores que no revelan detalles internos. Despliegue con Docker Compose, Caddy, Prometheus y Grafana en [`deploy/`](deploy) y [ADR-009](docs/adr/ADR-009-observability-and-deployment.md).
 
 ### Úsalo desde Kiro (MCP)
 
-`proofstack-mcp-server` es un servidor MCP local (stdio) de **solo lectura** ([ADR-008](docs/adr/ADR-008-mcp-server-and-jackson-3.md)). Ofrece estas herramientas:
+`proofstack-mcp-server` es un servidor MCP local (stdio) de **solo lectura** ([ADR-008](docs/adr/ADR-008-mcp-server-and-jackson-3.md)): `get_profile_summary`, `list_projects`, `get_project`, `search_portfolio` y `get_content_facts`. Configúralo con [`docs/kiro-mcp.example.json`](docs/kiro-mcp.example.json) y pide, por ejemplo: *"Escribe un post de LinkedIn sobre mi proyecto tomcat-jakarta-migration usando proofstack"*.
 
-| Tool | Para qué |
-|---|---|
-| `get_profile_summary` | Quién eres y qué áreas cubre tu portfolio |
-| `list_projects` / `get_project` | Proyectos con problema, solución, stack y evidencias |
-| `search_portfolio` | Búsqueda por palabras clave. Sin resultados = "no está en el portfolio" |
-| `get_content_facts` | Hechos y reglas de honestidad para que el asistente redacte posts o README sin inventar |
+## Publicar en GitHub Pages
 
-Configúralo en `.kiro/settings/mcp.json` (tienes un ejemplo en [`docs/kiro-mcp.example.json`](docs/kiro-mcp.example.json)) y pregunta, por ejemplo: *"Escribe un post de LinkedIn sobre mi proyecto tomcat-jakarta-migration usando proofstack"*.
-
-### Despliegue y observabilidad del asistente
-
-```bash
-mvn -pl proofstack-ai-service -am -DskipTests package
-GRAFANA_ADMIN_PASSWORD=... docker compose -f deploy/compose.yaml up --build
-# Grafana http://localhost:3000 · Prometheus http://localhost:9090 · API http://localhost:8080/api/ask
-
-# Producción, con Caddy y TLS automático. Solo se publican los puertos 80 y 443:
-PROOFSTACK_DOMAIN=ai.tu-dominio.dev PROOFSTACK_ALLOWED_ORIGINS=https://tu.github.io GRAFANA_ADMIN_PASSWORD=... \
-docker compose -f deploy/compose.yaml -f deploy/compose.prod.yaml up -d
-```
-
-- **Métricas** (`proofstack_ask_seconds{status}`, `proofstack_ask_rate_limited_total`, `proofstack_knowledge_chunks`) y llamadas al LLM (`gen_ai_client_operation_*` de Spring AI).
-- **Endpoints de gestión** en el puerto 8081, que nunca se publica.
-- **Privacidad:** el texto de las preguntas nunca llega a métricas ni a logs.
-
-Más detalle en [ADR-009](docs/adr/ADR-009-observability-and-deployment.md).
-
-### Laboratorio de Valhalla (JDK 28 EA)
-
-[`labs/valhalla-lab`](labs/valhalla-lab/RESULTS.md) compara con JMH un `record` y un `value record` (JEP 401). Está fuera del build principal y en este equipo dio estos resultados:
-- **Recorrer arrays:** entre 2,1× y 4,4× más rápido con `value record`.
-- **Crear objetos en masa:** sin mejora, y con un 40 % más de memoria asignada en este caso.
-
-Decisión: no se adopta hasta que sea estable en un LTS ([ADR-010](docs/adr/ADR-010-valhalla-lab-results.md)).
-
-### Crea el tuyo
-
-1. Haz fork del repo.
-2. Importa tu LinkedIn o copia `profiles/example` a `profiles/<tu-nombre>`.
-3. `proofstack validate` te dice exactamente qué falla y dónde (`$.projects[0].name: …`).
-4. Publica `dist/` en GitHub Pages con [`.github/workflows/pages.yml`](.github/workflows/pages.yml).
+1. **Settings → Pages → Source:** *GitHub Actions*.
+2. **Settings → Secrets and variables → Actions → Variables → Repository variables:** `PROOFSTACK_PROFILE` = `profiles/tu-nombre/profile.yaml`. Tiene que ser una variable de repositorio, no de entorno.
+3. Haz push a `main`. El workflow pasa `doctor`, construye la web con el CV, genera el PDF y publica.
 
 ## Arquitectura
 
 ```
-LinkedIn ZIP ─► in-linkedin ─┐                         ┌─► out-web  ─► dist/ (web estática)
-                             ├─► core (dominio+puertos) ├─► out-llm  ─► Gemini / Ollama ─► borradores
-profile.yaml ─► in-yaml ─────┘                         └─► out-yaml ─► profile.yaml
+profile.yaml ─► in-yaml ─────┐                          ┌─► out-web  ─► web estática
+LinkedIn ────► in-linkedin ──┤                          ├─► out-cv   ─► CV (md, html, docx)
+GitHub ──────► in-github ────┼─► core (dominio+puertos) ├─► out-llm  ─► Ollama / Gemini ─► borradores
+navegador ───► in-studio ────┘                          └─► out-yaml ─► profile.yaml
 ```
 
 | Módulo | Responsabilidad |
 |---|---|
-| `proofstack-core` | Dominio, casos de uso, puertos y `GroundingCheck`. Solo Java, sin frameworks. |
-| `adapters/proofstack-in-yaml` | YAML → JSON Schema → dominio, con errores localizados |
-| `adapters/proofstack-in-linkedin` | Export ZIP/CSV de LinkedIn → perfil borrador, con límites anti zip-bomb |
-| `adapters/proofstack-out-web` | Web estática accesible y con CSP, en `en`/`es` |
-| `adapters/proofstack-out-llm` | Prompts versionados, salida estructurada validada, Gemini y Ollama |
-| `adapters/proofstack-out-yaml` | Escribe `profile.yaml` (usado por los importadores) |
+| `proofstack-core` | Dominio, casos de uso y puertos. Solo Java, sin frameworks. |
+| `adapters/proofstack-in-yaml` | YAML → JSON Schema → dominio, y el perfil como documento editable (escritura atómica) |
+| `adapters/proofstack-in-linkedin` | Export ZIP y API de portabilidad de LinkedIn → perfil borrador |
+| `adapters/proofstack-in-github` | Repos públicos → proyectos borrador |
+| `adapters/proofstack-in-studio` | Editor local: servidor HTTP del JDK en `127.0.0.1` y frontend sin build |
+| `adapters/proofstack-out-web` | Web estática accesible, con CSP, en `es` y `en` |
+| `adapters/proofstack-out-cv` | CV en Markdown, HTML y Word, y ajuste a una oferta |
+| `adapters/proofstack-out-llm` | Prompts versionados y salida validada, con Ollama y Gemini |
+| `adapters/proofstack-out-yaml` | Escribe `profile.yaml` (lo usan los importadores) |
 | `proofstack-cli` | Raíz de composición y CLI |
-| `proofstack-ai-service` | Servicio RAG opcional: Spring AI (`VectorStore` + `ChatModel`), REST, rate limit, CORS |
-| `adapters/proofstack-in-github` | Repos públicos de GitHub → proyectos borrador (paginación segura, token opcional) |
-| `proofstack-mcp-server` | Servidor MCP stdio de solo lectura (Spring AI `@McpTool`) |
+| `proofstack-ai-service` | Servicio RAG opcional (Spring AI) |
+| `proofstack-mcp-server` | Servidor MCP de solo lectura |
 
-Las reglas hexagonales (el core no conoce los adaptadores y los adaptadores no se conocen entre sí) se comprueban con ArchUnit en cada build. Las decisiones están en [`docs/adr`](docs/adr).
+ArchUnit comprueba en cada build las reglas hexagonales: el core no conoce los adaptadores y los adaptadores no se conocen entre sí. Las decisiones están en [`docs/adr`](docs/adr) y cada fase empezó como una spec en [`docs/specs`](docs/specs).
+
+[`labs/valhalla-lab`](labs/valhalla-lab/RESULTS.md) compara con JMH un `record` y un `value record` (JEP 401, JDK 28 EA). Está fuera del build principal ([ADR-010](docs/adr/ADR-010-valhalla-lab-results.md)).
 
 ## Roadmap
 
 - [x] Fase 0–1: cimientos y portfolio estático
 - [x] Fase 2: motor de contenido con IA e importador de LinkedIn
-- [x] Fase 3: RAG "pregúntale a mi portfolio" (servicio opcional con Spring AI)
+- [x] Fase 3: "pregúntale a mi portfolio" (RAG)
 - [x] Fase 4: servidor MCP e importador de GitHub
-- [x] Fase 5: observabilidad, contenedores y laboratorio de Valhalla (JDK 28 EA)
-- [x] Fase 6: plantilla pública (`init`, `doctor`, publicación bloqueada si hay placeholders, releases)
-- [ ] Hardware Lab: ESP32 + MQTT + Spring Boot ("prepárame un café")
+- [x] Fase 5: observabilidad, contenedores y laboratorio de Valhalla
+- [x] Fase 6: plantilla pública (`init`, `doctor`, releases)
+- [x] Fase 7: CV completo (PDF, Word, ajuste a ofertas), API de LinkedIn y Studio
+- [ ] `doctor --check-links`: comprobar que los enlaces del perfil responden
+
+Historial de versiones en [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Licencia
 

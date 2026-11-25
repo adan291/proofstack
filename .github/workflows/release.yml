@@ -1,4 +1,4 @@
-# Publishes proofstack.jar (+ SHA-256) as a GitHub release when a tag like v0.6.0 is pushed.
+# Publishes proofstack.jar (+ SHA-256) as a GitHub release when a tag like v0.7.0 is pushed.
 name: Release CLI
 
 on:

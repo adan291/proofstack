@@ -6,7 +6,7 @@
     <parent>
         <groupId>dev.proofstack</groupId>
         <artifactId>proofstack-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.7.0</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <artifactId>proofstack-out-cv</artifactId>

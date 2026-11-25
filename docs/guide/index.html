@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="Guía de Proofstack: tu portfolio técnico y tu CV desde un único fichero, paso a paso.">
+  <title>Proofstack · Guía desde cero</title>
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+
+<header class="hero">
+  <p class="eyebrow">Guía · Proofstack v0.7</p>
+  <h1>Tu portfolio y tu CV, desde un solo fichero</h1>
+  <p class="lead">Escribes tu carrera una vez en <code>profile.yaml</code>. Proofstack genera la web, el CV en PDF y Word, y borradores de contenido. Todo lo que publica se puede comprobar, y nada se inventa.</p>
+  <ul class="cta">
+    <li><a class="btn btn--primary" href="#pasos">Empezar</a></li>
+    <li><a class="btn" href="https://github.com/adan291/proofstack">Código en GitHub</a></li>
+    <li><a class="btn" href="https://adan291.github.io/proofstack/">Ver un ejemplo real</a></li>
+  </ul>
+</header>
+
+<main id="main">
+
+  <section aria-labelledby="que">
+    <h2 id="que">Qué hace</h2>
+    <div class="cards">
+      <article class="card">
+        <h3>Web de portfolio</h3>
+        <p>Tu carrera como un mapa de áreas. Cada área enlaza a proyectos (problema, solución, aprendizajes) y a evidencias (contexto, acción, resultado). Se publica sola en GitHub Pages.</p>
+      </article>
+      <article class="card">
+        <h3>CV en PDF y Word</h3>
+        <p>Una o dos páginas, una columna, apto para filtros ATS. Con <code>--job</code> lo ordenas para una oferta y te dice qué pide que tu perfil no menciona.</p>
+      </article>
+      <article class="card">
+        <h3>Editor en el navegador</h3>
+        <p><code>proofstack studio</code> abre formularios con los avisos junto a cada campo y una vista previa. Nunca guarda un perfil inválido.</p>
+      </article>
+      <article class="card">
+        <h3>Importadores</h3>
+        <p>Trae tu experiencia, formación, skills, idiomas y certificaciones de LinkedIn, y tus repos públicos de GitHub. Nunca importa email ni teléfono.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="principios">
+    <h2 id="principios">Tres reglas que no se saltan</h2>
+    <ol class="rules">
+      <li><strong>Nada inventado.</strong> El CV y la web solo dicen lo que pone tu perfil. Si un modelo de IA añade un número que no está en tu perfil, sale marcado como aviso.</li>
+      <li><strong>Nada a medias.</strong> Cualquier <code>TODO</code> o enlace de ejemplo bloquea la publicación (<code>proofstack doctor</code>).</li>
+      <li><strong>Tu fichero manda.</strong> Es texto versionado en Git. Los importadores escriben siempre en un fichero nuevo y nunca sobrescriben el tuyo.</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="pasos">
+    <h2 id="pasos">Desde cero, paso a paso</h2>
+    <p class="note">Necesitas <strong>JDK 25</strong> (<a href="https://adoptium.net/">Temurin</a>) y una cuenta de GitHub. No hace falta saber Java.</p>
+
+    <ol class="steps">
+      <li class="step">
+        <h3>Crea tu copia del repositorio</h3>
+        <p>En GitHub, abre el repositorio de Proofstack y pulsa <kbd>Use this template</kbd> → <kbd>Create a new repository</kbd>. Después clónalo en tu equipo.</p>
+      </li>
+
+      <li class="step">
+        <h3>Consigue la herramienta</h3>
+        <p>Descarga <code>proofstack.jar</code> de la última <em>Release</em> y déjalo en la carpeta del repositorio. Crea un atajo para no escribir <code>java -jar</code> cada vez:</p>
+        <pre><code><span class="c"># Windows (PowerShell)</span>
+function proofstack { java -jar proofstack.jar @args }
+
+<span class="c"># macOS / Linux</span>
+alias proofstack="java -jar proofstack.jar"</code></pre>
+        <p class="tip">El atajo solo existe en la terminal donde lo creas. Ejecuta los comandos desde la carpeta del repositorio.</p>
+      </li>
+
+      <li class="step">
+        <h3>Crea tu perfil</h3>
+        <p>Elige cómo empezar:</p>
+        <pre><code><span class="c"># Desde cero</span>
+proofstack init profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
+
+<span class="c"># O desde tu LinkedIn: Ajustes → Privacidad de datos → Obtener una copia de tus datos</span>
+proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/tu-nombre/profile.yaml
+
+<span class="c"># Y añade tus repos públicos</span>
+proofstack import github tu-usuario -p profiles/tu-nombre/profile.yaml -o profiles/tu-nombre/profile.github.yaml</code></pre>
+      </li>
+
+      <li class="step">
+        <h3>Rellénalo en el navegador</h3>
+        <pre><code>proofstack studio profiles/tu-nombre/profile.yaml</code></pre>
+        <p>Se abre un editor con una sección por bloque: persona, experiencia, proyectos, evidencias, idiomas… El panel <em>Antes de publicar</em> te lleva a cada campo que falta. <kbd>Ctrl</kbd>+<kbd>S</kbd> guarda.</p>
+        <dl class="howto">
+          <dt>Un buen proyecto</dt>
+          <dd>Dice qué problema había y cómo lo resolviste, y enlaza al código o a una demo.</dd>
+          <dt>Una buena evidencia</dt>
+          <dd>Contexto, lo que hiciste tú y el resultado. Sin cifra, mejor una frase honesta que un número inventado.</dd>
+        </dl>
+      </li>
+
+      <li class="step">
+        <h3>Comprueba que está listo</h3>
+        <pre><code>proofstack doctor profiles/tu-nombre/profile.yaml
+proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv</code></pre>
+        <p>Abre <code>dist/index.html</code>. <code>doctor</code> separa los <strong>errores</strong>, que impiden publicar, de los <strong>avisos</strong>, que son sugerencias.</p>
+      </li>
+
+      <li class="step">
+        <h3>Publica en GitHub Pages</h3>
+        <ol class="sub">
+          <li><strong>Settings → Pages:</strong> en <em>Source</em> elige <em>GitHub Actions</em>.</li>
+          <li><strong>Settings → Secrets and variables → Actions → Variables:</strong> en <em>Repository variables</em> crea <code>PROOFSTACK_PROFILE</code> con el valor <code>profiles/tu-nombre/profile.yaml</code>.</li>
+          <li>Haz <code>git push</code> a <code>main</code>, o lanza <em>Actions → Deploy portfolio → Run workflow</em>.</li>
+        </ol>
+        <p class="tip">La variable tiene que ser <strong>de repositorio</strong>. Si la creas dentro de un <em>environment</em>, el despliegue no la ve.</p>
+        <p>Tu web queda en <code>https://&lt;usuario&gt;.github.io/&lt;repo&gt;/</code>, con un botón <em>Descargar CV</em> que baja el PDF.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="dia">
+    <h2 id="dia">El día a día</h2>
+    <table>
+      <caption class="sr-only">Comandos habituales</caption>
+      <thead><tr><th scope="col">Quiero…</th><th scope="col">Comando</th></tr></thead>
+      <tbody>
+        <tr><td>Actualizar mi web</td><td>Edita el perfil (o <code>studio</code>), haz commit y <code>git push</code></td></tr>
+        <tr><td>Un CV para una oferta</td><td><code>proofstack cv perfil.yaml --out cv-oferta --job oferta.txt</code></td></tr>
+        <tr><td>Un CV centrado en un área</td><td><code>proofstack cv perfil.yaml --out cv-ia --focus ai -p 4</code></td></tr>
+        <tr><td>Un borrador de post</td><td><code>proofstack generate linkedin-post perfil.yaml -s mi-proyecto</code></td></tr>
+        <tr><td>Traer mi LinkedIn otra vez</td><td><code>proofstack import linkedin-api --merge-into perfil.yaml --out nuevo.yaml</code></td></tr>
+        <tr><td>Ver todos los comandos</td><td><code>proofstack --help</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="problemas">
+    <h2 id="problemas">Si algo falla</h2>
+    <dl class="faq">
+      <dt><code>proofstack</code> no se reconoce</dt>
+      <dd>El atajo no existe en esta terminal. Vuelve a crearlo (paso 2).</dd>
+      <dt><code>File not found: profiles/…</code></dt>
+      <dd>Estás en otra carpeta. Entra en la del repositorio con <code>cd</code>.</dd>
+      <dt>El despliegue falla en <em>Ready to publish?</em></dt>
+      <dd><code>doctor</code> encontró errores, o la variable <code>PROOFSTACK_PROFILE</code> falta o no es de repositorio. El log muestra las líneas <code>ERROR</code>.</dd>
+      <dt>La web da 404</dt>
+      <dd>El primer despliegue aún no ha terminado, o <em>Pages → Source</em> no está en <em>GitHub Actions</em>.</dd>
+      <dt>LinkedIn responde 401</dt>
+      <dd>La app de LinkedIn debe usar la página <em>Member Data Portability (Member-Only Default Company Page)</em>, y la API solo sirve a cuentas del EEE o Suiza. Fuera de ahí, usa el ZIP.</dd>
+    </dl>
+  </section>
+
+  <section aria-labelledby="como">
+    <h2 id="como">Cómo está hecho</h2>
+    <p>Java 25 con arquitectura hexagonal: un núcleo sin frameworks y un adaptador por cada entrada (YAML, LinkedIn, GitHub, Studio) y cada salida (web, CV, LLM). ArchUnit comprueba esas reglas en cada build. Cada fase empezó como una spec y cada decisión importante está en un ADR del repositorio.</p>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>Proofstack · Apache-2.0 · <a href="https://github.com/adan291/proofstack">github.com/adan291/proofstack</a></p>
+</footer>
+</body>
+</html>

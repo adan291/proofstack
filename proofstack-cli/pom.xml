@@ -7,7 +7,7 @@
     <parent>
         <groupId>dev.proofstack</groupId>
         <artifactId>proofstack-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.7.0</version>
     </parent>
 
     <artifactId>proofstack-cli</artifactId>
