@@ -33,6 +33,8 @@ public interface ProfileDocumentStore {
     /** The file changed on disk since it was read: saving now would overwrite someone else's edit. */
     final class VersionConflict extends RuntimeException {
 
+        private static final long serialVersionUID = 1L;
+
         private final String currentVersion;
 
         public VersionConflict(String currentVersion) {

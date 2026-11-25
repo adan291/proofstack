@@ -58,14 +58,14 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
         this(null);
     }
 
-    public ArchitectureThemeRenderer(URI assistantBaseUrl) {
-        this(assistantBaseUrl, null);
-    }
-
     /**
      * @param assistantBaseUrl base URL of the optional ask service (ADR-007), or {@code null} for none.
      *                         Must be https; plain http is only accepted for localhost development.
      */
+    public ArchitectureThemeRenderer(URI assistantBaseUrl) {
+        this(assistantBaseUrl, null);
+    }
+
     /**
      * @param assistantBaseUrl see {@link #ArchitectureThemeRenderer(URI)}
      * @param cvHref           relative path of the CV published with the site (e.g. {@code cv/cv.pdf}), or {@code null}

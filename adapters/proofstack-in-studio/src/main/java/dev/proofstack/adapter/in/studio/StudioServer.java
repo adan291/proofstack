@@ -88,9 +88,8 @@ public final class StudioServer implements AutoCloseable {
         server.setExecutor(executor);
     }
 
-    public StudioServer start() {
+    public void start() {
         server.start();
-        return this;
     }
 
     public int port() {

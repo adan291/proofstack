@@ -83,8 +83,15 @@ final class StudioCommand implements Callable<Integer> {
     static StudioServer start(Path profile, int port) {
         Path file = profile.toAbsolutePath().normalize();
         YamlProfileSource source = new YamlProfileSource();
-        return new StudioServer(new ProfileEditingService(new YamlProfileDocumentStore(file)), () -> source.load(file),
-                new ArchitectureThemeRenderer(), new CvRenderer(), schema(), port).start();
+        StudioServer server = new StudioServer(new ProfileEditingService(new YamlProfileDocumentStore(file)),
+                () -> source.load(file), new ArchitectureThemeRenderer(), new CvRenderer(), schema(), port);
+        try {
+            server.start();
+            return server;
+        } catch (RuntimeException e) {
+            server.close();
+            throw e;
+        }
     }
 
     private static String schema() {

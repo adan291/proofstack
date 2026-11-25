@@ -20,26 +20,58 @@ Proofstack genera el portfolio técnico y el CV de un perfil backend desde un ú
 
 ## Empieza desde cero
 
-Pulsa **Use this template**, descarga `proofstack.jar` de la última [Release](../../releases) y sigue la guía:
+**Requisitos:** JDK 25 ([Temurin](https://adoptium.net/)). Maven 3.9 solo si compilas desde el código. Git y una cuenta de GitHub para publicar.
 
-- **Guía paso a paso:** [`docs/getting-started.md`](docs/getting-started.md), unos 15 minutos y sin saber Java.
-- **Guía visual:** [`docs/guide/index.html`](docs/guide/index.html). Ábrela en el navegador, o en la web publicada en `/guide/`.
+**Guía visual paso a paso:** [adan291.github.io/proofstack/guide](https://adan291.github.io/proofstack/guide/) (en tu copia, `https://<usuario>.github.io/<repo>/guide/`). La misma guía en texto: [`docs/getting-started.md`](docs/getting-started.md).
+
+### 1. Consigue la herramienta
+
+Pulsa **Use this template** y clona tu copia. Después, una de dos:
+
+- **Descargar:** baja `proofstack.jar` de la última [Release](../../releases) a la carpeta del repositorio.
+- **Compilar:** `mvn -DskipTests package`. El jar queda en `proofstack-cli/target/proofstack.jar`.
+
+Crea un atajo en la terminal (solo dura mientras esté abierta) y trabaja siempre desde la carpeta del repositorio:
+
+```powershell
+# Windows (PowerShell)
+function proofstack { java -jar proofstack.jar @args }
+```
+```bash
+# macOS / Linux
+alias proofstack="java -jar proofstack.jar"
+```
+
+Si compilaste, cambia `proofstack.jar` por `proofstack-cli/target/proofstack.jar`.
+
+### 2. Crea y rellena tu perfil
 
 ```bash
 proofstack init   profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
-proofstack studio profiles/tu-nombre/profile.yaml     # rellénalo en el navegador
+proofstack studio profiles/tu-nombre/profile.yaml     # editor en el navegador; Ctrl+C para cerrarlo
 proofstack doctor profiles/tu-nombre/profile.yaml     # ¿se puede publicar? Bloquea TODOs y enlaces de ejemplo
-proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv
 ```
 
-Para compilar desde el código necesitas JDK 25 y Maven 3.9 o superior:
+### 3. Lanza la web y el CV en tu equipo
 
+```powershell
+# Windows (PowerShell)
+proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
+Start-Process dist\index.html          # la web, con el botón "Descargar CV"
+Start-Process dist\cv\cv.html          # el CV; Ctrl+P â†’ Guardar como PDF
+Start-Process dist\cv\cv.docx          # el CV en Word
+```
 ```bash
-mvn verify                                    # build + tests + reglas de arquitectura
-alias proofstack="java -jar proofstack-cli/target/proofstack.jar"
-# PowerShell: function proofstack { java -jar proofstack-cli\target\proofstack.jar @args }
+# macOS (en Linux usa xdg-open)
+proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
+open dist/index.html dist/cv/cv.html dist/cv/cv.docx
 ```
 
+En local, el botón *Descargar CV* abre `cv.html`. El PDF lo genera el workflow al publicar; si lo quieres ya, imprímelo desde el navegador.
+
+### 4. Publícalo
+
+Sigue [Publicar en GitHub Pages](#publicar-en-github-pages). Cada `git push` a `main` vuelve a construir y publicar la web, el CV en PDF y en Word, y la guía.
 ## Comandos
 
 ### Edita tu perfil sin tocar YAML

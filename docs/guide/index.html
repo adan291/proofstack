@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="Guía de Proofstack: tu portfolio técnico y tu CV desde un único fichero, paso a paso.">
-  <title>Proofstack · Guía desde cero</title>
+  <meta name="description" content="Proofstack: qué es, cómo funciona y cómo lanzar tu portfolio y tu CV, paso a paso.">
+  <title>Proofstack · Qué es y cómo lanzarlo</title>
   <link rel="stylesheet" href="guide.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
 <header class="hero">
   <p class="eyebrow">Guía · Proofstack v0.7</p>
   <h1>Tu portfolio y tu CV, desde un solo fichero</h1>
-  <p class="lead">Escribes tu carrera una vez en <code>profile.yaml</code>. Proofstack genera la web, el CV en PDF y Word, y borradores de contenido. Todo lo que publica se puede comprobar, y nada se inventa.</p>
+  <p class="lead">Escribes tu carrera una vez en <code>profile.yaml</code>. Proofstack genera la web de portfolio, el CV en PDF y Word, y borradores de contenido. Todo lo que publica se puede comprobar, y nada se inventa.</p>
   <ul class="cta">
     <li><a class="btn btn--primary" href="#pasos">Empezar</a></li>
     <li><a class="btn" href="https://github.com/adan291/proofstack">Código en GitHub</a></li>
@@ -23,41 +23,93 @@
   </ul>
 </header>
 
+<nav class="toc" aria-label="En esta guía">
+  <ol>
+    <li><a href="#que">Qué es</a></li>
+    <li><a href="#como">Cómo funciona</a></li>
+    <li><a href="#pasos">Desde cero</a></li>
+    <li><a href="#lanzar">Lanzar la web y el CV</a></li>
+    <li><a href="#publicar">Publicar</a></li>
+    <li><a href="#dia">El día a día</a></li>
+    <li><a href="#problemas">Si algo falla</a></li>
+  </ol>
+</nav>
+
 <main id="main">
 
   <section aria-labelledby="que">
-    <h2 id="que">Qué hace</h2>
+    <h2 id="que">Qué es</h2>
+    <p>Un portfolio de backend suele ser una lista de tecnologías que nadie puede comprobar. Proofstack organiza tu carrera en <strong>áreas</strong> (Backend, Arquitectura, IA, Liderazgo…) y cada área enlaza a dos tipos de prueba:</p>
+    <div class="cards cards--two">
+      <article class="card">
+        <h3>Proyectos</h3>
+        <p>Qué problema había, cómo lo resolviste, qué aprendiste y dónde se puede ver: repositorio o demo.</p>
+      </article>
+      <article class="card">
+        <h3>Evidencias</h3>
+        <p>Contexto, lo que hiciste tú y el resultado. Una frase honesta vale más que una cifra inventada.</p>
+      </article>
+    </div>
+    <h3 class="sub-title">Qué obtienes con ese fichero</h3>
     <div class="cards">
       <article class="card">
         <h3>Web de portfolio</h3>
-        <p>Tu carrera como un mapa de áreas. Cada área enlaza a proyectos (problema, solución, aprendizajes) y a evidencias (contexto, acción, resultado). Se publica sola en GitHub Pages.</p>
+        <p>Tu carrera como un mapa de áreas, accesible y estática. Se publica sola en GitHub Pages.</p>
       </article>
       <article class="card">
         <h3>CV en PDF y Word</h3>
-        <p>Una o dos páginas, una columna, apto para filtros ATS. Con <code>--job</code> lo ordenas para una oferta y te dice qué pide que tu perfil no menciona.</p>
+        <p>Una o dos páginas en una columna, apto para filtros ATS. Con <code>--job</code> lo ordenas para una oferta concreta.</p>
       </article>
       <article class="card">
         <h3>Editor en el navegador</h3>
-        <p><code>proofstack studio</code> abre formularios con los avisos junto a cada campo y una vista previa. Nunca guarda un perfil inválido.</p>
+        <p><code>proofstack studio</code> abre formularios con los avisos junto a cada campo. Nunca guarda un perfil inválido.</p>
       </article>
       <article class="card">
         <h3>Importadores</h3>
-        <p>Trae tu experiencia, formación, skills, idiomas y certificaciones de LinkedIn, y tus repos públicos de GitHub. Nunca importa email ni teléfono.</p>
+        <p>Experiencia, formación, skills, idiomas y certificaciones desde LinkedIn, y repos públicos desde GitHub. Nunca importa email ni teléfono.</p>
       </article>
     </div>
   </section>
 
-  <section aria-labelledby="principios">
-    <h2 id="principios">Tres reglas que no se saltan</h2>
+  <section aria-labelledby="como">
+    <h2 id="como">Cómo funciona</h2>
+    <p>Todo sale de un único fichero de texto versionado en Git. Las entradas lo crean o lo editan; las salidas lo convierten en lo que publicas.</p>
+    <figure class="flow" aria-labelledby="flow-caption">
+      <div class="flow__col">
+        <p class="flow__label">Entradas</p>
+        <ul>
+          <li>Tú, a mano o con Studio</li>
+          <li>LinkedIn (ZIP o API)</li>
+          <li>GitHub</li>
+        </ul>
+      </div>
+      <div class="flow__arrow" aria-hidden="true">→</div>
+      <div class="flow__col flow__col--core">
+        <p class="flow__label">El corazón</p>
+        <p class="flow__file"><code>profile.yaml</code></p>
+        <p class="flow__note">Validado con un esquema y revisado por <code>doctor</code></p>
+      </div>
+      <div class="flow__arrow" aria-hidden="true">→</div>
+      <div class="flow__col">
+        <p class="flow__label">Salidas</p>
+        <ul>
+          <li>Web de portfolio</li>
+          <li>CV: PDF, Word, HTML y Markdown</li>
+          <li>Borradores con IA</li>
+        </ul>
+      </div>
+      <figcaption id="flow-caption" class="sr-only">Las entradas (tú, LinkedIn y GitHub) alimentan profile.yaml, que se valida y del que salen la web, el CV y los borradores.</figcaption>
+    </figure>
     <ol class="rules">
       <li><strong>Nada inventado.</strong> El CV y la web solo dicen lo que pone tu perfil. Si un modelo de IA añade un número que no está en tu perfil, sale marcado como aviso.</li>
-      <li><strong>Nada a medias.</strong> Cualquier <code>TODO</code> o enlace de ejemplo bloquea la publicación (<code>proofstack doctor</code>).</li>
-      <li><strong>Tu fichero manda.</strong> Es texto versionado en Git. Los importadores escriben siempre en un fichero nuevo y nunca sobrescriben el tuyo.</li>
+      <li><strong>Nada a medias.</strong> Cualquier <code>TODO</code> o enlace de ejemplo bloquea la publicación.</li>
+      <li><strong>Tu fichero manda.</strong> Los importadores escriben siempre en un fichero nuevo y nunca sobrescriben el tuyo.</li>
     </ol>
+    <p class="note">Por dentro: Java 25 con arquitectura hexagonal. Un núcleo sin frameworks y un adaptador por cada entrada y cada salida; ArchUnit comprueba esas reglas en cada build. Cada decisión importante está en un ADR del repositorio.</p>
   </section>
 
   <section aria-labelledby="pasos">
-    <h2 id="pasos">Desde cero, paso a paso</h2>
+    <h2 id="pasos">Desde cero</h2>
     <p class="note">Necesitas <strong>JDK 25</strong> (<a href="https://adoptium.net/">Temurin</a>) y una cuenta de GitHub. No hace falta saber Java.</p>
 
     <ol class="steps">
@@ -74,12 +126,11 @@ function proofstack { java -jar proofstack.jar @args }
 
 <span class="c"># macOS / Linux</span>
 alias proofstack="java -jar proofstack.jar"</code></pre>
-        <p class="tip">El atajo solo existe en la terminal donde lo creas. Ejecuta los comandos desde la carpeta del repositorio.</p>
+        <p class="tip">El atajo solo existe en la terminal donde lo creas. Trabaja siempre desde la carpeta del repositorio: las rutas como <code>profiles/…</code> son relativas a ella.</p>
       </li>
 
       <li class="step">
         <h3>Crea tu perfil</h3>
-        <p>Elige cómo empezar:</p>
         <pre><code><span class="c"># Desde cero</span>
 proofstack init profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
 
@@ -91,33 +142,84 @@ proofstack import github tu-usuario -p profiles/tu-nombre/profile.yaml -o profil
       </li>
 
       <li class="step">
-        <h3>Rellénalo en el navegador</h3>
+        <h3>Rellénalo con Studio</h3>
         <pre><code>proofstack studio profiles/tu-nombre/profile.yaml</code></pre>
-        <p>Se abre un editor con una sección por bloque: persona, experiencia, proyectos, evidencias, idiomas… El panel <em>Antes de publicar</em> te lleva a cada campo que falta. <kbd>Ctrl</kbd>+<kbd>S</kbd> guarda.</p>
+        <p>Se abre el navegador con una sección por bloque: persona, experiencia, proyectos, evidencias, idiomas… El panel <em>Antes de publicar</em> te lleva a cada campo que falta, y a la derecha ves cómo quedan el CV y la web.</p>
         <dl class="howto">
-          <dt>Un buen proyecto</dt>
-          <dd>Dice qué problema había y cómo lo resolviste, y enlaza al código o a una demo.</dd>
-          <dt>Una buena evidencia</dt>
-          <dd>Contexto, lo que hiciste tú y el resultado. Sin cifra, mejor una frase honesta que un número inventado.</dd>
+          <dt>Guardar</dt><dd><kbd>Ctrl</kbd>+<kbd>S</kbd> o el botón <em>Guardar</em>. Si algo es inválido, no se guarda y se marca en rojo.</dd>
+          <dt>Cerrar</dt><dd><kbd>Ctrl</kbd>+<kbd>C</kbd> en la terminal.</dd>
+          <dt>Deshacer</dt><dd>Cada guardado deja una copia <code>profile.yaml.bak</code>, y con Git puedes volver a cualquier versión.</dd>
         </dl>
       </li>
 
       <li class="step">
         <h3>Comprueba que está listo</h3>
-        <pre><code>proofstack doctor profiles/tu-nombre/profile.yaml
-proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv</code></pre>
-        <p>Abre <code>dist/index.html</code>. <code>doctor</code> separa los <strong>errores</strong>, que impiden publicar, de los <strong>avisos</strong>, que son sugerencias.</p>
+        <pre><code>proofstack doctor profiles/tu-nombre/profile.yaml</code></pre>
+        <p>Separa los <strong>errores</strong>, que impiden publicar (un <code>TODO</code>, un enlace de ejemplo), de los <strong>avisos</strong>, que son sugerencias (un proyecto sin enlace).</p>
       </li>
+    </ol>
+  </section>
 
+  <section aria-labelledby="lanzar">
+    <h2 id="lanzar">Lanzar la web y el CV en tu equipo</h2>
+    <p>Un solo comando genera las dos cosas en la carpeta <code>dist</code>: la web de portfolio y, dentro de <code>dist/cv</code>, el CV.</p>
+
+    <div class="cards cards--stack">
+      <article class="card card--code">
+        <h3>Windows (PowerShell)</h3>
+        <pre><code>proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
+
+Start-Process dist\index.html    <span class="c"># la web</span>
+Start-Process dist\cv\cv.html    <span class="c"># el CV</span>
+Start-Process dist\cv\cv.docx    <span class="c"># el CV en Word</span></code></pre>
+      </article>
+      <article class="card card--code">
+        <h3>macOS / Linux</h3>
+        <pre><code>proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
+
+open dist/index.html             <span class="c"># la web; en Linux, xdg-open</span>
+open dist/cv/cv.html             <span class="c"># el CV</span>
+open dist/cv/cv.docx             <span class="c"># el CV en Word</span></code></pre>
+      </article>
+    </div>
+
+    <table>
+      <caption class="sr-only">Qué genera build --with-cv</caption>
+      <thead><tr><th scope="col">Fichero</th><th scope="col">Para qué</th></tr></thead>
+      <tbody>
+        <tr><td><code>dist/index.html</code></td><td>Tu web. El botón <em>Descargar CV</em> abre el CV.</td></tr>
+        <tr><td><code>dist/cv/cv.html</code></td><td>El CV para leerlo o imprimirlo: <kbd>Ctrl</kbd>+<kbd>P</kbd> → <em>Guardar como PDF</em>.</td></tr>
+        <tr><td><code>dist/cv/cv.docx</code></td><td>El CV en Word, para quien te lo pida en ese formato.</td></tr>
+        <tr><td><code>dist/cv/cv.md</code></td><td>El CV en texto, para pegarlo en un formulario de candidatura.</td></tr>
+      </tbody>
+    </table>
+    <p class="tip">En local el botón abre <code>cv.html</code>. El PDF lo genera el despliegue automático al publicar.</p>
+
+    <h3 class="sub-title">Solo el CV, o un CV por oferta</h3>
+    <pre><code>proofstack cv profiles/tu-nombre/profile.yaml --out cv                      <span class="c"># el CV normal</span>
+proofstack cv profiles/tu-nombre/profile.yaml --out cv-ia --focus ai -p 4   <span class="c"># centrado en IA, 4 proyectos</span>
+proofstack cv profiles/tu-nombre/profile.yaml --out cv-oferta --job oferta.txt</code></pre>
+    <p>Con <code>--job</code> guardas el texto de una oferta en <code>oferta.txt</code>: los proyectos y skills que coinciden pasan delante, y la terminal te dice qué pide la oferta que tu perfil nunca menciona. No añade nada al CV: decides tú.</p>
+  </section>
+
+  <section aria-labelledby="publicar">
+    <h2 id="publicar">Publicar en GitHub Pages</h2>
+    <ol class="steps">
       <li class="step">
-        <h3>Publica en GitHub Pages</h3>
-        <ol class="sub">
-          <li><strong>Settings → Pages:</strong> en <em>Source</em> elige <em>GitHub Actions</em>.</li>
-          <li><strong>Settings → Secrets and variables → Actions → Variables:</strong> en <em>Repository variables</em> crea <code>PROOFSTACK_PROFILE</code> con el valor <code>profiles/tu-nombre/profile.yaml</code>.</li>
-          <li>Haz <code>git push</code> a <code>main</code>, o lanza <em>Actions → Deploy portfolio → Run workflow</em>.</li>
-        </ol>
-        <p class="tip">La variable tiene que ser <strong>de repositorio</strong>. Si la creas dentro de un <em>environment</em>, el despliegue no la ve.</p>
-        <p>Tu web queda en <code>https://&lt;usuario&gt;.github.io/&lt;repo&gt;/</code>, con un botón <em>Descargar CV</em> que baja el PDF.</p>
+        <h3>Activa Pages</h3>
+        <p>En tu repositorio, <strong>Settings → Pages</strong>, y en <em>Source</em> elige <em>GitHub Actions</em>.</p>
+      </li>
+      <li class="step">
+        <h3>Dile qué perfil publicar</h3>
+        <p><strong>Settings → Secrets and variables → Actions</strong>, pestaña <em>Variables</em>. En <em>Repository variables</em> crea <code>PROOFSTACK_PROFILE</code> con el valor <code>profiles/tu-nombre/profile.yaml</code>.</p>
+        <p class="tip">Tiene que ser una variable <strong>de repositorio</strong>. Si la creas dentro de un <em>environment</em>, el despliegue no la ve.</p>
+      </li>
+      <li class="step">
+        <h3>Sube los cambios</h3>
+        <pre><code>git add -A
+git commit -m "Mi perfil"
+git push</code></pre>
+        <p>El workflow pasa <code>doctor</code>, construye la web y el CV, genera el PDF y publica. Tu web queda en <code>https://&lt;usuario&gt;.github.io/&lt;repo&gt;/</code>, y esta guía en <code>/guide/</code>.</p>
       </li>
     </ol>
   </section>
@@ -128,11 +230,12 @@ proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv</code></p
       <caption class="sr-only">Comandos habituales</caption>
       <thead><tr><th scope="col">Quiero…</th><th scope="col">Comando</th></tr></thead>
       <tbody>
-        <tr><td>Actualizar mi web</td><td>Edita el perfil (o <code>studio</code>), haz commit y <code>git push</code></td></tr>
-        <tr><td>Un CV para una oferta</td><td><code>proofstack cv perfil.yaml --out cv-oferta --job oferta.txt</code></td></tr>
-        <tr><td>Un CV centrado en un área</td><td><code>proofstack cv perfil.yaml --out cv-ia --focus ai -p 4</code></td></tr>
-        <tr><td>Un borrador de post</td><td><code>proofstack generate linkedin-post perfil.yaml -s mi-proyecto</code></td></tr>
-        <tr><td>Traer mi LinkedIn otra vez</td><td><code>proofstack import linkedin-api --merge-into perfil.yaml --out nuevo.yaml</code></td></tr>
+        <tr><td>Editar mi perfil</td><td><code>proofstack studio profiles/tu-nombre/profile.yaml</code></td></tr>
+        <tr><td>Actualizar mi web</td><td>Edita el perfil, haz commit y <code>git push</code></td></tr>
+        <tr><td>Ver la web y el CV en local</td><td><code>proofstack build … --out dist --with-cv</code></td></tr>
+        <tr><td>Un CV para una oferta</td><td><code>proofstack cv … --out cv-oferta --job oferta.txt</code></td></tr>
+        <tr><td>Un borrador de post</td><td><code>proofstack generate linkedin-post … -s mi-proyecto</code></td></tr>
+        <tr><td>Traer mi LinkedIn otra vez</td><td><code>proofstack import linkedin-api --merge-into … --out nuevo.yaml</code></td></tr>
         <tr><td>Ver todos los comandos</td><td><code>proofstack --help</code></td></tr>
       </tbody>
     </table>
@@ -145,6 +248,8 @@ proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv</code></p
       <dd>El atajo no existe en esta terminal. Vuelve a crearlo (paso 2).</dd>
       <dt><code>File not found: profiles/…</code></dt>
       <dd>Estás en otra carpeta. Entra en la del repositorio con <code>cd</code>.</dd>
+      <dt>Studio dice «Falta el token»</dt>
+      <dd>Abre la URL completa que muestra la terminal, con su <code>#token=…</code>. Cada vez que arrancas Studio cambia.</dd>
       <dt>El despliegue falla en <em>Ready to publish?</em></dt>
       <dd><code>doctor</code> encontró errores, o la variable <code>PROOFSTACK_PROFILE</code> falta o no es de repositorio. El log muestra las líneas <code>ERROR</code>.</dd>
       <dt>La web da 404</dt>
@@ -152,11 +257,6 @@ proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv</code></p
       <dt>LinkedIn responde 401</dt>
       <dd>La app de LinkedIn debe usar la página <em>Member Data Portability (Member-Only Default Company Page)</em>, y la API solo sirve a cuentas del EEE o Suiza. Fuera de ahí, usa el ZIP.</dd>
     </dl>
-  </section>
-
-  <section aria-labelledby="como">
-    <h2 id="como">Cómo está hecho</h2>
-    <p>Java 25 con arquitectura hexagonal: un núcleo sin frameworks y un adaptador por cada entrada (YAML, LinkedIn, GitHub, Studio) y cada salida (web, CV, LLM). ArchUnit comprueba esas reglas en cada build. Cada fase empezó como una spec y cada decisión importante está en un ADR del repositorio.</p>
   </section>
 </main>
 

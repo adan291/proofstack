@@ -67,7 +67,8 @@ class StudioServerTest {
         server = new StudioServer(editor, () -> profile,
                 p -> List.of(new Artifact("index.html", "<h1>" + p.person().name() + "</h1>"), new Artifact("styles.css", "h1{}")),
                 p -> List.of(new Artifact("cv.html", "<h1>CV</h1>"), Artifact.binary("cv.docx", new byte[]{'P', 'K'})),
-                "{\"title\":\"Proofstack profile\"}", 0).start();
+                "{\"title\":\"Proofstack profile\"}", 0);
+        server.start();
         host = "127.0.0.1:" + server.port();
         origin = "http://" + host;
     }
@@ -213,19 +214,17 @@ class StudioServerTest {
 
     @Test
     void errorsNeverLeakInternals() throws IOException {
-        StudioServer broken = new StudioServer(new FakeEditor() {
+        try (StudioServer broken = new StudioServer(new FakeEditor() {
             @Override
             public Snapshot load() {
                 throw new IllegalStateException("C:\\Users\\secret\\profile.yaml exploded");
             }
-        }, () -> profile, p -> List.of(), p -> List.of(), "{}", 0).start();
-        try {
+        }, () -> profile, p -> List.of(), p -> List.of(), "{}", 0)) {
+            broken.start();
             Response r = request(broken.port(), "GET", "/api/profile",
                     Map.of("Host", "127.0.0.1:" + broken.port(), "X-Studio-Token", broken.token()), null);
             assertThat(r.status).isEqualTo(500);
             assertThat(r.body).isEqualTo("{\"error\":\"internal error\"}");
-        } finally {
-            broken.close();
         }
     }
 
