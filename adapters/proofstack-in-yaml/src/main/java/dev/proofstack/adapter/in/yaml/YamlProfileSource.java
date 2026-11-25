@@ -25,6 +25,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.core.TokenStreamLocation;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 
 /**
@@ -40,6 +41,7 @@ public final class YamlProfileSource implements ProfileSource {
     private static final long MAX_SIZE_BYTES = 1024 * 1024;
 
     private final YAMLMapper mapper;
+    private final JsonMapper jsonMapper = JsonMapper.builder().build();
     private final Schema schema;
 
     public YamlProfileSource() {
@@ -51,8 +53,31 @@ public final class YamlProfileSource implements ProfileSource {
 
     @Override
     public Profile load(Path location) {
-        JsonNode tree = readTree(location);
+        return fromTree(readTree(location));
+    }
 
+    /**
+     * Validates a document given as JSON (same shape as {@code profile.yaml}), without touching the disk.
+     *
+     * @throws ProfileValidationException if it is not JSON, is too large or is not a valid profile
+     */
+    public Profile fromJson(String json) {
+        if (json == null || json.length() > MAX_SIZE_BYTES) {
+            throw new ProfileValidationException(new Violation("$", "document is empty or larger than 1 MiB"));
+        }
+        try {
+            JsonNode tree = jsonMapper.readTree(json);
+            if (tree == null || !tree.isObject()) {
+                throw new ProfileValidationException(new Violation("$", "document must be a JSON object"));
+            }
+            return fromTree(tree);
+        } catch (JacksonException e) {
+            throw new ProfileValidationException(new Violation("$", "invalid JSON: " + e.getOriginalMessage()));
+        }
+    }
+
+    /** Schema first, then the domain: the same checks for a file and for an editor. */
+    Profile fromTree(JsonNode tree) {
         List<Error> errors = schema.validate(tree);
         if (!errors.isEmpty()) {
             throw new ProfileValidationException(errors.stream()
