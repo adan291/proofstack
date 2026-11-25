@@ -213,6 +213,12 @@ public final class ProofstackCli implements Runnable {
                 List<Artifact> artifacts = service.build(profile, out);
                 stdout.println("OK Built " + artifacts.size() + " files into " + out.toAbsolutePath().normalize());
                 artifacts.forEach(a -> stdout.println("  " + a.relativePath()));
+                // The site shows the profile as it is; doctor is the gate, but say so before anyone publishes it.
+                int todos = dev.proofstack.core.domain.TodoCounter.count(new YamlProfileSource().load(profile));
+                if (todos > 0) {
+                    err.println("WARN " + todos + " TODO placeholder" + (todos == 1 ? "" : "s")
+                            + " in the site. Run 'proofstack doctor " + profile + "' before publishing.");
+                }
                 return OK;
             } catch (ProfileValidationException e) {
                 printViolations(e.violations(), err);

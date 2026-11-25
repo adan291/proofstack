@@ -45,6 +45,17 @@ class TemplateCommandsTest {
         assertThat(err.toString()).contains("--force");
     }
 
+    @Test
+    void buildWarnsAboutPlaceholdersItIsPublishing() throws IOException {
+        Path dir = tmp.resolve("profiles/ada");
+        run("init", dir.toString(), "--name", "Ada Lovelace", "--headline", "Backend Engineer");
+
+        assertThat(run("build", dir.resolve("profile.yaml").toString(), "--out", tmp.resolve("dist").toString()))
+                .as(err.toString()).isZero();
+
+        assertThat(err.toString()).containsPattern("WARN \\d+ TODO placeholders").contains("proofstack doctor");
+    }
+
     /** Windows consoles use a legacy code page: anything doctor adds around the user's text must be plain ASCII. */
     @Test
     void doctorDecorationsArePlainAscii() throws IOException {
