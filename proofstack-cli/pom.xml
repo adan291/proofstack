@@ -69,6 +69,23 @@
     </dependencies>
 
     <build>
+        <resources>
+            <!-- Only the version file is filtered: other resources may contain ${...} on purpose. -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>proofstack/cli-version.properties</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>proofstack/cli-version.properties</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -76,6 +93,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <proofstack.repoRoot>${project.basedir}/..</proofstack.repoRoot>
+                        <proofstack.version>${project.version}</proofstack.version>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>

@@ -297,7 +297,7 @@ $env:LINKEDIN_REDIRECT_URI = "http://127.0.0.1:63141/callback"
     <article class="recipe">
       <h3>Tu perfil dentro de Kiro (MCP)</h3>
       <pre><code>mvn -DskipTests package -pl proofstack-mcp-server -am</code></pre>
-      <p>Copia <code>docs/kiro-mcp.example.json</code> a <code>.kiro/settings/mcp.json</code> y cambia las dos rutas: el jar (<code>proofstack-mcp-server/target/proofstack-mcp-server-0.7.0.jar</code>) y tu perfil. Después pide a Kiro, por ejemplo: <em>«Usa proofstack y escribe un post sobre mi proyecto agent-life»</em>. Solo lee el perfil, nunca lo modifica.</p>
+      <p>Copia <code>docs/kiro-mcp.example.json</code> a <code>.kiro/settings/mcp.json</code> y cambia las dos rutas: el jar (<code>proofstack-mcp-server/target/proofstack-mcp-server-&lt;versión&gt;.jar</code>) y tu perfil. Después pide a Kiro, por ejemplo: <em>«Usa proofstack y escribe un post sobre mi proyecto agent-life»</em>. Solo lee el perfil, nunca lo modifica.</p>
     </article>
 
     <article class="recipe">
@@ -307,7 +307,7 @@ $env:LINKEDIN_REDIRECT_URI = "http://127.0.0.1:63141/callback"
 ollama pull nomic-embed-text
 ollama pull llama3.1
 $env:PROOFSTACK_PROFILE = "profiles/tu-nombre/profile.yaml"
-java -jar proofstack-ai-service/target/proofstack-ai-service-0.7.0.jar
+java -jar (Resolve-Path proofstack-ai-service/target/proofstack-ai-service-*.jar)
 
 <span class="c"># en otra terminal</span>
 Invoke-RestMethod http://localhost:8080/api/ask -Method Post -ContentType "application/json" -Body '{"question":"¿Qué proyectos de IA tiene?"}'</code></pre>
@@ -333,9 +333,8 @@ Invoke-RestMethod http://localhost:8080/api/ask -Method Post -ContentType "appli
       <h3>Publicar una versión nueva (por ejemplo, 0.8.0)</h3>
       <ol class="sub">
         <li>Apunta los cambios en <code>CHANGELOG.md</code>.</li>
-        <li>Cambia la versión en todos los módulos y en la CLI:
-          <pre><code>mvn versions:set "-DnewVersion=0.8.0" "-DgenerateBackupPoms=false" "-DprocessAllModules=true"</code></pre>
-          y en <code>proofstack-cli/src/main/java/dev/proofstack/cli/ProofstackCli.java</code>, la línea <code>version = "proofstack 0.8.0"</code>.</li>
+        <li>Cambia la versión en todos los módulos (la CLI la lee del pom):
+          <pre><code>mvn versions:set "-DnewVersion=0.8.0" "-DgenerateBackupPoms=false" "-DprocessAllModules=true"</code></pre></li>
         <li>Comprueba, sube y etiqueta:
           <pre><code>mvn verify
 git add -A

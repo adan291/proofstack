@@ -24,6 +24,16 @@ class ProofstackCliTest {
         return ProofstackCli.run(args, new PrintWriter(out, true), new PrintWriter(err, true));
     }
 
+    /** The version comes from the pom: bumping it with {@code mvn versions:set} must be enough. */
+    @Test
+    void versionIsTheOneInThePom() {
+        String expected = System.getProperty("proofstack.version");
+        assertThat(expected).as("set by surefire from ${project.version}").isNotBlank();
+
+        assertThat(run("--version")).isZero();
+        assertThat(out.toString().strip()).isEqualTo("proofstack " + expected);
+    }
+
     @Test
     void bundledProfilesAreValid() {
         assertThat(run("validate", REPO.resolve("profiles/example/profile.yaml").toString())).isZero();

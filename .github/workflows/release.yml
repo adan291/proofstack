@@ -18,6 +18,13 @@ jobs:
           distribution: temurin
           java-version: '25'
           cache: maven
+      - name: Tag matches the version in the pom
+        run: |
+          VERSION=$(mvn -B -ntp -q help:evaluate -Dexpression=project.version -DforceStdout)
+          if [ "v$VERSION" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME does not match the pom version $VERSION (mvn versions:set first)" >&2
+            exit 1
+          fi
       - name: Build and test everything
         run: mvn -B -ntp verify
       - name: Prepare assets

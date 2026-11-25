@@ -43,7 +43,7 @@ import picocli.CommandLine.Spec;
         mixinStandardHelpOptions = true,
         scope = CommandLine.ScopeType.INHERIT, // every subcommand gets --help and --version
 
-        version = "proofstack 0.7.0",
+        versionProvider = ProofstackCli.Version.class,
         description = "Portfolio-as-code for backend engineers.",
         subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, StudioCommand.class, ProofstackCli.Generate.class,
                 ProofstackCli.Import.class})
@@ -97,6 +97,21 @@ public final class ProofstackCli implements Runnable {
     @Override
     public void run() {
         spec.commandLine().usage(spec.commandLine().getOut());
+    }
+
+    /** {@code --version}: read from a resource Maven fills in, so the pom is the only place to change it. */
+    static final class Version implements CommandLine.IVersionProvider {
+        @Override
+        public String[] getVersion() throws IOException {
+            var props = new java.util.Properties();
+            try (var in = ProofstackCli.class.getResourceAsStream("/proofstack/cli-version.properties")) {
+                if (in == null) {
+                    throw new IOException("missing /proofstack/cli-version.properties");
+                }
+                props.load(in);
+            }
+            return new String[]{"proofstack " + props.getProperty("version")};
+        }
     }
 
     static PortfolioService portfolio(java.net.URI assistantUrl) {

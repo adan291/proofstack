@@ -18,6 +18,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Login de LinkedIn: cualquier página local podía abortarlo con una petición al callback que llegara antes que la de LinkedIn, y el parámetro `error` se escribía tal cual en la terminal. Ahora solo cuenta el callback con el `state` correcto (el resto recibe un 400 y el login sigue esperando), y `error` se limpia antes de mostrarse.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
+### Cambiado
+- `proofstack --version` lee la versión del pom, así que basta con `mvn versions:set` para publicar una versión nueva. El workflow de release falla si el tag no coincide con esa versión.
+
 ### Seguridad
 - CI falla si una dependencia de ejecución tiene una vulnerabilidad conocida en OSV (`.github/scripts/osv_check.py`). Dependabot propone cada semana actualizaciones de Maven, de las acciones de GitHub y de la imagen Docker.
 - Dependencias con vulnerabilidades conocidas: Jackson 3.1.5 → 3.1.8 (DoS en jackson-core y jackson-databind) y Spring Boot 4.1.1 → 4.1.3 (Tomcat 11.0.24 → 11.0.27). OSV no da avisos para las 133 dependencias de ejecución.
