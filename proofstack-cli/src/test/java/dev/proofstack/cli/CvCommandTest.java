@@ -30,6 +30,12 @@ class CvCommandTest {
     }
 
     @Test
+    void helpListsEveryFileItWrites() {
+        assertThat(run("cv", "--help")).isZero();
+        assertThat(out.toString()).contains("cv.md").contains("cv.html").contains("cv.docx");
+    }
+
+    @Test
     void writesMarkdownHtmlAndCss() throws IOException {
         Path dir = tmp.resolve("cv");
 

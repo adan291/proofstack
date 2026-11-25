@@ -41,6 +41,8 @@ import picocli.CommandLine.Spec;
  */
 @Command(name = "proofstack",
         mixinStandardHelpOptions = true,
+        scope = CommandLine.ScopeType.INHERIT, // every subcommand gets --help and --version
+
         version = "proofstack 0.7.0",
         description = "Portfolio-as-code for backend engineers.",
         subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, StudioCommand.class, ProofstackCli.Generate.class,
@@ -382,7 +384,7 @@ public final class ProofstackCli implements Runnable {
         }
 
         @Command(name = "linkedin",
-                description = {"Import the official LinkedIn data export (Settings → Data privacy → Get a copy of your data).",
+                description = {"Import the official LinkedIn data export (Settings > Data privacy > Get a copy of your data).",
                         "Email and phone are never imported."})
         static final class LinkedIn implements Callable<Integer> {
 

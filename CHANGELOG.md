@@ -14,6 +14,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - `doctor` no revisaba skills, la ubicación y las tecnologías de cada puesto, el stack de los proyectos, los idiomas, las certificaciones (ni su enlace) ni el nombre de los labs. Un `TODO` o una URL de ejemplo en esos campos se publicaba. Ahora bloquea la publicación, y `TodoCounter` cuenta los mismos campos.
 - El README y la salida de `studio` decían que el token era "de un solo uso". Vale mientras Studio esté abierto, y ahora lo dicen así.
 - En la consola de Windows, `doctor` mostraba "?" en lugar de "→", "–" o "…". Ahora usa ASCII en lo que añade, y la CLI escribe en la codificación de la terminal (UTF-8 si se redirige a un fichero), así que los acentos del perfil se leen bien.
+- La ayuda de `cv` no mencionaba `cv.docx`, y los subcomandos no aceptaban `--help` (salían con código 2).
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Seguridad
