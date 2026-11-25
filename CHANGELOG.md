@@ -17,6 +17,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - La ayuda de `cv` no mencionaba `cv.docx`, y los subcomandos no aceptaban `--help` (salían con código 2).
 - Login de LinkedIn: cualquier página local podía abortarlo con una petición al callback que llegara antes que la de LinkedIn, y el parámetro `error` se escribía tal cual en la terminal. Ahora solo cuenta el callback con el `state` correcto (el resto recibe un 400 y el login sigue esperando), y `error` se limpia antes de mostrarse.
 - Un fork que borrara `profiles/adan` rompía CI y 6 tests, y el servicio RAG y Docker Compose usaban ese perfil por defecto. CI y los tests validan ahora los perfiles que haya, `generate` se prueba con un perfil de prueba propio y los valores por defecto apuntan a `profiles/example`.
+- Los importadores con `--force` podían sobrescribir el perfil original si `--out` era otro nombre del mismo fichero (un enlace, o mayúsculas distintas en macOS). Ahora se comparan los ficheros, no solo las rutas. Además escriben de forma atómica (temporal y renombrado): un fallo a medias ya no deja el destino truncado.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado

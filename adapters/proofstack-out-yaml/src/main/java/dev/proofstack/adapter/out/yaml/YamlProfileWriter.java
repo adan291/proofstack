@@ -3,8 +3,10 @@ package dev.proofstack.adapter.out.yaml;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -59,14 +61,29 @@ public final class YamlProfileWriter implements ProfileWriter {
         if (!yaml.valueToTree(document).equals(yaml.readTree(body))) {
             throw new IllegalStateException("the profile could not be written as YAML that reads back the same");
         }
+        Path parent = target.toAbsolutePath().getParent();
+        Path temp = null;
         try {
-            Path parent = target.toAbsolutePath().getParent();
-            if (parent != null) {
-                Files.createDirectories(parent);
+            Files.createDirectories(parent);
+            // Temporary file and rename: a failure never leaves a half-written profile, and a link to the old
+            // file is replaced rather than written through.
+            temp = Files.createTempFile(parent, ".profile-", ".yaml.tmp");
+            Files.writeString(temp, header(target) + "\n" + body, StandardCharsets.UTF_8);
+            try {
+                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
             }
-            Files.writeString(target, header(target) + "\n" + body, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot write " + target, e);
+        } finally {
+            if (temp != null) {
+                try {
+                    Files.deleteIfExists(temp);
+                } catch (IOException ignored) {
+                    // already renamed, or nothing left to clean
+                }
+            }
         }
     }
 

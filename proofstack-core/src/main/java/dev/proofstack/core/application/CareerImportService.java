@@ -1,5 +1,10 @@
 package dev.proofstack.core.application;
 
+import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+
 import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.ProfileMerge;
 import dev.proofstack.core.domain.TodoCounter;
@@ -7,11 +12,6 @@ import dev.proofstack.core.port.in.ImportProfileUseCase.ImportReport;
 import dev.proofstack.core.port.out.MemberProfileSource;
 import dev.proofstack.core.port.out.ProfileSource;
 import dev.proofstack.core.port.out.ProfileWriter;
-
-import java.nio.file.Path;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Imports career data from any source (LinkedIn API, LinkedIn ZIP...) either as a new profile or merged into
@@ -30,9 +30,8 @@ public final class CareerImportService {
 
     /** @param mergeInto existing profile to update, or {@code null} to create a new one */
     public ImportReport importCareer(MemberProfileSource source, Path mergeInto, Path target, boolean overwrite) {
-        if (mergeInto != null
-                && mergeInto.toAbsolutePath().normalize().equals(target.toAbsolutePath().normalize())) {
-            throw new IllegalArgumentException("--out must be a different file: the original profile is never modified");
+        if (mergeInto != null) {
+            Targets.requireDifferent(mergeInto, target);
         }
         Profile existing = mergeInto == null ? null : reader.load(mergeInto); // fail fast before any network call
         Profile imported = source.fetchProfile();

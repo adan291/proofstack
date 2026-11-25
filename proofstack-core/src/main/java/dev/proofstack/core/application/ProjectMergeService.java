@@ -1,5 +1,13 @@
 package dev.proofstack.core.application;
 
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
+
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.Project;
@@ -8,14 +16,6 @@ import dev.proofstack.core.port.in.MergeProjectsUseCase;
 import dev.proofstack.core.port.out.ProfileSource;
 import dev.proofstack.core.port.out.ProfileWriter;
 import dev.proofstack.core.port.out.ProjectSource;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * Merges external projects into a profile. Existing projects always win: an external project is
@@ -35,9 +35,7 @@ public final class ProjectMergeService implements MergeProjectsUseCase {
 
     @Override
     public MergeReport merge(Path profilePath, String account, boolean includeForks, Path target, boolean overwrite) {
-        if (profilePath.toAbsolutePath().normalize().equals(target.toAbsolutePath().normalize())) {
-            throw new IllegalArgumentException("--out must be a different file: the original profile is never modified");
-        }
+        Targets.requireDifferent(profilePath, target);
         Profile profile = profiles.load(profilePath);
         Set<String> ids = new HashSet<>();
         Set<String> urls = new HashSet<>();

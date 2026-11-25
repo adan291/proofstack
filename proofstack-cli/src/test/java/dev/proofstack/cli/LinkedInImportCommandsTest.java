@@ -89,6 +89,23 @@ class LinkedInImportCommandsTest {
                 .isEqualTo(1);
     }
 
+    /** A hard link (or a symlink, or another letter case on macOS) is another name for the same file. */
+    @Test
+    void anotherNameForTheOriginalProfileIsRefusedEvenWithForce() throws IOException {
+        Path mine = tmp.resolve("profile.yaml");
+        Files.copy(HAND_WRITTEN, mine);
+        Path alias = Files.createLink(tmp.resolve("alias.yaml"), mine);
+        byte[] before = Files.readAllBytes(mine);
+        Map<String, String> env = Map.of("PROOFSTACK_LINKEDIN_API", "http://127.0.0.1:" + linkedIn.getAddress().getPort(),
+                "LINKEDIN_ACCESS_TOKEN", "test-token");
+
+        int code = run(env, "import", "linkedin-api", "-m", mine.toString(), "-o", alias.toString(), "--force");
+
+        assertThat(code).as(out.toString()).isEqualTo(1);
+        assertThat(err.toString()).contains("different file");
+        assertThat(Files.readAllBytes(mine)).isEqualTo(before);
+    }
+
     @Test
     void apiImportWithoutCredentialsExplainsSetup() {
         assertThat(run(Map.of(), "import", "linkedin-api", "--out", tmp.resolve("x.yaml").toString())).isEqualTo(1);

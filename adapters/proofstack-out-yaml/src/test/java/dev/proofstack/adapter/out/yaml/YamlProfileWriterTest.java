@@ -86,6 +86,23 @@ class YamlProfileWriterTest {
         assertThat(YamlProfileWriter.schemaReference(tmp.resolve("elsewhere/profile.yaml"))).isEmpty();
     }
 
+    /** Replacing, not rewriting in place: a hard link to the target keeps its old content, and no temp file is left. */
+    @Test
+    void overwritingReplacesTheFileAtomically() throws IOException {
+        Profile original = reader.load(REPO.resolve("profiles/example/profile.yaml"));
+        Path out = tmp.resolve("profile.yaml");
+        Files.writeString(out, "hand-written");
+        Path link = Files.createLink(tmp.resolve("link.yaml"), out);
+
+        writer.write(original, out, true);
+
+        assertThat(reader.load(out)).isEqualTo(original);
+        assertThat(Files.readString(link)).isEqualTo("hand-written");
+        try (var files = Files.list(tmp)) {
+            assertThat(files.map(p -> p.getFileName().toString())).containsExactlyInAnyOrder("profile.yaml", "link.yaml");
+        }
+    }
+
     @Test
     void refusesToOverwriteUnlessAsked() throws IOException {
         Profile original = reader.load(REPO.resolve("profiles/example/profile.yaml"));
