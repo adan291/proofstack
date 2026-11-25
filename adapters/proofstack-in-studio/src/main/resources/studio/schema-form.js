@@ -81,7 +81,7 @@ export class SchemaForm {
     } else if (node.pattern === '^[0-9]{4}-(0[1-9]|1[0-2])$') {
       input = el('input');
       input.type = 'month';
-    } else if ((node.maxLength ?? 0) > 300) {
+    } else if ((node.maxLength ?? 0) > 300 && key !== 'url' && key !== 'email') {
       input = el('textarea');
       input.rows = Math.min(10, Math.max(3, Math.ceil(String(holder.get() ?? '').length / 80) + 1));
     } else {

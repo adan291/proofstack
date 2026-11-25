@@ -117,6 +117,8 @@ function show(key, focusPath) {
   state.form.renderSection(main, state.doc, key);
   markNav();
   placeIssues();
+  // A field inside a closed list item cannot take the focus: open its items first.
+  if (focusPath) openTo(focusPath);
   const target = focusPath && main.querySelector(`input[data-path="${CSS.escape(focusPath)}"], textarea[data-path="${CSS.escape(focusPath)}"], select[data-path="${CSS.escape(focusPath)}"]`);
   (target ?? main.querySelector('legend'))?.focus?.();
   if (target) target.scrollIntoView({ block: 'center' });
@@ -167,7 +169,6 @@ function renderIssues() {
     b.addEventListener('click', () => {
       const top = issue.path.match(/^\$\.([A-Za-z]+)/)?.[1];
       if (top) show(top, issue.path);
-      openTo(issue.path);
     });
     li.append(b);
     list.append(li);
