@@ -40,7 +40,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- Pinned dependency versions -->
-        <jackson.version>3.1.8</jackson.version>
+        <jackson.version>3.3.0</jackson.version>
         <json-schema-validator.version>3.0.0</json-schema-validator.version>
         <jmustache.version>1.16</jmustache.version>
         <picocli.version>4.7.7</picocli.version>
