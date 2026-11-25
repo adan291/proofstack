@@ -2,6 +2,15 @@
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Las versiones siguen [SemVer](https://semver.org/lang/es/).
 
+## [Unreleased]
+
+### Añadido
+- Lanzador `proofstack` (`proofstack.cmd` en Windows) en la raíz del repositorio: `./proofstack <comando>` funciona en PowerShell, macOS y Linux sin crear alias. Usa el jar compilado, o un `proofstack.jar` descargado, y si no hay ninguno lo compila con Maven.
+- Guía (`docs/guide/`): instalación, recetas para el día a día, piezas opcionales (borradores con IA, MCP en Kiro, asistente) y qué hacer si cambias el código o publicas una versión.
+
+### Corregido
+- Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
+
 ## [0.7.0] - 2026-11
 
 ### Añadido

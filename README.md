@@ -24,46 +24,40 @@ Proofstack genera el portfolio técnico y el CV de un perfil backend desde un ú
 
 **Guía visual paso a paso:** [adan291.github.io/proofstack/guide](https://adan291.github.io/proofstack/guide/) (en tu copia, `https://<usuario>.github.io/<repo>/guide/`). La misma guía en texto: [`docs/getting-started.md`](docs/getting-started.md).
 
-### 1. Consigue la herramienta
+### 1. Prepara la herramienta
 
-Pulsa **Use this template** y clona tu copia. Después, una de dos:
+Pulsa **Use this template**, clona tu copia y entra en su carpeta. El repositorio trae un lanzador, `proofstack`, que funciona igual en PowerShell, macOS y Linux:
 
-- **Descargar:** baja `proofstack.jar` de la última [Release](../../releases) a la carpeta del repositorio.
-- **Compilar:** `mvn -DskipTests package`. El jar queda en `proofstack-cli/target/proofstack.jar`.
-
-Crea un atajo en la terminal (solo dura mientras esté abierta) y trabaja siempre desde la carpeta del repositorio:
-
-```powershell
-# Windows (PowerShell)
-function proofstack { java -jar proofstack.jar @args }
-```
 ```bash
-# macOS / Linux
-alias proofstack="java -jar proofstack.jar"
+./proofstack --version
 ```
 
-Si compilaste, cambia `proofstack.jar` por `proofstack-cli/target/proofstack.jar`.
+La primera vez compila la herramienta con Maven (un par de minutos). Sin Maven, baja `proofstack.jar` de la última [Release](../../releases) y déjalo en la carpeta del repositorio. Ejecuta siempre desde esa carpeta: las rutas como `profiles/…` son relativas a ella.
 
 ### 2. Crea y rellena tu perfil
 
 ```bash
-proofstack init   profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
-proofstack studio profiles/tu-nombre/profile.yaml     # editor en el navegador; Ctrl+C para cerrarlo
-proofstack doctor profiles/tu-nombre/profile.yaml     # ¿se puede publicar? Bloquea TODOs y enlaces de ejemplo
+./proofstack init   profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
+./proofstack studio profiles/tu-nombre/profile.yaml     # editor en el navegador; Ctrl+C para cerrarlo
+./proofstack doctor profiles/tu-nombre/profile.yaml     # ¿se puede publicar? Bloquea TODOs y enlaces de ejemplo
 ```
 
 ### 3. Lanza la web y el CV en tu equipo
 
+```bash
+./proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
+```
+
+Ábrelos así:
+
 ```powershell
 # Windows (PowerShell)
-proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
 Start-Process dist\index.html          # la web, con el botón "Descargar CV"
-Start-Process dist\cv\cv.html          # el CV; Ctrl+P â†’ Guardar como PDF
+Start-Process dist\cv\cv.html          # el CV; Ctrl+P → Guardar como PDF
 Start-Process dist\cv\cv.docx          # el CV en Word
 ```
 ```bash
 # macOS (en Linux usa xdg-open)
-proofstack build profiles/tu-nombre/profile.yaml --out dist --with-cv
 open dist/index.html dist/cv/cv.html dist/cv/cv.docx
 ```
 
@@ -72,7 +66,12 @@ En local, el botón *Descargar CV* abre `cv.html`. El PDF lo genera el workflow 
 ### 4. Publícalo
 
 Sigue [Publicar en GitHub Pages](#publicar-en-github-pages). Cada `git push` a `main` vuelve a construir y publicar la web, el CV en PDF y en Word, y la guía.
+
+**Para el día a día** (actualizar el perfil, un CV por oferta, traer LinkedIn otra vez, publicar una versión nueva) la guía tiene [recetas paso a paso](https://adan291.github.io/proofstack/guide/#recetas).
+
 ## Comandos
+
+En los ejemplos, `proofstack` es el lanzador: escribe `./proofstack` desde la carpeta del repositorio.
 
 ### Edita tu perfil sin tocar YAML
 

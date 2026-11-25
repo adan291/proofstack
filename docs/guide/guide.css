@@ -100,3 +100,10 @@ table { margin: 1rem 0; }
   .flow__arrow { justify-self: center; transform: rotate(90deg); }
 }
 .cards--stack { grid-template-columns: 1fr; margin-bottom: 1rem; }
+
+/* recipes: one task from start to finish */
+.recipe { margin: 0 0 1.25rem; padding: 1.1rem 1.3rem; border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: var(--radius); background: var(--surface); }
+.recipe h3 { margin-bottom: .6rem; }
+.recipe p { margin: .5rem 0 0; }
+.recipe .sub li pre { margin-top: .5rem; }

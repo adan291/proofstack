@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# Runs the Proofstack CLI from the repository folder: ./proofstack <command> ...
+# Uses the jar built from the code if there is one, otherwise a proofstack.jar downloaded next to this file.
+# If neither exists, builds it once with Maven.
+set -e
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+JAR="$ROOT/proofstack-cli/target/proofstack.jar"
+[ -f "$JAR" ] || JAR="$ROOT/proofstack.jar"
+if [ ! -f "$JAR" ]; then
+  echo "proofstack.jar no existe todavia. Compilando con Maven, solo esta vez..." >&2
+  if ! mvn -q -f "$ROOT/pom.xml" -DskipTests package -pl proofstack-cli -am; then
+    echo "No se pudo compilar. Instala Maven, o descarga proofstack.jar de la Release y dejalo junto a este fichero." >&2
+    exit 2
+  fi
+  JAR="$ROOT/proofstack-cli/target/proofstack.jar"
+fi
+exec java -jar "$JAR" "$@"

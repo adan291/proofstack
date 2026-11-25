@@ -1,35 +1,36 @@
 # Tu portfolio y tu CV en 15 minutos
 
-Necesitas JDK 25 ([Temurin](https://adoptium.net/)) y una cuenta de GitHub. No necesitas saber Java. Hay una versión visual de esta guía en [`guide/index.html`](guide/index.html).
+Versión en texto de la [guía visual](https://adan291.github.io/proofstack/guide/) (en el repositorio, [`guide/index.html`](guide/index.html)). La guía visual tiene además recetas para el día a día, las piezas opcionales y qué hacer si cambias el código.
 
-## 1. Crea tu copia
+## 1. Instala Java y Git
 
-En GitHub, pulsa **Use this template → Create a new repository** y clónalo en tu equipo.
+JDK 25 ([Temurin](https://adoptium.net/)) y [Git](https://git-scm.com/). Maven 3.9 solo si vas a compilar desde el código. No necesitas saber Java.
 
-## 2. Consigue la CLI
+## 2. Ten el repositorio en tu equipo
 
-Descarga `proofstack.jar` de la última **Release** del repositorio y ponlo en la carpeta del repo. También puedes compilarlo con `mvn -DskipTests package`; quedará en `proofstack-cli/target/proofstack.jar`.
+En GitHub, pulsa **Use this template → Create a new repository**. Después:
 
 ```bash
-alias proofstack="java -jar proofstack.jar"
-# PowerShell (Windows): function proofstack { java -jar proofstack.jar @args }
+git clone https://github.com/<usuario>/<repo>.git
+cd <repo>
+./proofstack --version
 ```
 
-El alias solo dura mientras tengas abierta la terminal. Ejecuta los comandos desde la carpeta del repositorio, porque las rutas como `profiles/...` son relativas a ella.
+`proofstack` es un lanzador que viene en el repositorio y funciona igual en PowerShell, macOS y Linux. La primera vez compila la herramienta con Maven. Sin Maven, descarga `proofstack.jar` de la última **Release** y déjalo en la carpeta del repositorio.
+
+Ejecuta siempre desde la carpeta del repositorio: las rutas como `profiles/...` son relativas a ella. En el CMD clásico de Windows escribe `proofstack` sin `./`.
 
 ## 3. Crea tu perfil
 
-Elige una forma de empezar:
-
 ```bash
 # Desde cero
-proofstack init profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer · Java" --language es
+./proofstack init profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer · Java" --language es
 
 # Desde tu LinkedIn (Ajustes → Privacidad de datos → Obtener una copia de tus datos)
-proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/tu-nombre/profile.yaml
+./proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/tu-nombre/profile.yaml
 
 # Y después añade tus repos públicos
-proofstack import github tu-usuario -p profiles/tu-nombre/profile.yaml -o profiles/tu-nombre/profile.github.yaml
+./proofstack import github tu-usuario -p profiles/tu-nombre/profile.yaml -o dist/profile.github.yaml
 ```
 
 Si vives en el EEE o en Suiza, puedes importar LinkedIn sin ZIP con `import linkedin-api` ([`linkedin-api.md`](linkedin-api.md)).
@@ -37,10 +38,10 @@ Si vives en el EEE o en Suiza, puedes importar LinkedIn sin ZIP con `import link
 ## 4. Rellénalo
 
 ```bash
-proofstack studio profiles/tu-nombre/profile.yaml
+./proofstack studio profiles/tu-nombre/profile.yaml
 ```
 
-Se abre un editor en el navegador. Si prefieres editar el YAML, ábrelo en VS Code o Kiro con la extensión de YAML: la primera línea apunta al esquema y tendrás autocompletado.
+Se abre un editor en el navegador. Guarda con `Ctrl+S` y ciérralo con `Ctrl+C` en la terminal. Si prefieres el YAML, ábrelo en VS Code o Kiro con la extensión de YAML: la primera línea apunta al esquema y tendrás autocompletado.
 
 Lo importante:
 - **Proyectos:** qué problema resolvían y cómo lo resolviste. Una lista de tecnologías no demuestra nada; esto sí.
@@ -48,37 +49,33 @@ Lo importante:
 - Enlaza cada evidencia desde la experiencia o el proyecto al que corresponde, y cada proyecto a su repo o demo.
 - Añade idiomas y certificaciones: salen en el CV.
 
-## 5. ¿Está listo?
+## 5. Lanza la web y el CV en tu equipo
 
 ```bash
-proofstack doctor profiles/tu-nombre/profile.yaml
-proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv   # abre dist/index.html
-proofstack cv     profiles/tu-nombre/profile.yaml --out dist/cv          # cv.md, cv.html y cv.docx
+./proofstack doctor profiles/tu-nombre/profile.yaml                       # 0 errores = se puede publicar
+./proofstack build  profiles/tu-nombre/profile.yaml --out dist --with-cv  # web en dist/, CV en dist/cv/
 ```
+
+Ábrelos con `Start-Process dist\index.html` (Windows) o `open dist/index.html` (macOS; en Linux, `xdg-open`). El CV está en `dist/cv/cv.html` (imprímelo como PDF) y `dist/cv/cv.docx` (Word).
 
 `doctor` da **errores** (bloquean la publicación: `TODO`, enlaces de ejemplo) y **avisos** (sugerencias, como un proyecto sin enlace).
 
 ## 6. Publica
 
 1. En tu repositorio, ve a **Settings → Pages** y elige **Source: GitHub Actions**.
-2. Ve a **Settings → Secrets and variables → Actions**, pestaña **Variables**, y en **Repository variables** crea `PROOFSTACK_PROFILE` con el valor `profiles/tu-nombre/profile.yaml`. Ojo: tiene que ser una variable de repositorio, no de un *environment*.
-3. Haz push a `main`, o lanza **Actions → Deploy portfolio → Run workflow**.
+2. Ve a **Settings → Secrets and variables → Actions**, pestaña **Variables**, y en **Repository variables** crea `PROOFSTACK_PROFILE` con el valor `profiles/tu-nombre/profile.yaml`. Tiene que ser una variable de repositorio, no de un *environment*.
+3. Haz `git add -A`, `git commit` y `git push`, o lanza **Actions → Deploy portfolio → Run workflow**.
 
-Tu web queda en `https://<usuario>.github.io/<repo>/`, con un botón **Descargar CV** que baja el PDF.
+Tu web queda en `https://<usuario>.github.io/<repo>/`, con un botón **Descargar CV** que baja el PDF, y esta guía en `/guide/`.
 
 ## Problemas frecuentes
 
 | Síntoma | Causa y solución |
 |---|---|
-| `proofstack` no se reconoce | El alias o la función no existen en esta terminal. Vuelve a definirlos (paso 2). |
-| `File not found: profiles/...` | Estás en otra carpeta. Haz `cd` a la carpeta del repositorio. |
-| El despliegue falla en *Ready to publish?* | `doctor` encontró errores, o `PROOFSTACK_PROFILE` no existe o no es de repositorio. Mira las líneas `ERROR` del log. |
+| `./proofstack` no se reconoce | Estás en otra carpeta. Entra en la del repositorio con `cd`. |
+| `File not found: profiles/...` | La ruta es relativa a la carpeta en la que estás. Entra en la del repositorio. |
+| Cambié el código y no se nota | El lanzador usa el último jar compilado: `mvn -DskipTests package -pl proofstack-cli -am`. |
+| Studio dice «Falta el token» | Abre la URL completa que muestra la terminal, con su `#token=…`. |
+| El despliegue falla en *Ready to publish?* | `doctor` encontró errores, o `PROOFSTACK_PROFILE` falta o no es de repositorio. Ejecuta `./proofstack doctor` en local. |
 | La web da 404 | El primer despliegue aún no terminó, o *Pages → Source* no está en *GitHub Actions*. |
-| LinkedIn responde 401 | La app no usa la página "Member Data Portability (Member-Only Default Company Page)", o tu cuenta no está en el EEE. |
-
-## Extras
-
-- Borradores de posts, README o guiones a partir de tus proyectos: `proofstack generate --help`.
-- Un CV para cada oferta: `proofstack cv ... --job oferta.txt`.
-- Usar tu perfil desde Kiro u otro cliente MCP: sección MCP del README.
-- Un asistente "pregúntale a mi portfolio" en tu web: `deploy/`, ADR-007 y ADR-009.
+| LinkedIn responde 401 | La app no usa la página "Member Data Portability (Member-Only Default Company Page)", o tu cuenta no está en el EEE ni en Suiza. |
