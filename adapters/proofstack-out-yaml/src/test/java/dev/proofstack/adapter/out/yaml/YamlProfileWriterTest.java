@@ -23,15 +23,21 @@ class YamlProfileWriterTest {
     private final YamlProfileSource reader = new YamlProfileSource();
     private final YamlProfileWriter writer = new YamlProfileWriter();
 
+    /** Every profile in the repository, whichever a fork keeps. */
     @Test
-    void roundTripPreservesTheWholeProfile() {
-        for (String name : new String[]{"example", "adan"}) {
-            Profile original = reader.load(REPO.resolve("profiles/" + name + "/profile.yaml"));
-            Path out = tmp.resolve(name + ".yaml");
+    void roundTripPreservesTheWholeProfile() throws IOException {
+        java.util.List<Path> profiles;
+        try (var dirs = Files.list(REPO.resolve("profiles"))) {
+            profiles = dirs.map(d -> d.resolve("profile.yaml")).filter(Files::isRegularFile).sorted().toList();
+        }
+        assertThat(profiles).contains(REPO.resolve("profiles/example/profile.yaml"));
+        for (Path profile : profiles) {
+            Profile original = reader.load(profile);
+            Path out = tmp.resolve(profile.getParent().getFileName() + ".yaml");
 
             writer.write(original, out, false);
 
-            assertThat(reader.load(out)).as(name).isEqualTo(original);
+            assertThat(reader.load(out)).as(profile.toString()).isEqualTo(original);
         }
     }
 

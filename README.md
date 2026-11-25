@@ -151,7 +151,7 @@ proofstack build profiles/yo/profile.yaml --out dist --assistant-url https://ai.
 
 | Variable | Por defecto |
 |---|---|
-| `PROOFSTACK_PROFILE` | `profiles/adan/profile.yaml` |
+| `PROOFSTACK_PROFILE` | `profiles/example/profile.yaml` |
 | `OLLAMA_HOST` | `http://localhost:11434` |
 | `PROOFSTACK_CHAT_MODEL` / `PROOFSTACK_EMBEDDING_MODEL` | `llama3.1` / `nomic-embed-text` |
 | `PROOFSTACK_ALLOWED_ORIGINS` | vacío (solo mismo origen) |

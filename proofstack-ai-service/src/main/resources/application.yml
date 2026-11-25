@@ -42,7 +42,7 @@ management:
       application: proofstack-ai-service
 
 proofstack:
-  profile: ${PROOFSTACK_PROFILE:profiles/adan/profile.yaml}
+  profile: ${PROOFSTACK_PROFILE:profiles/example/profile.yaml}
   requests-per-minute: ${PROOFSTACK_RATE_LIMIT:10}
   rag:
     top-k: 4

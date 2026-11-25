@@ -14,6 +14,11 @@
     <name>Proofstack :: CLI</name>
     <description>Composition root and command line interface.</description>
 
+    <properties>
+        <!-- Repository the tests read profiles from; override with -Dproofstack.repoRoot=... to test a fork. -->
+        <proofstack.repoRoot>${project.basedir}/..</proofstack.repoRoot>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>dev.proofstack</groupId>
@@ -92,7 +97,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <proofstack.repoRoot>${project.basedir}/..</proofstack.repoRoot>
+                        <proofstack.repoRoot>${proofstack.repoRoot}</proofstack.repoRoot>
                         <proofstack.version>${project.version}</proofstack.version>
                     </systemPropertyVariables>
                 </configuration>

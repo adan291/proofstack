@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ContentCommandsTest {
 
     private static final Path REPO = Path.of(System.getProperty("proofstack.repoRoot", ".."));
-    private static final String PROFILE = REPO.resolve("profiles/adan/profile.yaml").toString();
+    private static final String PROFILE = Path.of("src/test/resources/fixtures/content-profile.yaml").toString();
 
     @TempDir
     Path tmp;

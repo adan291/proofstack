@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
@@ -34,11 +35,17 @@ class ProofstackCliTest {
         assertThat(out.toString().strip()).isEqualTo("proofstack " + expected);
     }
 
+    /** Whatever profiles the repository has: a fork may delete or add some, the example always stays. */
     @Test
-    void bundledProfilesAreValid() {
-        assertThat(run("validate", REPO.resolve("profiles/example/profile.yaml").toString())).isZero();
-        assertThat(run("validate", REPO.resolve("profiles/adan/profile.yaml").toString()))
-                .as(err.toString()).isZero();
+    void bundledProfilesAreValid() throws IOException {
+        List<Path> profiles;
+        try (var dirs = Files.list(REPO.resolve("profiles"))) {
+            profiles = dirs.map(d -> d.resolve("profile.yaml")).filter(Files::isRegularFile).sorted().toList();
+        }
+        assertThat(profiles).contains(REPO.resolve("profiles/example/profile.yaml"));
+        for (Path profile : profiles) {
+            assertThat(run("validate", profile.toString())).as(profile + ": " + err).isZero();
+        }
     }
 
     @Test
