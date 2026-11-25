@@ -1,0 +1,18 @@
+# Weekly pull requests for outdated or vulnerable dependencies. CI (osv_check.py) blocks known vulnerabilities.
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      patches:
+        update-types: [patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /proofstack-ai-service
+    schedule:
+      interval: weekly

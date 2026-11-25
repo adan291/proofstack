@@ -15,6 +15,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Seguridad
+- CI falla si una dependencia de ejecución tiene una vulnerabilidad conocida en OSV (`.github/scripts/osv_check.py`). Dependabot propone cada semana actualizaciones de Maven, de las acciones de GitHub y de la imagen Docker.
 - Dependencias con vulnerabilidades conocidas: Jackson 3.1.5 → 3.1.8 (DoS en jackson-core y jackson-databind) y Spring Boot 4.1.1 → 4.1.3 (Tomcat 11.0.24 → 11.0.27). OSV no da avisos para las 133 dependencias de ejecución.
 
 ## [0.7.0] - 2026-11

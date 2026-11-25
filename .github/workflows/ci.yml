@@ -21,7 +21,10 @@ jobs:
           cache: maven
 
       - name: Build, unit tests and architecture tests
-        run: mvn -B -ntp verify
+        run: mvn -B -ntp verify dependency:list -DincludeScope=runtime -DoutputFile=target/runtime-deps.txt
+
+      - name: Known vulnerabilities in runtime dependencies (OSV)
+        run: python3 .github/scripts/osv_check.py $(find . -path '*/target/runtime-deps.txt')
 
       - name: Validate bundled profiles
         run: |
