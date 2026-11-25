@@ -44,6 +44,8 @@ proofstack cv profiles/yo/profile.yaml --out dist/cv-ia --focus ai -p 4     # un
 
 Incluye idiomas y certificaciones si tu perfil los tiene (el importador de LinkedIn los trae). No usa ningún modelo: el CV solo contiene lo que dice tu perfil, y los `TODO` se omiten.
 
+**Publícalo con tu portfolio:** `proofstack build profiles/yo/profile.yaml --out dist --with-cv` deja el CV en `dist/cv/` y añade un botón *Descargar CV*. El workflow de GitHub Pages ya lo hace y además genera `cv.pdf` con Chrome, así que en la web el botón descarga un PDF.
+
 **Adáptalo a una oferta, sin inventar nada.** Guarda el texto de la oferta en un fichero y pásalo con `--job`:
 
 ```bash

@@ -35,10 +35,11 @@ public record PortfolioView(
     public record AssistantView(String endpoint) {
     }
 
+    /** Link to the CV published next to the site, or {@code null} when the site is built without it. */
     public record PersonView(String name, String initials, String headline, String summary, String location,
-                             String email, List<LinkView> links) {
+                             String email, List<LinkView> links, LinkView cv) {
         public boolean hasLinks() {
-            return !links.isEmpty() || email != null;
+            return !links.isEmpty() || email != null || cv != null;
         }
     }
 

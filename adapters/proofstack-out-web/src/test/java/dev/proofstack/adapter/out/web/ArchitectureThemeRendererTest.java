@@ -23,6 +23,25 @@ class ArchitectureThemeRendererTest {
     private final ArchitectureThemeRenderer renderer = new ArchitectureThemeRenderer();
 
     @Test
+    void cvLinkAppearsOnlyWhenRequested() {
+        assertThat(html(profile("Ada Lovelace"))).doesNotContain("hero__cv");
+
+        String html = new ArchitectureThemeRenderer(null, "cv/cv.pdf").render(profile("Ada Lovelace")).stream()
+                .filter(a -> a.relativePath().equals("index.html")).findFirst().orElseThrow().content();
+
+        assertThat(html).contains("<a class=\"hero__cv\" href=\"cv/cv.pdf\">Download CV</a>");
+    }
+
+    @Test
+    void cvLinkMustBeARelativePathInsideTheSite() {
+        for (String bad : new String[]{"https://evil.example/cv.pdf", "javascript:alert(1)", "../cv.pdf", "/cv.pdf",
+                "cv/../../x", "cv.pdf?x=1", "cv\"onclick=\"x"}) {
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> new ArchitectureThemeRenderer(null, bad))
+                    .as(bad).isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    @Test
     void producesStaticSiteFiles() {
         assertThat(renderer.render(profile("Ada Lovelace")))
                 .extracting(Artifact::relativePath)

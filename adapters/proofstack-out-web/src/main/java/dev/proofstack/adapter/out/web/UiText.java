@@ -40,6 +40,11 @@ public record UiText(
         return "es".equals(base) ? SPANISH : ENGLISH;
     }
 
+    /** Label of the CV link in the hero. */
+    String downloadCv() {
+        return "es".equals(locale.getLanguage()) ? "Descargar CV" : "Download CV";
+    }
+
     String area(Area area) {
         return areas.get(area);
     }

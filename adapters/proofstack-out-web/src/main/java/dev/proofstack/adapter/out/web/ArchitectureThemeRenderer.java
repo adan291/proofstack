@@ -52,17 +52,27 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
     private final String styles;
     private final String script;
     private final URI assistantEndpoint;
+    private final String cvHref;
 
     public ArchitectureThemeRenderer() {
         this(null);
+    }
+
+    public ArchitectureThemeRenderer(URI assistantBaseUrl) {
+        this(assistantBaseUrl, null);
     }
 
     /**
      * @param assistantBaseUrl base URL of the optional ask service (ADR-007), or {@code null} for none.
      *                         Must be https; plain http is only accepted for localhost development.
      */
-    public ArchitectureThemeRenderer(URI assistantBaseUrl) {
+    /**
+     * @param assistantBaseUrl see {@link #ArchitectureThemeRenderer(URI)}
+     * @param cvHref           relative path of the CV published with the site (e.g. {@code cv/cv.pdf}), or {@code null}
+     */
+    public ArchitectureThemeRenderer(URI assistantBaseUrl, String cvHref) {
         this.assistantEndpoint = assistantBaseUrl == null ? null : askEndpoint(assistantBaseUrl);
+        this.cvHref = cvHref == null ? null : relativeHref(cvHref);
         // escapeHTML(true) is the default; set explicitly because it is a security property of this adapter.
         Mustache.Compiler compiler = Mustache.compiler().escapeHTML(true).nullValue("");
         try (Reader reader = new InputStreamReader(resource("index.mustache"), StandardCharsets.UTF_8)) {
@@ -86,8 +96,9 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
     PortfolioView toView(Profile profile) {
         UiText t = UiText.forLanguage(profile.language());
         var p = profile.person();
+        LinkView cv = cvHref == null ? null : new LinkView(t.downloadCv(), cvHref);
         PersonView person = new PersonView(p.name(), initials(p.name()), p.headline(), p.summary(), p.location(),
-                p.email(), links(p.links()));
+                p.email(), links(p.links()), cv);
 
         List<NodeView> nodes = ArchitectureMap.from(profile).nodes().stream()
                 .map(node -> node(node, profile, t))
@@ -120,6 +131,15 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
         }
         String path = base.getPath() == null ? "" : base.getPath().replaceAll("/+$", "");
         return URI.create(scheme + "://" + base.getRawAuthority() + path + "/api/ask");
+    }
+
+    /** Only a plain relative path inside the site: no scheme, no host, no {@code ..}, no query. */
+    static String relativeHref(String href) {
+        String value = href.strip();
+        if (!value.matches("[A-Za-z0-9][A-Za-z0-9._/-]*") || ("/" + value + "/").contains("/../")) {
+            throw new IllegalArgumentException("CV link must be a relative path inside the site, e.g. cv/cv.pdf: " + href);
+        }
+        return value;
     }
 
     private static String origin(URI uri) {

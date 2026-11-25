@@ -25,6 +25,7 @@
     <ul class="hero__links" aria-label="{{t.links}}">
       {{#person.links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/person.links}}
       {{#person.email}}<li><a href="mailto:{{.}}">{{.}}</a></li>{{/person.email}}
+      {{#person.cv}}<li><a class="hero__cv" href="{{url}}">{{label}}</a></li>{{/person.cv}}
     </ul>
     {{/person.hasLinks}}
   </div>

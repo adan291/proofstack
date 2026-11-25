@@ -91,6 +91,12 @@ public final class ProofstackCli implements Runnable {
                 new FileSystemArtifactSink());
     }
 
+    static PortfolioService portfolioWithCv(java.net.URI assistantUrl, String cvLink) {
+        var renderer = new SiteWithCvRenderer(new ArchitectureThemeRenderer(assistantUrl, cvLink),
+                new dev.proofstack.adapter.out.cv.CvRenderer());
+        return new PortfolioService(new YamlProfileSource(), renderer, new FileSystemArtifactSink());
+    }
+
     private static Integer missing(Path file, PrintWriter err) {
         err.println("File not found: " + file);
         return ERROR;
@@ -150,6 +156,14 @@ public final class ProofstackCli implements Runnable {
                 description = "Base URL of the optional ask-my-portfolio service (https; http only for localhost)")
         java.net.URI assistantUrl;
 
+        @Option(names = "--with-cv",
+                description = "Also publish the CV in <out>/cv/ and add a 'Download CV' link to the site")
+        boolean withCv;
+
+        @Option(names = "--cv-link", paramLabel = "PATH", defaultValue = "cv/cv.html",
+                description = "Relative target of the CV link (default: ${DEFAULT-VALUE}; e.g. cv/cv.pdf when a PDF is added later)")
+        String cvLink;
+
         @Spec
         CommandLine.Model.CommandSpec spec;
 
@@ -162,7 +176,7 @@ public final class ProofstackCli implements Runnable {
             }
             PortfolioService service;
             try {
-                service = portfolio(assistantUrl);
+                service = withCv ? portfolioWithCv(assistantUrl, cvLink) : portfolio(assistantUrl);
             } catch (IllegalArgumentException e) {
                 err.println(e.getMessage());
                 return INVALID;

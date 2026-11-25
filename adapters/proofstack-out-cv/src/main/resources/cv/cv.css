@@ -36,9 +36,12 @@ a { color: #0b4f9e; text-decoration: none; }
 article { break-inside: avoid; }
 h2 { break-after: avoid; }
 
-@page { size: A4; margin: 12mm; }
+@page { size: A4; margin: 11mm 13mm; }
 @media print {
-  body { background: #fff; font-size: 10pt; }
+  body { background: #fff; font-size: 9.5pt; line-height: 1.32; }
+  h1 { font-size: 19pt; }
+  h2 { margin: 10pt 0 4pt; }
+  h3 { margin: 6pt 0 0; }
   .cv { max-width: none; margin: 0; padding: 0; box-shadow: none; }
   a { color: inherit; }
 }
