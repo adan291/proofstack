@@ -223,6 +223,8 @@ projects:
       sugiere relaciones por similitud de nombres y por la memoria de aceptaciones y rechazos previos,
       guardada en un JSON. Expone una API HTTP con Javalin.
     techStack: [Java, JavaFX, Javalin, Gson, JMH]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/RelacionarClases" }
     areas: [ai, backend]
 
   - id: ai-devos
@@ -236,6 +238,8 @@ projects:
       contexto de organización, proyecto e hilo, decide qué agentes actúan, construye los prompts y guarda el
       conocimiento generado. Incluye un router de modelos.
     techStack: [TypeScript, Node.js, PostgreSQL, Drizzle, Redis, Vitest]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/AI-DevOS" }
     areas: [ai, architecture]
 
   - id: pedidos-api
@@ -289,6 +293,8 @@ projects:
       similitud del coseno y los mejores resultados se pasan como contexto a un LLM local, que redacta la respuesta.
       Los documentos se mantienen en memoria y el endpoint es GET /search.
     techStack: [Java 21, Spring Boot 3.3, Ollama, nomic-embed-text, similitud del coseno]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/B-squeda-sem-ntica" }
     learnings:
       - Es un prototipo para entender el flujo de RAG. El siguiente paso sería persistir los vectores y añadir pruebas.
     areas: [ai, backend]
