@@ -50,8 +50,13 @@ public final class RateLimitFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return !("POST".equals(request.getMethod()) && "/api/ask".equals(request.getRequestURI()));
+        // The same path Spring MVC uses to pick the controller: without ";params", decoded, with "//" merged.
+        // Comparing the raw request URI let "/api/ask;x=1" reach the controller without being counted.
+        String path = PATHS.getPathWithinApplication(request);
+        return !("POST".equals(request.getMethod()) && "/api/ask".equals(path));
     }
+
+    private static final org.springframework.web.util.UrlPathHelper PATHS = new org.springframework.web.util.UrlPathHelper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
