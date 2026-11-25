@@ -9,6 +9,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Guía (`docs/guide/`): instalación, recetas para el día a día, piezas opcionales (borradores con IA, MCP en Kiro, asistente) y qué hacer si cambias el código o publicas una versión.
 
 ### Corregido
+- Studio y los importadores escribían sin comillas textos como `1e3`, `.inf` o `.NaN`. Al releer el fichero eran números, o el YAML ni siquiera se abría. Ahora van entre comillas, y antes de escribir se comprueba que el YAML se relee igual: si no, no se guarda nada.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ## [0.7.0] - 2026-11

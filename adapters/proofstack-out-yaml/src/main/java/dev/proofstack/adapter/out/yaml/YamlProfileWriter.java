@@ -25,6 +25,7 @@ import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.Skill;
 import dev.proofstack.core.port.out.ProfileWriter;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
@@ -39,11 +40,13 @@ public final class YamlProfileWriter implements ProfileWriter {
             # Schema: schema/profile.schema.json
             """;
 
-    private final YAMLMapper yaml = YAMLMapper.builder()
-            .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
-            .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
-            .enable(YAMLWriteFeature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS)
-            .enable(YAMLWriteFeature.INDENT_ARRAYS_WITH_INDICATOR)
+    private final YAMLMapper yaml = YAMLMapper.builder(YAMLFactory.builder()
+                    .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
+                    .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
+                    .enable(YAMLWriteFeature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS)
+                    .enable(YAMLWriteFeature.INDENT_ARRAYS_WITH_INDICATOR)
+                    .stringQuotingChecker(TextQuoting.INSTANCE)
+                    .build())
             .build();
 
     @Override
@@ -51,13 +54,17 @@ public final class YamlProfileWriter implements ProfileWriter {
         if (Files.exists(target) && !overwrite) {
             throw new TargetExistsException(target);
         }
+        Map<String, Object> document = document(profile);
+        String body = yaml.writeValueAsString(document);
+        if (!yaml.valueToTree(document).equals(yaml.readTree(body))) {
+            throw new IllegalStateException("the profile could not be written as YAML that reads back the same");
+        }
         try {
             Path parent = target.toAbsolutePath().getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
             }
-            Files.writeString(target, header(target) + "\n" + yaml.writeValueAsString(document(profile)),
-                    StandardCharsets.UTF_8);
+            Files.writeString(target, header(target) + "\n" + body, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot write " + target, e);
         }

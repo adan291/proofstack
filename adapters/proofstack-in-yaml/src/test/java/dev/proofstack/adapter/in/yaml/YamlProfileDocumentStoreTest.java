@@ -105,6 +105,27 @@ class YamlProfileDocumentStoreTest {
         assertThat(store.parse("{\"person\":{\"name\":\"Ada\",\"headline\":\"Dev\"}}").person().name()).isEqualTo("Ada");
     }
 
+    /** Texts that YAML would read back as numbers, infinities or NaN if they were written without quotes. */
+    static final String[] NUMBER_LIKE = {"1e3", "2E-5", "+1.5e+10", ".inf", "-.Inf", ".NaN", "1_000", "0o17",
+            "0x1F", "3.14", "1.10", "+34", "-1", ".5", "true", "null", "~", "yes", "1:30"};
+
+    @Test
+    void numberLikeTextsAreSavedAsTextAndTheFileStaysReadable() throws IOException {
+        Stored before = store.read();
+        var json = tools.jackson.databind.json.JsonMapper.builder().build();
+        var doc = (tools.jackson.databind.node.ObjectNode) json.readTree(before.json());
+        var skills = doc.putArray("skills");
+        for (String text : NUMBER_LIKE) {
+            skills.addObject().put("name", text).put("area", "backend");
+        }
+
+        store.replace(json.writeValueAsString(doc), before.version());
+
+        var saved = new YamlProfileSource().load(file);
+        assertThat(saved.skills()).extracting(dev.proofstack.core.domain.Skill::name).containsExactly(NUMBER_LIKE);
+        assertThat(json.readTree(store.read().json())).isEqualTo(doc);
+    }
+
     @Test
     void theRealProfileSurvivesAReadAndSaveRoundTrip() throws IOException {
         Path real = Path.of("../../profiles/example/profile.yaml");

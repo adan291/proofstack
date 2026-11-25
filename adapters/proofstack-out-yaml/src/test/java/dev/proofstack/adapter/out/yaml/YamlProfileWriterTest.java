@@ -36,6 +36,23 @@ class YamlProfileWriterTest {
     }
 
     @Test
+    void numberLikeTextsAreWrittenAsText() {
+        String[] texts = {"1e3", "2E-5", "+1.5e+10", ".inf", "-.Inf", ".NaN", "1_000", "0o17", "0x1F", "3.14",
+                "1.10", "+34", "-1", ".5", "true", "null", "~", "yes", "1:30"};
+        Profile example = reader.load(REPO.resolve("profiles/example/profile.yaml"));
+        Profile original = new Profile(example.language(), example.person(), example.experience(),
+                example.education(), example.projects(),
+                java.util.Arrays.stream(texts).map(t -> new dev.proofstack.core.domain.Skill(t,
+                        dev.proofstack.core.domain.Area.BACKEND)).toList(),
+                example.evidence(), example.labs(), example.languages(), example.certifications());
+        Path out = tmp.resolve("profile.yaml");
+
+        writer.write(original, out, false);
+
+        assertThat(reader.load(out)).isEqualTo(original);
+    }
+
+    @Test
     void writesReadableYamlWithHeader() throws IOException {
         Profile original = reader.load(REPO.resolve("profiles/example/profile.yaml"));
         Path out = tmp.resolve("nested/dir/profile.yaml");

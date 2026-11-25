@@ -20,6 +20,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 import tools.jackson.dataformat.yaml.YAMLMapper;
 import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
@@ -42,11 +43,13 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
 
     private final Path file;
     private final YamlProfileSource source = new YamlProfileSource();
-    private final YAMLMapper yaml = YAMLMapper.builder()
-            .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
-            .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
-            .enable(YAMLWriteFeature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS)
-            .enable(YAMLWriteFeature.INDENT_ARRAYS_WITH_INDICATOR)
+    private final YAMLMapper yaml = YAMLMapper.builder(YAMLFactory.builder()
+                    .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
+                    .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
+                    .enable(YAMLWriteFeature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS)
+                    .enable(YAMLWriteFeature.INDENT_ARRAYS_WITH_INDICATOR)
+                    .stringQuotingChecker(TextQuoting.INSTANCE)
+                    .build())
             .build();
     private final JsonMapper json = JsonMapper.builder().build();
 
@@ -87,15 +90,32 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
             throw new VersionConflict(currentVersion);
         }
         byte[] next;
+        JsonNode tree;
+        String body;
         try {
-            JsonNode tree = json.readTree(document);
-            next = (header(new String(current, StandardCharsets.UTF_8)) + yaml.writeValueAsString(tree))
-                    .getBytes(StandardCharsets.UTF_8);
+            tree = json.readTree(document);
+            body = yaml.writeValueAsString(tree);
         } catch (JacksonException e) {
             throw new ProfileValidationException(new Violation("$", "invalid JSON: " + e.getOriginalMessage()));
         }
+        requireSameWhenReadBack(tree, body);
+        next = (header(new String(current, StandardCharsets.UTF_8)) + body).getBytes(StandardCharsets.UTF_8);
         write(current, next);
         return version(next);
+    }
+
+    /** Last line of defence: the YAML about to be written must read back as exactly the document that was validated. */
+    private void requireSameWhenReadBack(JsonNode expected, String yamlText) {
+        JsonNode readBack;
+        try {
+            readBack = yaml.readTree(yamlText);
+        } catch (JacksonException e) {
+            readBack = null;
+        }
+        if (!expected.equals(readBack)) {
+            throw new ProfileValidationException(new Violation("$",
+                    "the profile could not be written as YAML that reads back the same; nothing was saved"));
+        }
     }
 
     private void write(byte[] previous, byte[] next) {
