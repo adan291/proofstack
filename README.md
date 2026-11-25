@@ -155,7 +155,9 @@ proofstack build profiles/yo/profile.yaml --out dist --assistant-url https://ai.
 | `OLLAMA_HOST` | `http://localhost:11434` |
 | `PROOFSTACK_CHAT_MODEL` / `PROOFSTACK_EMBEDDING_MODEL` | `llama3.1` / `nomic-embed-text` |
 | `PROOFSTACK_ALLOWED_ORIGINS` | vacío (solo mismo origen) |
-| `PROOFSTACK_RATE_LIMIT` | `10` preguntas por minuto y por IP |
+| `PROOFSTACK_RATE_LIMIT` | `10` preguntas por minuto y por IP (en IPv6, por /64) |
+| `PROOFSTACK_GLOBAL_RATE_LIMIT` | `60` preguntas por minuto entre todos los visitantes |
+| `PROOFSTACK_MAX_CONCURRENT` | `2` preguntas respondiéndose a la vez |
 | `PROOFSTACK_MIN_SCORE` | `0.5` |
 
 La API es pública y sin autenticación, por diseño. La protegen el rate limit, el límite de longitud, el CORS restringido y unos errores que no revelan detalles internos. Despliegue con Docker Compose, Caddy, Prometheus y Grafana en [`deploy/`](deploy) y [ADR-009](docs/adr/ADR-009-observability-and-deployment.md).

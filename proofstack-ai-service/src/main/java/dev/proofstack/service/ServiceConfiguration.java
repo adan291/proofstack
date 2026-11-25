@@ -76,7 +76,9 @@ class ServiceConfiguration {
     @Bean
     FilterRegistrationBean<RateLimitFilter> rateLimitFilter(ProofstackProperties props, Counter rateLimitedCounter) {
         FilterRegistrationBean<RateLimitFilter> registration = new FilterRegistrationBean<>(
-                new RateLimitFilter(props.requestsPerMinute(), Clock.systemUTC(), rateLimitedCounter::increment));
+                new RateLimitFilter(new RateLimitFilter.Limits(props.requestsPerMinute(),
+                        props.globalRequestsPerMinute(), props.maxConcurrentQuestions()),
+                        Clock.systemUTC(), rateLimitedCounter::increment));
         registration.addUrlPatterns("/api/ask");
         return registration;
     }

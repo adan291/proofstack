@@ -13,7 +13,9 @@ public record ProofstackProperties(
         @DefaultValue("true") boolean indexOnStartup,
         @DefaultValue Rag rag,
         @DefaultValue Cors cors,
-        @DefaultValue("10") int requestsPerMinute) {
+        @DefaultValue("10") int requestsPerMinute,
+        @DefaultValue("60") int globalRequestsPerMinute,
+        @DefaultValue("2") int maxConcurrentQuestions) {
 
     public record Rag(
             @DefaultValue("4") int topK,

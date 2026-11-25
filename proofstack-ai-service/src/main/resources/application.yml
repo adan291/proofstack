@@ -44,6 +44,9 @@ management:
 proofstack:
   profile: ${PROOFSTACK_PROFILE:profiles/example/profile.yaml}
   requests-per-minute: ${PROOFSTACK_RATE_LIMIT:10}
+  # All visitors together, and questions answered at once (a CPU-only Ollama handles one or two).
+  global-requests-per-minute: ${PROOFSTACK_GLOBAL_RATE_LIMIT:60}
+  max-concurrent-questions: ${PROOFSTACK_MAX_CONCURRENT:2}
   rag:
     top-k: 4
     min-score: ${PROOFSTACK_MIN_SCORE:0.5}
