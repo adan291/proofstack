@@ -294,7 +294,7 @@ projects:
       Los documentos se mantienen en memoria y el endpoint es GET /search.
     techStack: [Java 21, Spring Boot 3.3, Ollama, nomic-embed-text, similitud del coseno]
     links:
-      - { label: GitHub, url: "https://github.com/adan291/B-squeda-sem-ntica" }
+      - { label: GitHub, url: "https://github.com/adan291/Busqueda-semantica" }
     learnings:
       - Es un prototipo para entender el flujo de RAG. El siguiente paso sería persistir los vectores y añadir pruebas.
     areas: [ai, backend]
