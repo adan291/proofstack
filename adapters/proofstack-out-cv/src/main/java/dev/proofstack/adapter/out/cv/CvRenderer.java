@@ -17,7 +17,7 @@ import dev.proofstack.core.port.out.Artifact;
 import dev.proofstack.core.port.out.PortfolioRenderer;
 
 /**
- * Driven adapter: renders a one-or-two page CV as {@code cv.md}, {@code cv.html} and {@code cv.css}.
+ * Driven adapter: renders a one-or-two page CV as {@code cv.md}, {@code cv.html} with {@code cv.css}, and {@code cv.docx}.
  * The HTML is single column, text only, with a print stylesheet, so "Save as PDF" gives an ATS-friendly document.
  */
 public final class CvRenderer implements PortfolioRenderer {
@@ -50,7 +50,8 @@ public final class CvRenderer implements PortfolioRenderer {
         return List.of(
                 new Artifact("cv.md", CvMarkdown.render(cv)),
                 new Artifact("cv.html", html.execute(cv)),
-                new Artifact("cv.css", css));
+                new Artifact("cv.css", css),
+                Artifact.binary("cv.docx", CvDocx.render(cv)));
     }
 
     private static InputStream resource(String name) {

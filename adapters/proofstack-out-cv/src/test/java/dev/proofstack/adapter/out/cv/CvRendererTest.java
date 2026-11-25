@@ -29,7 +29,7 @@ class CvRendererTest {
     void producesMarkdownHtmlAndStylesheet() {
         assertThat(new CvRenderer().render(profile("es", "Ada Lovelace")))
                 .extracting(Artifact::relativePath)
-                .containsExactly("cv.md", "cv.html", "cv.css");
+                .containsExactly("cv.md", "cv.html", "cv.css", "cv.docx");
     }
 
     @Test

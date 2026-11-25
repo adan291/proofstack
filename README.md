@@ -38,7 +38,7 @@ Importa perfil, experiencia, formación, proyectos y skills (clasificadas por á
 ### Genera tu CV
 
 ```bash
-proofstack cv profiles/yo/profile.yaml --out dist/cv                        # cv.md + cv.html
+proofstack cv profiles/yo/profile.yaml --out dist/cv                        # cv.md, cv.html y cv.docx
 proofstack cv profiles/yo/profile.yaml --out dist/cv-ia --focus ai -p 4     # un CV por objetivo
 ```
 
@@ -51,7 +51,7 @@ Incluye idiomas y certificaciones si tu perfil los tiene (el importador de Linke
 ```bash
 proofstack cv profiles/yo/profile.yaml --out dist/cv-oferta --job oferta.txt
 ```n
-Los proyectos y las skills que coinciden con la oferta pasan delante. La salida te dice qué términos de la oferta aparecen en tu perfil y cuáles **tu perfil nunca menciona**, para que decidas tú si los tienes y los añadas al `profile.yaml`. Es una heurística: puede listar alguna palabra corriente. Abre `cv.html` en el navegador y usa *Imprimir → Guardar como PDF*. Formato de una columna y solo texto, apto para filtros ATS. Decisiones en [`ADR-013`](docs/adr/ADR-013-cv-renderer.md).
+Los proyectos y las skills que coinciden con la oferta pasan delante. La salida te dice qué términos de la oferta aparecen en tu perfil y cuáles **tu perfil nunca menciona**, para que decidas tú si los tienes y los añadas al `profile.yaml`. Es una heurística: puede listar alguna palabra corriente. Abre `cv.html` en el navegador y usa *Imprimir → Guardar como PDF*, o entrega `cv.docx` a quien te pida un Word. Formato de una columna y solo texto, apto para filtros ATS. Decisiones en [`ADR-013`](docs/adr/ADR-013-cv-renderer.md).
 
 ### Genera contenido a partir de tus proyectos
 

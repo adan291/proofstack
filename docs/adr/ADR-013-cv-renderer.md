@@ -23,5 +23,6 @@ El mismo `profile.yaml` ya genera la web, y el formato `cv-bullets` redacta viñ
 ## Consecuencias
 
 - El CV es tan bueno como el perfil. Un proyecto sin evidencia con resultado sale sin línea de "Resultado".
+- `cv.docx` se escribe en Office Open XML sin librerías (`CvDocx`): una columna, estilos de título nativos y listas reales, sin tablas ni imágenes. Sale del mismo modelo `Cv`, así que dice lo mismo que el Markdown. La salida es reproducible: el mismo perfil da los mismos bytes.
 - No hay PDF directo. Se genera desde el navegador (Imprimir → Guardar como PDF), para no añadir un motor de PDF como dependencia.
 - Las etiquetas existen en español e inglés. Otros idiomas caen a inglés.

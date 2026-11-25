@@ -37,6 +37,7 @@ class BuildWithCvTest {
         assertThat(out.resolve("cv/cv.html")).isRegularFile();
         assertThat(out.resolve("cv/cv.md")).isRegularFile();
         assertThat(out.resolve("cv/cv.css")).isRegularFile();
+        assertThat(out.resolve("cv/cv.docx")).isRegularFile();
         assertThat(Files.readString(out.resolve("index.html"))).contains("href=\"cv/cv.html\"");
     }
 

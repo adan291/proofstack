@@ -83,4 +83,20 @@ class PortfolioServiceTest {
             written.addAll(artifacts);
         }
     }
+
+    @org.junit.jupiter.api.Test
+    void binaryArtifactsKeepTheirBytesAndCannotBeMutatedFromOutside() {
+        byte[] data = {1, 2, 3};
+        Artifact artifact = Artifact.binary("cv.docx", data);
+        data[0] = 9;
+
+        org.assertj.core.api.Assertions.assertThat(artifact.bytes()).containsExactly(1, 2, 3);
+        org.assertj.core.api.Assertions.assertThat(artifact.isBinary()).isTrue();
+        org.assertj.core.api.Assertions.assertThat(artifact.under("cv/").relativePath()).isEqualTo("cv/cv.docx");
+        org.assertj.core.api.Assertions.assertThat(artifact.under("cv/").bytes()).containsExactly(1, 2, 3);
+        org.assertj.core.api.Assertions.assertThat(new Artifact("a.txt", "\u00e1").bytes())
+                .containsExactly((byte) 0xC3, (byte) 0xA1);
+        assertThatThrownBy(() -> Artifact.binary("../evil.docx", new byte[]{1}))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }

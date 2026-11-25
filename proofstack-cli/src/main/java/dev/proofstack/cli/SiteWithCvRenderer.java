@@ -26,7 +26,7 @@ final class SiteWithCvRenderer implements PortfolioRenderer {
     @Override
     public List<Artifact> render(Profile profile) {
         List<Artifact> artifacts = new ArrayList<>(site.render(profile));
-        cv.render(profile).forEach(a -> artifacts.add(new Artifact(CV_DIR + a.relativePath(), a.content())));
+        cv.render(profile).forEach(a -> artifacts.add(a.under(CV_DIR)));
         return List.copyOf(artifacts);
     }
 }

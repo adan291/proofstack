@@ -5,7 +5,6 @@ import dev.proofstack.core.port.out.ArtifactSink;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -24,7 +23,7 @@ public final class FileSystemArtifactSink implements ArtifactSink {
                     throw new IllegalArgumentException("Artifact escapes output directory: " + artifact.relativePath());
                 }
                 Files.createDirectories(target.getParent());
-                Files.writeString(target, artifact.content(), StandardCharsets.UTF_8);
+                Files.write(target, artifact.bytes());
             }
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot write to " + root, e);

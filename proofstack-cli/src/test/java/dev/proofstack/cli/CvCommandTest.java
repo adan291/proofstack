@@ -36,6 +36,7 @@ class CvCommandTest {
         assertThat(run("cv", EXAMPLE.toString(), "--out", dir.toString())).as(err.toString()).isZero();
 
         assertThat(dir.resolve("cv.css")).isRegularFile();
+        assertThat(Files.readAllBytes(dir.resolve("cv.docx"))).startsWith((byte) 0x50, (byte) 0x4B); // "PK": a ZIP
         assertThat(Files.readString(dir.resolve("cv.md")))
                 .contains("# ")
                 .contains("## Certifications")
