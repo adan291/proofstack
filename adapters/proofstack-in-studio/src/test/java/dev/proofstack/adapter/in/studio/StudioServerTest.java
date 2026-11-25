@@ -212,6 +212,24 @@ class StudioServerTest {
                 "{}").status).isEqualTo(405);
     }
 
+    /** Another site must not be able to load the preview (it holds the CV) nor learn that Studio is running. */
+    @Test
+    void anotherSiteCannotLoadThePreview() throws IOException {
+        for (String path : List.of("/preview/cv/", "/preview/cv/cv.docx", "/preview/site/")) {
+            assertThat(request("GET", path, Map.of("Host", host, "Sec-Fetch-Site", "cross-site"), null).status)
+                    .as(path).isEqualTo(403);
+            assertThat(request("GET", path, Map.of("Host", host, "Sec-Fetch-Site", "same-site"), null).status)
+                    .as(path).isEqualTo(403);
+            assertThat(request("GET", path, Map.of("Host", host, "Sec-Fetch-Site", "same-origin"), null).status)
+                    .as(path).isEqualTo(200);
+        }
+        // The sandboxed preview has an opaque origin, so its own CSS and JS are "cross-site": they hold nothing personal.
+        assertThat(request("GET", "/preview/site/styles.css", Map.of("Host", host, "Sec-Fetch-Site", "cross-site"),
+                null).status).isEqualTo(200);
+        // No Sec-Fetch-Site: not a browser (curl, a test). Only local processes can do that, and they can read the file.
+        assertThat(request("GET", "/preview/cv/", Map.of("Host", host), null).status).isEqualTo(200);
+    }
+
     @Test
     void aFileThatIsNotYamlIs422WithWhereItBreaks() throws IOException {
         try (StudioServer broken = new StudioServer(new FakeEditor() {

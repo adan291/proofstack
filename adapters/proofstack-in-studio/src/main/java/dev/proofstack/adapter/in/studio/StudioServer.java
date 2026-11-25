@@ -121,7 +121,8 @@ public final class StudioServer implements AutoCloseable {
             var headers = exchange.getRequestHeaders();
             Optional<StudioGuard.Refusal> refusal = guard.check(method, path, headers.getFirst("Host"),
                     headers.getFirst("Origin"), headers.getFirst("Content-Type"),
-                    headers.getFirst(StudioGuard.TOKEN_HEADER), contentLength(headers.getFirst("Content-Length")));
+                    headers.getFirst(StudioGuard.TOKEN_HEADER), contentLength(headers.getFirst("Content-Length")),
+                    headers.getFirst("Sec-Fetch-Site"));
             if (refusal.isPresent()) {
                 error(exchange, refusal.get().status(), refusal.get().reason());
                 return;

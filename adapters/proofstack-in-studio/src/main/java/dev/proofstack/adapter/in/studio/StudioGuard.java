@@ -45,8 +45,22 @@ final class StudioGuard {
     /** Empty when the request may go on; otherwise the status and reason to answer with. */
     Optional<Refusal> check(String method, String path, String host, String origin, String contentType,
                             String requestToken, long contentLength) {
+        return check(method, path, host, origin, contentType, requestToken, contentLength, null);
+    }
+
+    /**
+     * @param fetchSite the browser's {@code Sec-Fetch-Site}: the preview (the CV, the site) may only be opened by
+     *                  Studio itself or by the user typing the URL, never by another page. Its static CSS and JS are
+     *                  exempt: the sandboxed iframe has an opaque origin, so they always arrive as cross-site.
+     */
+    Optional<Refusal> check(String method, String path, String host, String origin, String contentType,
+                            String requestToken, long contentLength, String fetchSite) {
         if (!allowedHost(host)) {
             return Optional.of(new Refusal(403, "host not allowed"));
+        }
+        if (path.startsWith("/preview/") && !staticAsset(path) && fetchSite != null
+                && !fetchSite.equals("same-origin") && !fetchSite.equals("none")) {
+            return Optional.of(new Refusal(403, "the preview can only be opened from Studio"));
         }
         if (contentLength > MAX_BODY_BYTES) {
             return Optional.of(new Refusal(413, "body larger than 1 MiB"));
@@ -63,6 +77,11 @@ final class StudioGuard {
             return Optional.of(new Refusal(415, "body must be application/json"));
         }
         return Optional.empty();
+    }
+
+    private static boolean staticAsset(String path) {
+        String lower = path.toLowerCase(Locale.ROOT);
+        return lower.endsWith(".css") || lower.endsWith(".js");
     }
 
     boolean allowedHost(String host) {
