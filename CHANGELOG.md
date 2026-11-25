@@ -21,6 +21,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 ### Cambiado
 - `proofstack --version` lee la versión del pom, así que basta con `mvn versions:set` para publicar una versión nueva. El workflow de release falla si el tag no coincide con esa versión.
 
+- `proofstack.jar` conservaba un solo `META-INF/NOTICE` y un `LICENSE` de 6 líneas que solo remite a la licencia. Ahora incluye los NOTICE de todas las dependencias y el texto completo de Apache-2.0, como pide la licencia.
+
 ### Seguridad
 - CI falla si una dependencia de ejecución tiene una vulnerabilidad conocida en OSV (`.github/scripts/osv_check.py`). Dependabot propone cada semana actualizaciones de Maven, de las acciones de GitHub y de la imagen Docker.
 - Dependencias con vulnerabilidades conocidas: Jackson 3.1.5 → 3.1.8 (DoS en jackson-core y jackson-databind) y Spring Boot 4.1.1 → 4.1.3 (Tomcat 11.0.24 → 11.0.27). OSV no da avisos para las 133 dependencias de ejecución.

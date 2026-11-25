@@ -117,6 +117,14 @@
                                     </manifestEntries>
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- Apache-2.0 §4(d): keep every dependency's NOTICE, not just the last one copied. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/NOTICE</resource>
+                                </transformer>
+                                <!-- §4(a): the full license text, which a pointer-only LICENSE would otherwise replace. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/LICENSE</resource>
+                                </transformer>
                             </transformers>
                             <filters>
                                 <filter>
