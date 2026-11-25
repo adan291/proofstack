@@ -5,6 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 ## [Unreleased]
 
 ### Añadido
+- Tests de Studio en Chrome (`mvn -Pe2e verify`, con Playwright): editar y guardar, listas, errores, conflicto en disco, avisos, vista previa, teclado y auditoría axe-core. CI los ejecuta en un job aparte. Encontraron tres fallos del editor, ya corregidos.
 - Lanzador `proofstack` (`proofstack.cmd` en Windows) en la raíz del repositorio: `./proofstack <comando>` funciona en PowerShell, macOS y Linux sin crear alias. Usa el jar compilado, o un `proofstack.jar` descargado, y si no hay ninguno lo compila con Maven.
 - Guía (`docs/guide/`): instalación, recetas para el día a día, piezas opcionales (borradores con IA, MCP en Kiro, asistente) y qué hacer si cambias el código o publicas una versión.
 
@@ -23,6 +24,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - `import ... --merge-into` emparejaba los puestos por el nombre exacto de la empresa: "Example Corp" y "Example Corporation, S.L." eran puestos distintos, y el tuyo desaparecía del fichero nuevo con sus evidencias, sin aviso. Ahora se ignoran mayúsculas, acentos, puntuación y forma jurídica. Los puestos de tu perfil que LinkedIn no tiene se listan en un `WARN`; siguen fuera del fichero nuevo, porque la trayectoria la manda LinkedIn (ADR-012).
 - `doctor`, el contador de `TODO` y el CV recorrían los campos del perfil cada uno a su manera. Por eso `doctor` no veía un `TODO` en la URL de un enlace que el contador sí contaba. Ahora los tres usan un único recorrido del dominio (`ProfileTexts`).
 - Tras un `git pull`, `./proofstack` ejecutaba sin avisar el jar compilado con el código anterior. Ahora avisa si algún fuente es más reciente que `proofstack-cli/target/proofstack.jar` y dice cómo recompilar. Con un `proofstack.jar` descargado no compara nada.
+- Studio: añadir una skill o una evidencia y guardar fallaba con «required property 'area' not found». Pulsar un aviso de un elemento de lista cerrado no llevaba al campo. Las URL salían como un cuadro de texto de varias líneas. Cada carga provocaba un 404 en `/favicon.ico`.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado

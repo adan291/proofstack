@@ -6,6 +6,11 @@ Gracias por tu interés. Proofstack es pequeño a propósito y quiere seguir as�
 1. Abre un issue si el cambio afecta al formato de `profile.yaml` o a la arquitectura. Esos cambios necesitan un ADR en `docs/adr/`.
 2. `mvn verify` tiene que pasar con JDK 25. Ese comando ejecuta también las reglas de arquitectura (ArchUnit). Si una regla falla, la solución casi nunca es borrar la regla.
 3. Todo cambio de comportamiento necesita tests. Los adaptadores HTTP se prueban contra servidores fake (`com.sun.net.httpserver`), nunca contra servicios reales.
+4. Si tocas el editor de Studio (`adapters/proofstack-in-studio/src/main/resources/studio/`), pasa también los tests de navegador. Necesitan Chrome instalado; si no lo encuentran, se saltan con un aviso:
+   ```bash
+   mvn -Pe2e verify -pl proofstack-cli -am -Dtest=NoUnitTests -Dsurefire.failIfNoSpecifiedTests=false
+   ```
+   Están en `proofstack-cli/src/e2e/java` (clases `*E2E`). Fallan también ante cualquier error de JavaScript, violación de CSP o respuesta HTTP de error que el test no espere.
 
 ## Reglas del proyecto
 - **El core no depende de frameworks.** Solo `java.*`.

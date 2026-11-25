@@ -30,5 +30,5 @@ Fuera de alcance: probar la web publicada (`out-web`) y el CV, que ya tienen tes
 ## R4: Ejecución
 
 1. Los tests SHALL ejecutarse con `mvn -Pe2e verify` y SHALL NOT formar parte de `mvn verify`, que debe seguir siendo rápido y no necesitar navegador.
-2. CI SHALL ejecutarlos en un job aparte, en cada push a `main` y en cada PR que toque `adapters/proofstack-in-studio` o el esquema.
+2. CI SHALL ejecutarlos en un job aparte, en cada push a `main` y en cada PR.
 3. Cada test SHALL usar una copia temporal del perfil de ejemplo, nunca un perfil de `profiles/`.

@@ -16,7 +16,7 @@ Propuestas tras la revisión de noviembre de 2026 (pendientes de aprobar):
 
 | Tema | Spec |
 |---|---|
-| Tests de Studio en un navegador real (H9) | [`proofstack-studio-browser-tests`](proofstack-studio-browser-tests/requirements.md) |
+| Tests de Studio en un navegador real (H9), hecha | [`proofstack-studio-browser-tests`](proofstack-studio-browser-tests/requirements.md) |
 | Fechas con precisión de año (H3) | [`proofstack-year-dates`](proofstack-year-dates/requirements.md) |
 | Conflictos en Studio sin perder ediciones (H23) | [`proofstack-studio-merge`](proofstack-studio-merge/requirements.md) |
 | Un solo codec YAML (H10) | [`proofstack-yaml-codec`](proofstack-yaml-codec/requirements.md) |
