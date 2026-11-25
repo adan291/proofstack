@@ -28,6 +28,7 @@ class HexagonalArchitectureTest {
         assertThat(all.containPackage("dev.proofstack.adapter.out.yaml")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.linkedin")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.github")).isTrue();
+        assertThat(all.containPackage("dev.proofstack.adapter.in.studio")).isTrue();
     }
 
     @Test

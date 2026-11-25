@@ -35,6 +35,13 @@ Importa perfil, experiencia, formación, proyectos y skills (clasificadas por á
 
 **Sin ZIP (miembros de la UE):** `proofstack import linkedin-api --merge-into profiles/yo/profile.yaml --out profiles/yo/profile.linkedin.yaml` trae tu trayectoria directamente de la API oficial de portabilidad de LinkedIn. Tus proyectos y evidencias se conservan. La configuración de una sola vez está en [`docs/linkedin-api.md`](docs/linkedin-api.md).
 
+### Edita tu perfil sin tocar YAML
+
+```bash
+proofstack studio profiles/yo/profile.yaml
+```
+
+Abre en el navegador un editor con un formulario por sección, los avisos de `doctor` junto a cada campo y una vista previa del CV y de la web. Solo escucha en `127.0.0.1`, nunca guarda un perfil inválido y deja una copia `profile.yaml.bak` antes de cada guardado. Si el fichero cambia en disco mientras editas (otro editor, `git pull`), te pide recargar en vez de pisar esos cambios. Los comentarios de la cabecera del YAML se conservan; los que haya dentro del fichero, no. Decisiones en [`ADR-014`](docs/adr/ADR-014-studio-local-editor.md).
 ### Genera tu CV
 
 ```bash

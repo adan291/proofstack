@@ -43,7 +43,7 @@ import picocli.CommandLine.Spec;
         mixinStandardHelpOptions = true,
         version = "proofstack 0.6.0",
         description = "Portfolio-as-code for backend engineers.",
-        subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, ProofstackCli.Generate.class,
+        subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, StudioCommand.class, ProofstackCli.Generate.class,
                 ProofstackCli.Import.class})
 public final class ProofstackCli implements Runnable {
 

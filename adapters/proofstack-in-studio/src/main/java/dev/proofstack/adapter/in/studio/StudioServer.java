@@ -322,7 +322,9 @@ public final class StudioServer implements AutoCloseable {
         headers.set("X-Content-Type-Options", "nosniff");
         headers.set("Referrer-Policy", "no-referrer");
         headers.set("Cache-Control", "no-store");
-        headers.set("Cross-Origin-Resource-Policy", "same-origin");
+        // The preview is shown in a sandboxed iframe, which has an opaque origin: its CSS and JS must be loadable
+        // cross-origin. It only holds the public portfolio; the API and the editor stay same-origin.
+        headers.set("Cross-Origin-Resource-Policy", csp.equals(PREVIEW_CSP) ? "cross-origin" : "same-origin");
         boolean head = exchange.getRequestMethod().equals("HEAD");
         exchange.sendResponseHeaders(status, head ? -1 : body.length);
         if (!head) {

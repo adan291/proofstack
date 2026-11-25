@@ -114,6 +114,8 @@ class StudioServerTest {
         Response site = request("GET", "/preview/site/", Map.of("Host", host), null);
         assertThat(site.status).isEqualTo(200);
         assertThat(site.body).isEqualTo("<h1>Ada</h1>");
+        assertThat(site.header("cross-origin-resource-policy")).isEqualTo("cross-origin");
+        assertThat(index.header("cross-origin-resource-policy")).isEqualTo("same-origin");
         assertThat(request("GET", "/preview/site/styles.css", Map.of("Host", host), null).header("content-type"))
                 .startsWith("text/css");
         assertThat(request("GET", "/preview/cv/", Map.of("Host", host), null).body).isEqualTo("<h1>CV</h1>");
