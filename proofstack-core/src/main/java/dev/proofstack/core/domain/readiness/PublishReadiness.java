@@ -8,10 +8,12 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+import dev.proofstack.core.domain.Certification;
 import dev.proofstack.core.domain.Education;
 import dev.proofstack.core.domain.Evidence;
 import dev.proofstack.core.domain.Experience;
 import dev.proofstack.core.domain.Lab;
+import dev.proofstack.core.domain.Language;
 import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.PersonalInfo;
 import dev.proofstack.core.domain.Profile;
@@ -70,7 +72,9 @@ public final class PublishReadiness {
             String path = "$.experience[" + i + "]";
             text(findings, path + ".role", e.role());
             text(findings, path + ".company", e.company());
+            text(findings, path + ".location", e.location());
             texts(findings, path + ".highlights", e.highlights());
+            texts(findings, path + ".technologies", e.technologies());
             if (e.highlights().isEmpty()) {
                 findings.add(warn(path + ".highlights", "no highlights", "1–3 concrete achievements, no buzzwords"));
             }
@@ -87,6 +91,23 @@ public final class PublishReadiness {
         if (profile.skills().isEmpty()) {
             findings.add(warn("$.skills", "no skills", "skills place you on the architecture map"));
         }
+        for (int i = 0; i < profile.skills().size(); i++) {
+            text(findings, "$.skills[" + i + "].name", profile.skills().get(i).name());
+        }
+        for (int i = 0; i < profile.languages().size(); i++) {
+            Language l = profile.languages().get(i);
+            text(findings, "$.languages[" + i + "].name", l.name());
+            text(findings, "$.languages[" + i + "].level", l.level());
+        }
+        for (int i = 0; i < profile.certifications().size(); i++) {
+            Certification c = profile.certifications().get(i);
+            String path = "$.certifications[" + i + "]";
+            text(findings, path + ".title", c.title());
+            text(findings, path + ".issuer", c.issuer());
+            if (c.link() != null) {
+                links(findings, path + ".link", List.of(c.link()));
+            }
+        }
 
         for (int i = 0; i < profile.projects().size(); i++) {
             Project pr = profile.projects().get(i);
@@ -95,6 +116,7 @@ public final class PublishReadiness {
             text(findings, path + ".summary", pr.summary());
             text(findings, path + ".problem", pr.problem());
             text(findings, path + ".solution", pr.solution());
+            texts(findings, path + ".techStack", pr.techStack());
             texts(findings, path + ".learnings", pr.learnings());
             links(findings, path + ".links", pr.links());
             if (pr.problem() == null || pr.solution() == null) {
@@ -128,6 +150,7 @@ public final class PublishReadiness {
 
         for (int i = 0; i < profile.labs().size(); i++) {
             Lab l = profile.labs().get(i);
+            text(findings, "$.labs[" + i + "].name", l.name());
             text(findings, "$.labs[" + i + "].description", l.description());
         }
 
