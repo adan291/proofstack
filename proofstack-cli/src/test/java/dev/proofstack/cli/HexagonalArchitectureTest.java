@@ -58,17 +58,13 @@ class HexagonalArchitectureTest {
                 .check(all);
     }
 
+    /** Every adapter, inbound or outbound, present or future: one slice per {@code adapter.<in|out>.<name>}. */
     @Test
-    void outboundAdaptersAreIndependentOfEachOther() {
-        for (String adapter : new String[]{"web", "cv", "llm", "yaml"}) {
-            noClasses().that().resideInAPackage("dev.proofstack.adapter.out." + adapter + "..")
-                    .should().dependOnClassesThat().resideInAnyPackage(
-                            java.util.stream.Stream.of("web", "cv", "llm", "yaml")
-                                    .filter(other -> !other.equals(adapter))
-                                    .map(other -> "dev.proofstack.adapter.out." + other + "..")
-                                    .toArray(String[]::new))
-                    .check(all);
-        }
+    void adaptersAreIndependentOfEachOther() {
+        com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices()
+                .matching("dev.proofstack.adapter.(*).(*)..")
+                .should().notDependOnEachOther()
+                .check(all);
     }
 
     @Test
