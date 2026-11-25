@@ -59,7 +59,7 @@ final class DoctorCommand implements Callable<Integer> {
             String level = f.severity() == Severity.ERROR ? "ERROR" : "WARN ";
             out.println(level + " " + f.path() + ": " + f.message());
             if (!f.hint().isEmpty()) {
-                out.println("       → " + f.hint());
+                out.println("       -> " + f.hint());
             }
         }
         long errors = findings.stream().filter(f -> f.severity() == Severity.ERROR).count();

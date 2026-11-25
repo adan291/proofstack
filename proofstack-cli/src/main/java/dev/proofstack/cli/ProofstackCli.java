@@ -65,7 +65,18 @@ public final class ProofstackCli implements Runnable {
     }
 
     public static void main(String[] args) {
-        System.exit(run(args, new PrintWriter(System.out, true), new PrintWriter(System.err, true), System.getenv()));
+        System.exit(run(args, writer(System.out), writer(System.err), System.getenv()));
+    }
+
+    /**
+     * UTF-8 when the output goes to a file or a pipe ({@code generate > draft.md}); the console's own charset when it
+     * is a terminal, so accents stay readable in a Windows console instead of turning into mojibake.
+     */
+    private static PrintWriter writer(java.io.PrintStream stream) {
+        java.io.Console console = System.console();
+        java.nio.charset.Charset charset = console != null && console.isTerminal()
+                ? stream.charset() : StandardCharsets.UTF_8;
+        return new PrintWriter(new java.io.OutputStreamWriter(stream, charset), true);
     }
 
     /** Entry point used by tests: no System.exit, injectable streams and environment. */

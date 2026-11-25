@@ -58,7 +58,7 @@ public final class PublishReadiness {
         }
         if (p.summary() == null) {
             findings.add(warn("$.person.summary", "no summary",
-                    "2–3 sentences: what you build, for whom, and what you are exploring now"));
+                    "2-3 sentences: what you build, for whom, and what you are exploring now"));
         }
         if (p.links().isEmpty() && p.email() == null) {
             findings.add(warn("$.person.links", "no way to contact you", "add at least LinkedIn or GitHub"));
@@ -76,7 +76,7 @@ public final class PublishReadiness {
             texts(findings, path + ".highlights", e.highlights());
             texts(findings, path + ".technologies", e.technologies());
             if (e.highlights().isEmpty()) {
-                findings.add(warn(path + ".highlights", "no highlights", "1–3 concrete achievements, no buzzwords"));
+                findings.add(warn(path + ".highlights", "no highlights", "1-3 concrete achievements, no buzzwords"));
             }
         }
 
@@ -212,6 +212,6 @@ public final class PublishReadiness {
 
     private static String abbreviate(String value) {
         String oneLine = value.replaceAll("\\s+", " ").strip();
-        return oneLine.length() > 60 ? oneLine.substring(0, 57) + "…" : oneLine;
+        return oneLine.length() > 60 ? oneLine.substring(0, 57) + "..." : oneLine;
     }
 }

@@ -45,6 +45,27 @@ class TemplateCommandsTest {
         assertThat(err.toString()).contains("--force");
     }
 
+    /** Windows consoles use a legacy code page: anything doctor adds around the user's text must be plain ASCII. */
+    @Test
+    void doctorDecorationsArePlainAscii() throws IOException {
+        Path profile = tmp.resolve("profile.yaml");
+        Files.writeString(profile, """
+                language: en
+                person:
+                  name: Ada Lovelace
+                  headline: "TODO: a headline long enough to be abbreviated by doctor in its message"
+                experience:
+                  - id: acme
+                    role: Developer
+                    company: ACME
+                    startDate: 2022-01
+                """);
+
+        run("doctor", profile.toString());
+
+        assertThat(out.toString()).contains("no summary").contains("no highlights").matches("\\p{ASCII}*");
+    }
+
     @Test
     void completedProfilePassesDoctorAndStrictReportsWarnings() throws IOException {
         Path profile = tmp.resolve("profile.yaml");
