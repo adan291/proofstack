@@ -72,7 +72,9 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
             }
             return new Stored(json.writeValueAsString(tree), version(bytes));
         } catch (JacksonException e) {
-            throw new ProfileValidationException(new Violation("$", "invalid YAML: " + e.getOriginalMessage()));
+            var where = e.getLocation();
+            String at = where == null ? "" : " (line " + where.getLineNr() + ", column " + where.getColumnNr() + ")";
+            throw new ProfileValidationException(new Violation("$", "invalid YAML" + at + ": " + e.getOriginalMessage()));
         }
     }
 

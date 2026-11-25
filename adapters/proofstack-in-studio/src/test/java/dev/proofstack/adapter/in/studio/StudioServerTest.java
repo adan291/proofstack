@@ -213,6 +213,23 @@ class StudioServerTest {
     }
 
     @Test
+    void aFileThatIsNotYamlIs422WithWhereItBreaks() throws IOException {
+        try (StudioServer broken = new StudioServer(new FakeEditor() {
+            @Override
+            public Snapshot load() {
+                throw new dev.proofstack.core.domain.ProfileValidationException(
+                        new Violation("$", "invalid YAML (line 3, column 7): mapping values are not allowed here"));
+            }
+        }, () -> profile, p -> List.of(), p -> List.of(), "{}", 0)) {
+            broken.start();
+            Response r = request(broken.port(), "GET", "/api/profile",
+                    Map.of("Host", "127.0.0.1:" + broken.port(), "X-Studio-Token", broken.token()), null);
+            assertThat(r.status).isEqualTo(422);
+            assertThat(r.body).contains("fix it in a text editor").contains("line 3, column 7");
+        }
+    }
+
+    @Test
     void errorsNeverLeakInternals() throws IOException {
         try (StudioServer broken = new StudioServer(new FakeEditor() {
             @Override

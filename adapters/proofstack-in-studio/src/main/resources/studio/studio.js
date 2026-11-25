@@ -41,6 +41,11 @@ async function start() {
     return;
   }
   const [schema, profile] = await Promise.all([api('/api/schema'), api('/api/profile')]);
+  if (profile.status === 422) {
+    const where = profile.body?.violations?.[0]?.message ?? '';
+    announce(`profile.yaml no es YAML válido. Corrígelo en tu editor de texto y recarga la página. ${where}`, 'error');
+    return;
+  }
   if (schema.status !== 200 || profile.status !== 200) {
     announce(`No se pudo cargar el perfil (${profile.body?.error ?? profile.status}).`, 'error');
     return;

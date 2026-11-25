@@ -166,7 +166,17 @@ public final class StudioServer implements AutoCloseable {
     // ------------------------------------------------------------------ API
 
     private void getProfile(HttpExchange exchange) throws IOException {
-        Snapshot snapshot = editor.load();
+        Snapshot snapshot;
+        try {
+            snapshot = editor.load();
+        } catch (ProfileValidationException e) {
+            // Not even YAML: there is no document to put in the forms, and saving one would overwrite the file.
+            ObjectNode out = json.createObjectNode();
+            out.put("error", "profile.yaml is not valid YAML; fix it in a text editor, then reload");
+            out.set("violations", violations(e.violations()));
+            sendJson(exchange, 422, out);
+            return;
+        }
         ObjectNode body = json.createObjectNode();
         body.set("document", json.readTree(snapshot.json()));
         body.put("version", snapshot.version());

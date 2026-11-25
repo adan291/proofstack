@@ -96,6 +96,16 @@ class YamlProfileDocumentStoreTest {
     }
 
     @Test
+    void aFileThatIsNotYamlSaysWhereItBreaks() throws IOException {
+        Files.writeString(file, "language: es\nperson:\n  name: Ada: Lovelace\n");
+
+        assertThatThrownBy(store::read)
+                .isInstanceOf(ProfileValidationException.class)
+                .satisfies(e -> assertThat(((ProfileValidationException) e).violations().getFirst().message())
+                        .startsWith("invalid YAML (line 3, column"));
+    }
+
+    @Test
     void parseAppliesTheSchemaAndTheDomainRules() {
         assertThatThrownBy(() -> store.parse("{\"person\":{\"name\":\"Ada\",\"headline\":\"Dev\"},\"unknown\":1}"))
                 .isInstanceOf(ProfileValidationException.class);
