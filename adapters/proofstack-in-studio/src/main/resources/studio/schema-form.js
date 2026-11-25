@@ -75,7 +75,8 @@ export class SchemaForm {
     let input;
     if (node.enum) {
       input = el('select');
-      if (!required) input.append(option('', '—'));
+      // Without an empty option a select shows its first value, which the document does not have.
+      if (!required || holder.get() === undefined) input.append(option('', '—'));
       node.enum.forEach((v) => input.append(option(v, v)));
     } else if (node.pattern === '^[0-9]{4}-(0[1-9]|1[0-2])$') {
       input = el('input');
@@ -244,7 +245,9 @@ function blank(node, form) {
   const item = {};
   for (const prop of node.required ?? []) {
     const sub = form.resolve(node.properties[prop]);
-    if (sub.type === 'string') item[prop] = sub.enum ? sub.enum[0] : '';
+    // An enum may come without "type" (area, category): it still needs the value its select shows.
+    if (sub.enum) item[prop] = sub.enum[0];
+    else if (sub.type === 'string') item[prop] = '';
   }
   return item;
 }
