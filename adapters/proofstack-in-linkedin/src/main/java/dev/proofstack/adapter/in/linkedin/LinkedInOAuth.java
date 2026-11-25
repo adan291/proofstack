@@ -1,8 +1,8 @@
 package dev.proofstack.adapter.in.linkedin;
 
 import com.sun.net.httpserver.HttpServer;
-import dev.proofstack.core.port.out.ProjectSource.ImportException;
-import dev.proofstack.core.port.out.ProjectSource.ImportException.Kind;
+import dev.proofstack.core.port.out.ImportException;
+import dev.proofstack.core.port.out.ImportException.Kind;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;

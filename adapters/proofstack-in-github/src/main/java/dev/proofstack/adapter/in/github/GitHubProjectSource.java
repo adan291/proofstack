@@ -9,7 +9,8 @@ import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.TodoCounter;
 import dev.proofstack.core.port.out.ProjectSource;
-import dev.proofstack.core.port.out.ProjectSource.ImportException.Kind;
+import dev.proofstack.core.port.out.ImportException;
+import dev.proofstack.core.port.out.ImportException.Kind;
 
 import java.io.IOException;
 import java.net.URI;

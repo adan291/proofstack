@@ -7,7 +7,7 @@ import dev.proofstack.core.application.CareerImportService;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.port.in.ImportProfileUseCase.ImportReport;
 import dev.proofstack.core.port.out.ProfileWriter;
-import dev.proofstack.core.port.out.ProjectSource.ImportException;
+import dev.proofstack.core.port.out.ImportException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;

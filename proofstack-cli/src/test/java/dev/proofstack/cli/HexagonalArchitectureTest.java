@@ -67,6 +67,14 @@ class HexagonalArchitectureTest {
                 .check(all);
     }
 
+    /** The LinkedIn adapters implement MemberProfileSource: GitHub's port is none of their business. */
+    @Test
+    void anAdapterDoesNotUseAPortItDoesNotImplement() {
+        noClasses().that().resideInAPackage("dev.proofstack.adapter.in.linkedin..")
+                .should().dependOnClassesThat().belongToAnyOf(dev.proofstack.core.port.out.ProjectSource.class)
+                .check(all);
+    }
+
     @Test
     void adaptersUseCoreOnlyThroughPortsAndDomain() {
         noClasses().that().resideInAPackage("dev.proofstack.adapter..")

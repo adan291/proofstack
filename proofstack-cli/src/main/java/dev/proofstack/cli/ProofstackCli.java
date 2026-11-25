@@ -395,7 +395,7 @@ public final class ProofstackCli implements Runnable {
                         stdout.println("  " + report.todoCount() + " TODO placeholders to review before publishing.");
                     }
                     return OK;
-                } catch (dev.proofstack.core.port.out.ProjectSource.ImportException e) {
+                } catch (dev.proofstack.core.port.out.ImportException e) {
                     err.println(e.getMessage());
                     return switch (e.kind()) {
                         case NOT_FOUND, INVALID_INPUT -> INVALID;
