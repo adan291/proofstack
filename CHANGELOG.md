@@ -19,6 +19,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Un fork que borrara `profiles/adan` rompía CI y 6 tests, y el servicio RAG y Docker Compose usaban ese perfil por defecto. CI y los tests validan ahora los perfiles que haya, `generate` se prueba con un perfil de prueba propio y los valores por defecto apuntan a `profiles/example`.
 - Los importadores con `--force` podían sobrescribir el perfil original si `--out` era otro nombre del mismo fichero (un enlace, o mayúsculas distintas en macOS). Ahora se comparan los ficheros, no solo las rutas. Además escriben de forma atómica (temporal y renombrado): un fallo a medias ya no deja el destino truncado.
 - `build` no avisaba de los `TODO` que la web iba a mostrar. Ahora lo dice, igual que `cv`, y remite a `doctor`.
+- El CV imprimía fechas que nadie había escrito. Cuando LinkedIn no da fecha de inicio, o solo da el año, el importador guarda una fecha provisional (el esquema exige mes), y el CV la mostraba como "Jan 2019 – Jan 2019". Ahora el importador lo marca con `TODO: dates`, `doctor` lo bloquea, el CV omite ese periodo y el merge conserva las fechas del perfil propio si las tiene.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado

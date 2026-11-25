@@ -44,7 +44,7 @@ final class CvDocx {
             paragraph(body, "Heading1", t.experience());
             cv.jobs().forEach(job -> {
                 paragraph(body, "Heading2", job.role() + " · " + job.company());
-                paragraph(body, "Meta", job.location().isEmpty() ? job.period() : job.location() + " · " + job.period());
+                meta(body, job.meta());
                 bullets(body, job.highlights());
                 if (!job.technologies().isEmpty()) {
                     labelled(body, t.technologies(), job.technologies());
@@ -71,7 +71,7 @@ final class CvDocx {
             paragraph(body, "Heading1", t.education());
             cv.studies().forEach(s -> {
                 paragraph(body, "Heading2", s.title() + " · " + s.institution());
-                paragraph(body, "Meta", s.period());
+                meta(body, s.meta());
                 bullets(body, s.highlights());
             });
         }
@@ -101,6 +101,12 @@ final class CvDocx {
         }
         run(body, text, false);
         body.append("</w:p>");
+    }
+
+    private static void meta(StringBuilder body, String meta) {
+        if (!meta.isEmpty()) {
+            paragraph(body, "Meta", meta);
+        }
     }
 
     /** "Label: text" with the label in bold, e.g. a skill group. */

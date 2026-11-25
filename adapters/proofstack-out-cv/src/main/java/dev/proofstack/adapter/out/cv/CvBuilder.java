@@ -23,6 +23,7 @@ import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.Skill;
+import dev.proofstack.core.domain.TodoCounter;
 
 /**
  * Picks and orders what goes on the CV. Pure function of the profile: no generated text, so the CV can only say
@@ -30,7 +31,7 @@ import dev.proofstack.core.domain.Skill;
  */
 final class CvBuilder {
 
-    private static final String PLACEHOLDER = "TODO";
+    private static final String PLACEHOLDER = TodoCounter.MARKER;
     private static final int MAX_STACK = 8;
     private static final int MAX_JOB_BONUS = 6;
 
@@ -97,7 +98,7 @@ final class CvBuilder {
     private static List<Job> jobs(Profile profile, CvText t) {
         return profile.experience().stream()
                 .sorted(Comparator.comparing((dev.proofstack.core.domain.Experience e) -> e.period().start()).reversed())
-                .map(e -> new Job(clean(e.role()), clean(e.company()), clean(e.location()), period(e.period(), t),
+                .map(e -> new Job(clean(e.role()), clean(e.company()), clean(e.location()), period(e.period(), e.highlights(), t),
                         usable(e.highlights()), String.join(", ", usable(e.technologies()))))
                 .toList();
     }
@@ -105,7 +106,7 @@ final class CvBuilder {
     private static List<Study> studies(Profile profile, CvText t) {
         return profile.education().stream()
                 .sorted(Comparator.comparing((dev.proofstack.core.domain.Education e) -> e.period().start()).reversed())
-                .map(e -> new Study(clean(e.title()), clean(e.institution()), period(e.period(), t),
+                .map(e -> new Study(clean(e.title()), clean(e.institution()), period(e.period(), e.highlights(), t),
                         usable(e.highlights())))
                 .toList();
     }
@@ -183,6 +184,14 @@ final class CvBuilder {
                 .filter(r -> !r.isEmpty())
                 .findFirst()
                 .orElse("");
+    }
+
+    /** Empty when the profile flags the period as unknown ({@link TodoCounter#DATES}): its date is a placeholder. */
+    static String period(Period period, List<String> highlights, CvText t) {
+        if (highlights.stream().anyMatch(h -> h.startsWith(TodoCounter.DATES))) {
+            return "";
+        }
+        return period(period, t);
     }
 
     static String period(Period period, CvText t) {

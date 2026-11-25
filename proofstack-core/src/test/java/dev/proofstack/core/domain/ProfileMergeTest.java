@@ -1,11 +1,10 @@
 package dev.proofstack.core.domain;
 
-import org.junit.jupiter.api.Test;
-
 import java.time.YearMonth;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class ProfileMergeTest {
 
@@ -55,6 +54,25 @@ class ProfileMergeTest {
         assertThat(merged.projects()).extracting(Project::id).containsExactly("proofstack", "busqueda");
         assertThat(merged.skills()).extracting(Skill::name).containsExactly("Java", "Kafka");
         assertThat(merged.evidence()).isEqualTo(mine.evidence());
+    }
+
+    /** LinkedIn had no real dates: the hand-written job's period is the only real one, so it wins; else stay flagged. */
+    @Test
+    void anImportedPeriodFlaggedAsUnknownNeverHidesItsFlag() {
+        String flag = TodoCounter.DATES + ": LinkedIn only gives the year";
+        Experience imported = new Experience("acme", "Backend Developer", "ACME", null,
+                Period.ongoingSince(YearMonth.of(2020, 1)), List.of("TODO: add achievements", flag), List.of(), List.of());
+        Experience fresh = new Experience("new-co", "Developer", "New Co", null,
+                Period.ongoingSince(YearMonth.of(2023, 1)), List.of("TODO: add achievements", flag), List.of(), List.of());
+        Profile withFlags = new Profile("en", linkedIn.person(), List.of(imported, fresh), List.of(), List.of(),
+                List.of(), List.of(), List.of());
+
+        Profile merged = ProfileMerge.careerFrom(mine, withFlags);
+
+        Experience matched = merged.experience().get(0); // matched with the current job whose company was TODO
+        assertThat(matched.period()).isEqualTo(mine.experience().getFirst().period());
+        assertThat(matched.highlights()).noneMatch(h -> h.startsWith(TodoCounter.DATES));
+        assertThat(merged.experience().get(1).highlights()).contains(flag);
     }
 
     @Test

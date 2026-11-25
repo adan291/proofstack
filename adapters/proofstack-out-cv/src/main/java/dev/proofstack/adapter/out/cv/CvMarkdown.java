@@ -31,7 +31,7 @@ final class CvMarkdown {
             section(md, t.experience());
             cv.jobs().forEach(job -> {
                 md.append("### ").append(job.role()).append(" · ").append(job.company()).append("\n\n");
-                md.append('*').append(join(job.location(), job.period())).append("*\n\n");
+                meta(md, job.meta());
                 bullets(md, job.highlights());
                 if (!job.technologies().isEmpty()) {
                     md.append(t.technologies()).append(": ").append(job.technologies()).append("\n\n");
@@ -59,7 +59,7 @@ final class CvMarkdown {
             section(md, t.education());
             cv.studies().forEach(s -> {
                 md.append("### ").append(s.title()).append(" · ").append(s.institution()).append("\n\n");
-                md.append('*').append(s.period()).append("*\n\n");
+                meta(md, s.meta());
                 bullets(md, s.highlights());
             });
         }
@@ -98,7 +98,9 @@ final class CvMarkdown {
         }
     }
 
-    private static String join(String a, String b) {
-        return a.isEmpty() ? b : a + " · " + b;
+    private static void meta(StringBuilder md, String meta) {
+        if (!meta.isEmpty()) {
+            md.append('*').append(meta).append("*\n\n");
+        }
     }
 }

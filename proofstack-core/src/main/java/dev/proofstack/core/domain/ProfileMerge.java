@@ -70,19 +70,28 @@ public final class ProfileMerge {
         return result;
     }
 
-    /** Imported job + what only the hand-written one knows (evidence links, technologies, real highlights). */
+    /**
+     * Imported job + what only the hand-written one knows (evidence links, technologies, real highlights, and its
+     * period when the imported one is flagged as unknown).
+     */
     private static Experience inherit(Experience imported, Experience mine) {
-        List<String> highlights = imported.highlights().stream().allMatch(ProfileMerge::isTodo)
-                ? mine.highlights().stream().filter(h -> !isTodo(h)).toList()
+        boolean unknownDates = imported.highlights().stream().anyMatch(h -> h.startsWith(TodoCounter.DATES))
+                && mine.highlights().stream().noneMatch(h -> h.startsWith(TodoCounter.DATES));
+        Period period = unknownDates ? mine.period() : imported.period();
+        List<String> importedHighlights = unknownDates
+                ? imported.highlights().stream().filter(h -> !h.startsWith(TodoCounter.DATES)).toList()
                 : imported.highlights();
+        List<String> highlights = importedHighlights.stream().allMatch(ProfileMerge::isTodo)
+                ? mine.highlights().stream().filter(h -> !isTodo(h)).toList()
+                : importedHighlights;
         if (highlights.isEmpty()) {
-            highlights = imported.highlights();
+            highlights = importedHighlights;
         }
         List<String> technologies = new ArrayList<>(mine.technologies());
         imported.technologies().stream().filter(t -> !technologies.contains(t)).forEach(technologies::add);
         return new Experience(imported.id(), imported.role(), imported.company(),
                 imported.location() != null ? imported.location() : mine.location(),
-                imported.period(), highlights, technologies, mine.evidenceIds());
+                period, highlights, technologies, mine.evidenceIds());
     }
 
     private static List<Project> projects(List<Project> mine, List<Project> theirs) {

@@ -39,7 +39,7 @@
     {{#jobs}}
     <article>
       <h3>{{role}} · {{company}}</h3>
-      <p class="meta">{{#location}}{{.}} · {{/location}}{{period}}</p>
+      {{#meta}}<p class="meta">{{.}}</p>{{/meta}}
       {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
       {{#technologies}}<p class="tech">{{t.technologies}}: {{.}}</p>{{/technologies}}
     </article>
@@ -68,7 +68,7 @@
     {{#studies}}
     <article>
       <h3>{{title}} · {{institution}}</h3>
-      <p class="meta">{{period}}</p>
+      {{#meta}}<p class="meta">{{.}}</p>{{/meta}}
       {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
     </article>
     {{/studies}}

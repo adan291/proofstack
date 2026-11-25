@@ -79,6 +79,26 @@ class LinkedInExportImporterTest {
         assertThat(p.projects().getFirst().summary()).isEqualTo("Embeddings, \"vector\" search");
     }
 
+    /** LinkedIn often gives only a year, or nothing: the month is unknown, so it is flagged instead of invented. */
+    @Test
+    void datesLinkedInDoesNotGiveAreFlaggedNotInvented() throws IOException {
+        Map<String, String> files = export();
+        files.put("Positions.csv", "Company Name,Title,Description,Location,Started On,Finished On\n"
+                + "ACME,Developer,Built things,,Mar 2022,\n"
+                + "Old Co,Developer,Did things,,,2019\n"
+                + "Third Co,Intern,Learned,,2018,\n");
+        files.put("Education.csv", "School Name,Start Date,End Date,Notes,Degree Name,Activities\n"
+                + "IES Ejemplo,2018,2020,,CFGS DAM,\n");
+
+        Profile p = importer.importProfile(zip(files));
+
+        String dates = dev.proofstack.core.domain.TodoCounter.DATES;
+        assertThat(p.experience().get(0).highlights()).noneMatch(h -> h.startsWith(dates));
+        assertThat(p.experience().get(1).highlights()).anyMatch(h -> h.startsWith(dates));
+        assertThat(p.experience().get(2).highlights()).anyMatch(h -> h.startsWith(dates));
+        assertThat(p.education().getFirst().highlights()).anyMatch(h -> h.startsWith(dates));
+    }
+
     @Test
     void importsLanguagesAndCertifications() throws IOException {
         Map<String, String> files = export();

@@ -25,6 +25,11 @@ final class LinkedInDates {
     private LinkedInDates() {
     }
 
+    /** "2020": {@link #parse} reads it as January, which LinkedIn never said. */
+    static boolean isYearOnly(String value) {
+        return value != null && YEAR.matcher(value.strip()).matches();
+    }
+
     static Optional<YearMonth> parse(String value) {
         if (value == null || value.isBlank()) {
             return Optional.empty();

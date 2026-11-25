@@ -9,6 +9,12 @@ public final class TodoCounter {
 
     public static final String MARKER = "TODO";
 
+    /**
+     * Start of a highlight saying the entry's period is not real (an importer had no date, or only a year). The schema
+     * needs a month, so a placeholder date is stored; outputs that print periods must leave this one out.
+     */
+    public static final String DATES = MARKER + ": dates";
+
     private TodoCounter() {
     }
 

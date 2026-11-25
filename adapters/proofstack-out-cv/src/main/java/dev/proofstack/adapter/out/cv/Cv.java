@@ -59,6 +59,11 @@ record Cv(CvText t, String name, String headline, List<Contact> contact, String 
 
     record Job(String role, String company, String location, String period, List<String> highlights,
                String technologies) {
+        /** Location and period on one line; empty when both are. */
+        String meta() {
+            return location.isEmpty() || period.isEmpty() ? location + period : location + " · " + period;
+        }
+
         boolean hasHighlights() {
             return !highlights.isEmpty();
         }
@@ -71,6 +76,10 @@ record Cv(CvText t, String name, String headline, List<Contact> contact, String 
     }
 
     record Study(String title, String institution, String period, List<String> highlights) {
+        String meta() {
+            return period;
+        }
+
         boolean hasHighlights() {
             return !highlights.isEmpty();
         }

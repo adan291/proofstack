@@ -172,18 +172,24 @@ public final class LinkedInExportImporter implements ProfileImporter {
         return skills;
     }
 
-    /** Missing start dates become a visible placeholder (see TodoCounter.MARKER) instead of an invented date. */
+    /**
+     * The schema needs a month, LinkedIn does not always have one. Whatever had to be filled in is flagged with
+     * {@link TodoCounter#DATES}: doctor blocks it and the CV leaves the period out, so no invented month is published.
+     */
     private static Period period(String start, String end, List<String> highlights) {
         Optional<YearMonth> from = LinkedInDates.parse(start);
         Optional<YearMonth> to = LinkedInDates.parse(end);
         if (from.isEmpty()) {
-            highlights.add(TODO + ": start date missing in LinkedIn, fix startDate");
+            highlights.add(TodoCounter.DATES + ": no start date in LinkedIn; set startDate (YYYY-MM)");
             YearMonth placeholder = to.orElse(YearMonth.of(2000, 1));
             return new Period(placeholder, to.orElse(null));
         }
         if (to.isPresent() && to.get().isBefore(from.get())) {
-            highlights.add(TODO + ": end date was before start date in LinkedIn, check dates");
+            highlights.add(TodoCounter.DATES + ": the end date was before the start date in LinkedIn; check both");
             return new Period(from.get(), from.get());
+        }
+        if (LinkedInDates.isYearOnly(start) || LinkedInDates.isYearOnly(end)) {
+            highlights.add(TodoCounter.DATES + ": LinkedIn only gives the year; set the month in startDate/endDate");
         }
         return new Period(from.get(), to.orElse(null));
     }

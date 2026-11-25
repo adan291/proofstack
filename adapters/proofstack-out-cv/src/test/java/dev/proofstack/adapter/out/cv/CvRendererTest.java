@@ -44,6 +44,45 @@ class CvRendererTest {
         assertThat(md).contains("- Resultado: Entregado en plazo").contains("*Madrid · ene 2022 – Actualidad*");
     }
 
+    /** A period the importer could not read is a placeholder: printing it would put an invented month on the CV. */
+    @Test
+    void aPeriodFlaggedAsUnknownIsLeftOut() {
+        String flag = dev.proofstack.core.domain.TodoCounter.DATES + ": LinkedIn only gives the year";
+        Experience job = new Experience("old", "Developer", "Old Co", null,
+                new Period(YearMonth.of(2019, 1), YearMonth.of(2019, 1)), List.of("Did things", flag), List.of(),
+                List.of());
+        Education study = new Education("dam", "CFGS DAM", "IES Ejemplo",
+                new Period(YearMonth.of(2018, 1), YearMonth.of(2020, 1)), List.of(flag));
+        Profile profile = new Profile("en", new PersonalInfo("Ada", "Dev", null, null, null, List.of()),
+                List.of(job), List.of(study), List.of(), List.of(), List.of(), List.of());
+
+        List<Artifact> files = new CvRenderer().render(profile);
+        String md = markdown(new CvRenderer(), profile);
+        String html = html(profile);
+        String docx = docxText(files);
+
+        for (String out : List.of(md, html, docx)) {
+            assertThat(out).contains("Old Co").contains("IES Ejemplo").doesNotContain("Jan 2019").doesNotContain("2018")
+                    .doesNotContain("TODO");
+        }
+        assertThat(md).doesNotContain("**").doesNotContain("*\n");
+        assertThat(html).doesNotContain("<p class=\"meta\"></p>");
+    }
+
+    private static String docxText(List<Artifact> files) {
+        byte[] docx = files.stream().filter(a -> a.relativePath().equals("cv.docx")).findFirst().orElseThrow().bytes();
+        try (var zip = new java.util.zip.ZipInputStream(new java.io.ByteArrayInputStream(docx))) {
+            for (var e = zip.getNextEntry(); e != null; e = zip.getNextEntry()) {
+                if (e.getName().equals("word/document.xml")) {
+                    return new String(zip.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                }
+            }
+        } catch (java.io.IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+        throw new AssertionError("no word/document.xml");
+    }
+
     @Test
     void unknownLanguageFallsBackToEnglish() {
         String md = markdown(new CvRenderer(), profile("fr", "Ada Lovelace"));
