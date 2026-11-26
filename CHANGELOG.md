@@ -12,6 +12,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Guía (`docs/guide/`): instalación, recetas para el día a día, piezas opcionales (borradores con IA, MCP en Kiro, asistente) y qué hacer si cambias el código o publicas una versión.
 
 ### Corregido
+- Studio: cada guardado pisaba `profile.yaml.bak`, y tras dos guardados el fichero escrito a mano solo quedaba en Git. Ahora el primer guardado de la sesión hace la copia y los siguientes no la tocan.
+- Studio: un `profile.yaml` guardado con el Bloc de notas (UTF-8 con BOM) perdía los comentarios de cabecera al guardar.
+- `cv --job`: contaba como carencia lo que el perfil dice en el resumen, la formación, las evidencias, los labs o los idiomas (por ejemplo, «inglés» con `Inglés: B2`).
 - Studio: el identificador de un elemento nuevo se fijaba con la primera tecla («Proofstack» quedaba en «p»), y dos elementos con la misma inicial no se podían guardar. Ahora sigue al nombre completo hasta que el usuario lo escribe, añade -2, -3 si otro elemento ya lo usa y deja de cambiar al guardar.
 - Studio: al combinar con el disco, una lista con un identificador repetido o vacío perdía elementos sin avisar. Ahora es un conflicto que decide el usuario.
 - Studio: al añadir, borrar o mover un enlace dentro de un proyecto, el proyecto se cerraba y parecía que no había pasado nada.
