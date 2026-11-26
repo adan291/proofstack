@@ -119,8 +119,9 @@ class StudioEditingE2E extends StudioE2E {
         assertThat(status()).hasText(Pattern.compile("no es YAML válido.*line 3"));
     }
 
+    /** Spec proofstack-studio-merge R1.1–R1.2, R1.5: the change on disk is merged in, and nothing is saved by itself. */
     @Test
-    void aChangeOnDiskIsNeverOverwritten() throws IOException {
+    void aChangeOnDiskIsMergedWithMyEditAndNeverOverwritten() throws IOException {
         expectedFailures.add(409);
         open();
         String theirs = file().replace("Jane Doe", "Grace Hopper");
@@ -129,8 +130,66 @@ class StudioEditingE2E extends StudioE2E {
         page.getByLabel("Titular *").fill("Staff Engineer");
         button("Guardar Ctrl+S").click();
 
-        assertThat(status()).hasText(Pattern.compile("cambió en disco"));
-        assertThat(button("Recargar desde el disco")).isVisible();
-        assertThat(file()).isEqualTo(theirs);
+        assertThat(status()).hasText(Pattern.compile("se han combinado"));
+        assertThat(page.getByLabel("Nombre *")).hasValue("Grace Hopper");
+        assertThat(page.getByLabel("Titular *")).hasValue("Staff Engineer");
+        assertThat(file()).as("the merge alone writes nothing").isEqualTo(theirs);
+
+        button("Guardar Ctrl+S").click();
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).contains("name: Grace Hopper").contains("headline: Staff Engineer");
+    }
+
+    /** R1.3: the same field changed on both sides is a question for the user. */
+    @Test
+    void aConflictIsResolvedByTheUser() throws IOException {
+        expectedFailures.add(409);
+        open();
+        Files.writeString(profile, file().replace("headline: Backend Engineer", "headline: Engineering Lead"));
+
+        page.getByLabel("Titular *").fill("Staff Engineer");
+        button("Guardar Ctrl+S").click();
+
+        Locator dialog = page.getByRole(AriaRole.DIALOG);
+        assertThat(dialog).isVisible();
+        assertThat(dialog.getByRole(AriaRole.GROUP)).hasCount(1);
+        dialog.getByLabel(Pattern.compile("^Lo que hay en disco")).check();
+        dialog.getByRole(AriaRole.BUTTON, new Locator.GetByRoleOptions().setName("Aplicar")).click();
+
+        assertThat(dialog).isHidden();
+        assertThat(page.getByLabel("Titular *")).hasValue(Pattern.compile("^Engineering Lead"));
+        button("Guardar Ctrl+S").click();
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).contains("headline: Engineering Lead");
+    }
+
+    /** R2.1: my work can always leave the browser. */
+    @Test
+    void myChangesCanBeDownloaded() throws IOException {
+        open();
+        page.getByLabel("Titular *").fill("Staff Engineer");
+
+        var download = page.waitForDownload(() -> button("Descargar mis cambios").click());
+
+        assertThat(download.suggestedFilename()).isEqualTo("profile.edited.json");
+        assertThat(Files.readString(download.path())).contains("\"headline\": \"Staff Engineer\"");
+    }
+
+    /** R2.2: an accidental reload of the tab does not lose what was not saved. */
+    @Test
+    void unsavedChangesSurviveReloadingTheTab() {
+        open();
+        page.getByLabel("Titular *").fill("Staff Engineer");
+
+        java.util.List<String> dialogs = new java.util.concurrent.CopyOnWriteArrayList<>();
+        page.onDialog(d -> {
+            dialogs.add(d.type() + ": " + d.message());
+            d.accept(); // "leave the page?" and then "recover the changes?"
+        });
+        page.reload();
+
+        assertThat(page.getByLabel("Titular *")).hasValue("Staff Engineer");
+        assertThat(button("Guardar Ctrl+S")).isEnabled();
+        assertThat(dialogs).anyMatch(d -> d.startsWith("confirm: Hay cambios sin guardar"));
     }
 }

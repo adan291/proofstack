@@ -360,7 +360,7 @@ git push origin main v0.8.0</code></pre>
       <dt>Studio dice «Falta el token»</dt>
       <dd>Abre la URL completa que muestra la terminal, con su <code>#token=…</code>. Cambia cada vez que arrancas Studio.</dd>
       <dt>Studio dice que el fichero cambió en disco</dt>
-      <dd>Otro programa o un <code>git pull</code> lo modificó. Pulsa <em>Recargar desde el disco</em>; tus cambios sin guardar se pierden, así que cópialos antes si los necesitas.</dd>
+      <dd>Otro programa o un <code>git pull</code> lo modificó. Studio combina esos cambios con los tuyos y, si los dos cambiasteis el mismo campo, te pregunta cuál se queda. Revisa el resultado y pulsa <em>Guardar</em>. Si prefieres empezar de nuevo, <em>Recargar desde el disco</em> descarga antes tus cambios en <code>profile.edited.json</code>.</dd>
       <dt>El despliegue falla en <em>Ready to publish?</em></dt>
       <dd><code>doctor</code> encontró errores, o la variable <code>PROOFSTACK_PROFILE</code> falta o no es de repositorio. Ejecuta <code>./proofstack doctor</code> en local: verás lo mismo que el log.</dd>
       <dt>La web da 404</dt>

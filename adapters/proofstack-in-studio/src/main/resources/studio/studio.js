@@ -6,6 +6,12 @@ const $ = (sel) => document.querySelector(sel);
 
 const state = { doc: null, version: null, dirty: false, section: null, form: null, findings: [], violations: [] };
 
+// Unsaved edits survive an accidental reload of this tab (sessionStorage: this tab and this Studio session only).
+const DRAFT = 'studio-draft';
+const saveDraft = () => (state.dirty
+  ? sessionStorage.setItem(DRAFT, JSON.stringify({ version: state.version, doc: state.doc }))
+  : sessionStorage.removeItem(DRAFT));
+
 // The token arrives in the URL fragment (never sent to a server). Keep it for this tab only, then hide it.
 const token = (() => {
   const fromHash = new URLSearchParams(location.hash.slice(1)).get('token');
@@ -51,7 +57,17 @@ async function start() {
     return;
   }
   state.form = new SchemaForm(schema.body, onChange);
+  const draft = JSON.parse(sessionStorage.getItem(DRAFT) ?? 'null');
   take(profile.body);
+  if (draft && JSON.stringify(draft.doc) !== JSON.stringify(state.doc)) {
+    if (confirm('Hay cambios sin guardar de antes de recargar la página. ¿Recuperarlos?')) {
+      state.doc = draft.doc;
+      state.version = draft.version; // saving finds out whether the file changed since, and offers a merge
+      setDirty(true);
+    } else {
+      sessionStorage.removeItem(DRAFT);
+    }
+  }
   buildNav();
   show(state.form.sections()[1] ?? state.form.sections()[0]);
   $('#app').hidden = false;
@@ -67,7 +83,7 @@ function take(body) {
   state.version = body.version;
   state.findings = body.findings ?? [];
   state.violations = body.invalid ?? [];
-  state.dirty = false;
+  setDirty(false);
   renderIssues();
 }
 
@@ -126,6 +142,7 @@ function show(key, focusPath) {
 
 function onChange(structural, path) {
   setDirty(true);
+  saveDraft();
   if (structural) {
     const top = path.match(/^\$\.([A-Za-z]+)/)?.[1] ?? state.section;
     show(top);
@@ -140,6 +157,8 @@ function onChange(structural, path) {
 function setDirty(dirty) {
   state.dirty = dirty;
   $('#save').disabled = !dirty;
+  $('#download').disabled = !dirty;
+  saveDraft();
   document.title = (dirty ? '• ' : '') + 'Proofstack Studio';
 }
 
@@ -242,8 +261,12 @@ async function save() {
     announce(`No se guardó: el perfil tiene ${state.violations.length} errores. Están marcados en rojo.`, 'error');
   } else if (result.status === 409) {
     setDirty(true);
-    announce('El fichero cambió en disco (otro editor o git). Recarga para no pisar esos cambios.', 'error');
-    $('#reload').hidden = false;
+    if (result.body?.baseKnown) {
+      await mergeWithDisk({});
+    } else {
+      announce('El fichero cambió en disco y no se puede combinar con tus cambios. Descárgalos y recarga.', 'error');
+      $('#reload').hidden = false;
+    }
   } else {
     setDirty(true);
     announce(`No se pudo guardar (${result.body?.error ?? result.status}).`, 'error');
@@ -251,7 +274,10 @@ async function save() {
 }
 
 async function reload() {
-  if (state.dirty && !confirm('Perderás los cambios sin guardar. ¿Recargar?')) return;
+  if (state.dirty) {
+    if (!confirm('Recargar descarta lo que no has guardado. Antes se descargará en profile.edited.json. ¿Recargar?')) return;
+    download();
+  }
   const profile = await api('/api/profile');
   if (profile.status !== 200) return announce('No se pudo recargar.', 'error');
   take(profile.body);
@@ -259,6 +285,89 @@ async function reload() {
   $('#reload').hidden = true;
   refreshPreview();
   announce('Perfil recargado desde el disco.');
+}
+
+// ------------------------------------------------------------------ merge and download
+
+/** Asks the server to merge my edit (made on state.version) with the file on disk; never saves by itself. */
+async function mergeWithDisk(choose) {
+  const result = await api('/api/profile/merge', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base: state.version, document: state.doc, choose }),
+  });
+  if (result.status !== 200) {
+    announce('El fichero cambió en disco y no se pudo combinar. Descarga tus cambios y recarga.', 'error');
+    $('#reload').hidden = false;
+    return;
+  }
+  if (result.body.conflicts.length) {
+    askConflicts(result.body.conflicts);
+    return;
+  }
+  state.doc = result.body.merged;
+  state.version = result.body.version;
+  setDirty(true);
+  show(state.section);
+  $('#reload').hidden = true;
+  announce('El fichero cambió en disco: sus cambios se han combinado con los tuyos. Revísalo y guarda.', 'warn');
+}
+
+function askConflicts(conflicts) {
+  const box = $('#merge-conflicts');
+  box.replaceChildren();
+  conflicts.forEach((c, i) => {
+    const set = document.createElement('fieldset');
+    set.className = 'merge__conflict';
+    set.dataset.path = c.path;
+    const legend = document.createElement('legend');
+    legend.textContent = c.path;
+    set.append(legend,
+      option(`conflict-${i}`, 'mine', 'Lo tuyo', c.mine, true),
+      option(`conflict-${i}`, 'theirs', 'Lo que hay en disco', c.theirs, false));
+    box.append(set);
+  });
+  $('#merge').showModal();
+}
+
+function option(name, value, title, content, checked) {
+  const label = document.createElement('label');
+  label.className = 'merge__option';
+  const input = document.createElement('input');
+  input.type = 'radio';
+  input.name = name;
+  input.value = value;
+  input.checked = checked;
+  const text = document.createElement('span');
+  text.className = 'merge__value';
+  text.textContent = `${title}: ${content === null ? '(borrado)' : typeof content === 'string' ? content : JSON.stringify(content, null, 1)}`;
+  label.append(input, text);
+  return label;
+}
+
+$('#merge-form').addEventListener('submit', () => {
+  const choose = {};
+  document.querySelectorAll('#merge-conflicts fieldset').forEach((set) => {
+    choose[set.dataset.path] = set.querySelector('input:checked')?.value ?? 'mine';
+  });
+  mergeWithDisk(choose);
+});
+$('#merge-cancel').addEventListener('click', () => {
+  $('#merge').close();
+  announce('No se ha combinado nada. Tus cambios siguen aquí: descárgalos o recarga desde el disco.', 'error');
+  $('#reload').hidden = false;
+});
+
+/** The edited document as profile.edited.json: the user's work, whatever happens to the file. */
+function download() {
+  const url = URL.createObjectURL(new Blob([JSON.stringify(state.doc, null, 2)], { type: 'application/json' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'profile.edited.json';
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 // ------------------------------------------------------------------ preview
@@ -279,6 +388,7 @@ for (const tab of document.querySelectorAll('.preview__tab')) {
 
 $('#save').addEventListener('click', save);
 $('#reload').addEventListener('click', reload);
+$('#download').addEventListener('click', download);
 document.addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
     e.preventDefault();

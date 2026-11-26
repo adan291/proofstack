@@ -28,4 +28,4 @@ No cambia ADR-014: el fichero solo se escribe con `replace` (validado, atómico,
 
 - `ThreeWayMergeTest` con tabla de casos: sin cambios, un solo lado, los dos lados con el mismo valor, conflicto, elemento añadido o borrado en cada lado, reordenado, `id` cambiado y tipos distintos.
 - `StudioServerTest`: base desconocida → 409; fusión y guardado posterior → 200; el fichero no cambia hasta el `PUT`.
-- Navegador: cuando exista la spec de tests de navegador, el flujo completo del 409.
+- Navegador (`StudioEditingE2E`, `StudioAccessibilityE2E`): fusión sin conflictos, conflicto resuelto por el usuario, descarga, borrador tras recargar la pestaña y auditoría axe del diálogo.

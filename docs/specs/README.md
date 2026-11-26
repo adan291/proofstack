@@ -18,7 +18,7 @@ Tras la revisión de noviembre de 2026:
 |---|---|
 | Tests de Studio en un navegador real (H9), hecha | [`proofstack-studio-browser-tests`](proofstack-studio-browser-tests/requirements.md) |
 | Fechas con precisión de año (H3), hecha | [`proofstack-year-dates`](proofstack-year-dates/requirements.md) |
-| Conflictos en Studio sin perder ediciones (H23) | [`proofstack-studio-merge`](proofstack-studio-merge/requirements.md) |
+| Conflictos en Studio sin perder ediciones (H23), hecha | [`proofstack-studio-merge`](proofstack-studio-merge/requirements.md) |
 | Un solo codec YAML (H10), hecha | [`proofstack-yaml-codec`](proofstack-yaml-codec/requirements.md) |
 
 En las fases, las tareas sin marcar (`- [ ]`) son pasos que dependen de cuentas o hardware del autor. En las propuestas, están por hacer.

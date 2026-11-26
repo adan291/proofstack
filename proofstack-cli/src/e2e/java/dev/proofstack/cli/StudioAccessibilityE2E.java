@@ -53,6 +53,26 @@ class StudioAccessibilityE2E extends StudioE2E {
         }
     }
 
+    @Test
+    void theConflictDialogIsAccessibleToo() throws IOException {
+        expectedFailures.add(409);
+        open();
+        java.nio.file.Files.writeString(profile, file().replace("headline: Backend Engineer", "headline: Engineering Lead"));
+        page.getByLabel("Titular *").fill("Staff Engineer");
+        page.keyboard().press("Control+S");
+        assertThat(page.getByRole(AriaRole.DIALOG)).isVisible();
+        page.evaluate(axeSource());
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> violations = (List<Map<String, Object>>) page.evaluate(
+                "async () => (await axe.run('#merge', { resultTypes: ['violations'] })).violations"
+                        + ".filter(v => v.impact === 'serious' || v.impact === 'critical').map(v => v.id)");
+
+        assertThat(violations).isEmpty();
+        assertThat(page.getByRole(AriaRole.RADIO, new Page.GetByRoleOptions().setName(
+                java.util.regex.Pattern.compile("^Lo tuyo")))).isFocused();
+    }
+
     private static String axeSource() throws IOException {
         try (InputStream in = StudioAccessibilityE2E.class.getResourceAsStream(AXE)) {
             if (in == null) {

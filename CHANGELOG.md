@@ -5,6 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 ## [Unreleased]
 
 ### Añadido
+- Studio: si el fichero cambió en disco al guardar, combina esos cambios con los tuyos y pregunta solo por los campos que tocasteis los dos. Antes la única salida era recargar y perder lo editado. Añade *Descargar mis cambios*, y lo no guardado sobrevive a una recarga de la pestaña.
 - Fechas con la precisión que conoces: `startDate`, `endDate` y la fecha de una certificación aceptan solo el año (`2018`, con comillas o sin ellas). El CV y la web lo muestran como «2018 – 2020», y el importador de LinkedIn guarda el año sin `TODO` (ADR-015).
 - Tests de Studio en Chrome (`mvn -Pe2e verify`, con Playwright): editar y guardar, listas, errores, conflicto en disco, avisos, vista previa, teclado y auditoría axe-core. CI los ejecuta en un job aparte. Encontraron tres fallos del editor, ya corregidos.
 - Lanzador `proofstack` (`proofstack.cmd` en Windows) en la raíz del repositorio: `./proofstack <comando>` funciona en PowerShell, macOS y Linux sin crear alias. Usa el jar compilado, o un `proofstack.jar` descargado, y si no hay ninguno lo compila con Maven.

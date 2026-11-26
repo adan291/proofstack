@@ -15,6 +15,7 @@
 <header class="bar">
   <h1 class="bar__title">Proofstack Studio</h1>
   <p id="status" class="bar__status" role="status" aria-live="polite"></p>
+  <button id="download" class="btn" type="button" disabled>Descargar mis cambios</button>
   <button id="reload" class="btn" type="button" hidden>Recargar desde el disco</button>
   <button id="save" class="btn btn--primary" type="button" disabled>Guardar <kbd>Ctrl+S</kbd></button>
 </header>
@@ -44,5 +45,16 @@
     </section>
   </aside>
 </div>
+<dialog id="merge" class="merge" aria-labelledby="merge-title">
+  <form id="merge-form" method="dialog">
+    <h2 id="merge-title" class="merge__title">El fichero cambió en disco</h2>
+    <p>Lo demás se ha combinado. En estos campos hay dos versiones: elige cuál se queda. Nada se guarda hasta que pulses Guardar.</p>
+    <div id="merge-conflicts"></div>
+    <div class="merge__actions">
+      <button id="merge-cancel" class="btn" type="button">Cancelar</button>
+      <button class="btn btn--primary" type="submit">Aplicar</button>
+    </div>
+  </form>
+</dialog>
 </body>
 </html>

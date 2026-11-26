@@ -82,7 +82,8 @@ proofstack studio profiles/yo/profile.yaml
 Abre en el navegador un editor con un formulario por sección, los avisos de `doctor` junto a cada campo y una vista previa del CV y de la web.
 - Solo escucha en `127.0.0.1` y la URL lleva un token secreto, válido mientras Studio siga abierto. No compartas esa URL.
 - Nunca guarda un perfil inválido, y antes de cada guardado deja una copia `profile.yaml.bak`.
-- Si el fichero cambia en disco mientras editas (otro editor, `git pull`), te pide recargar en vez de pisar esos cambios.
+- Si el fichero cambia en disco mientras editas (otro editor, `git pull`), nunca pisa esos cambios: combina los suyos con los tuyos y, si los dos tocasteis el mismo campo, te pregunta cuál se queda. Nada se guarda hasta que pulses Guardar.
+- *Descargar mis cambios* baja lo que llevas editado como `profile.edited.json`, y lo no guardado sobrevive a una recarga accidental de la pestaña.
 - Conserva los comentarios de la cabecera del YAML; los que haya dentro del fichero, no.
 
 Decisiones en [ADR-014](docs/adr/ADR-014-studio-local-editor.md).

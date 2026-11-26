@@ -31,4 +31,5 @@ Editar `profile.yaml` a mano exige conocer el esquema y es fácil romper la inde
 
 - Los comentarios dentro del YAML (no los de cabecera) se pierden al guardar desde Studio. Se avisa en el README.
 - La vista previa se sirve con `Cross-Origin-Resource-Policy: cross-origin`, porque el `iframe` aislado tiene un origen opaco. Solo contiene el portfolio público; la API y el editor siguen en `same-origin`.
+- Un 409 se resuelve con una fusión de tres vías revisada por el usuario (spec `proofstack-studio-merge`): el servidor solo acepta como base versiones que sirvió en la sesión, la fusión no escribe nada y el resultado se guarda con el mismo `PUT` validado. Lo editado puede descargarse y sobrevive a una recarga de la pestaña.
 - Studio no se despliega en internet. Si algún día se quisiera, haría falta autenticación de verdad, no un token en la URL.
