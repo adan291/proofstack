@@ -15,9 +15,9 @@
 <header class="hero">
   <p class="eyebrow">Guía · Proofstack v0.7</p>
   <h1>Tu portfolio y tu CV, desde un solo fichero</h1>
-  <p class="lead">Escribes tu carrera una vez en <code>profile.yaml</code>. Proofstack genera la web de portfolio, el CV en PDF y Word, y borradores de contenido. Esta guía explica qué hace y cómo ejecutar cada pieza tú solo.</p>
+  <p class="lead">Proofstack trae tus datos de LinkedIn y GitHub a un fichero, <code>profile.yaml</code>, te deja completarlo en un editor en el navegador y genera con él tu web de portfolio y tu CV en PDF y Word. Cada <code>git push</code> los publica, y cada semana te propone tus repositorios nuevos. Esta guía explica qué hace y cómo usar cada pieza sin ayuda.</p>
   <ul class="cta">
-    <li><a class="btn btn--primary" href="#instalar">Empezar</a></li>
+    <li><a class="btn btn--primary" href="#rapido">Empezar</a></li>
     <li><a class="btn" href="#recetas">Recetas</a></li>
     <li><a class="btn" href="https://github.com/adan291/proofstack">Código en GitHub</a></li>
     <li><a class="btn" href="https://adan291.github.io/proofstack/">Ejemplo real</a></li>
@@ -26,6 +26,7 @@
 
 <nav class="toc" aria-label="En esta guía">
   <ol>
+    <li><a href="#rapido">Arranque rápido</a></li>
     <li><a href="#que">Qué es</a></li>
     <li><a href="#como">Cómo funciona</a></li>
     <li><a href="#instalar">Instalar</a></li>
@@ -40,6 +41,26 @@
 </nav>
 
 <main id="main">
+
+  <section aria-labelledby="rapido">
+    <h2 id="rapido">Arranque rápido</h2>
+    <p>Con Java 25 y Git instalados (<a href="#instalar">cómo</a>), son cuatro pasos:</p>
+    <pre><code><span class="c"># 1. Tu copia: "Use this template" en GitHub, y clónala</span>
+git clone https://github.com/&lt;usuario&gt;/&lt;repo&gt;.git
+cd &lt;repo&gt;
+
+<span class="c"># 2. Perfil, GitHub, LinkedIn y editor, de una vez</span>
+./proofstack setup
+
+<span class="c"># 3. La web y el CV en tu equipo</span>
+./proofstack build profiles/&lt;tu-nombre&gt;/profile.yaml --out dist --with-cv
+
+<span class="c"># 4. Publicar (antes, los tres ajustes de «Publicar en GitHub Pages»)</span>
+git add -A
+git commit -m "Mi perfil"
+git push</code></pre>
+    <p>Cada paso está explicado más abajo. Si es tu primera vez, sigue la guía en orden.</p>
+  </section>
 
   <section aria-labelledby="que">
     <h2 id="que">Qué es</h2>
@@ -58,19 +79,27 @@
     <div class="cards">
       <article class="card">
         <h3>Web de portfolio</h3>
-        <p>Tu carrera como un mapa de áreas, accesible y estática. Se publica sola en GitHub Pages.</p>
+        <p>Tus proyectos destacados nada más entrar, tu carrera como un mapa de áreas y la línea de tiempo. Estática, accesible y con efectos que se apagan si el visitante pide menos movimiento.</p>
       </article>
       <article class="card">
         <h3>CV en PDF y Word</h3>
-        <p>Una o dos páginas en una columna, apto para filtros ATS. Se puede ordenar para una oferta concreta.</p>
+        <p>Dos páginas como mucho, en una columna, apto para filtros ATS. Se adapta a una oferta o a un área, y el teléfono solo va en la copia que envías.</p>
       </article>
       <article class="card">
         <h3>Editor en el navegador</h3>
-        <p>Studio: formularios con los avisos junto a cada campo y vista previa. Nunca guarda un perfil inválido.</p>
+        <p>Studio: formularios con los avisos junto a cada campo, vista previa y botones para traer LinkedIn y GitHub. Nunca guarda un perfil inválido.</p>
       </article>
       <article class="card">
         <h3>Importadores</h3>
-        <p>Experiencia, formación, skills, idiomas y certificaciones desde LinkedIn, y repos públicos desde GitHub.</p>
+        <p>Experiencia, formación, skills, idiomas y certificaciones desde LinkedIn, y repos públicos desde GitHub. Nunca traen email ni teléfono, y nunca tocan tus proyectos ni tus evidencias.</p>
+      </article>
+      <article class="card">
+        <h3>Un comando para empezar</h3>
+        <p><code>setup</code> crea el perfil, trae GitHub y LinkedIn, te dice qué falta y abre el editor. Puedes repetirlo cuando quieras.</p>
+      </article>
+      <article class="card">
+        <h3>Se mantiene solo</h3>
+        <p>Cada <code>git push</code> publica. Cada lunes llega un pull request con tus repos nuevos, y cada tres meses una issue para traer LinkedIn.</p>
       </article>
     </div>
   </section>
@@ -82,9 +111,9 @@
       <div class="flow__col">
         <p class="flow__label">Entradas</p>
         <ul>
-          <li>Tú, a mano o con Studio</li>
-          <li>LinkedIn (ZIP o API)</li>
-          <li>GitHub</li>
+          <li>Tú, con Studio o a mano</li>
+          <li>LinkedIn (API o ZIP)</li>
+          <li>GitHub, también cada semana</li>
         </ul>
       </div>
       <div class="flow__arrow" aria-hidden="true">→</div>
@@ -107,7 +136,8 @@
     <ol class="rules">
       <li><strong>Nada inventado.</strong> El CV y la web solo dicen lo que pone tu perfil. Si un modelo de IA añade un número que no está en tu perfil, sale marcado como aviso.</li>
       <li><strong>Nada a medias.</strong> Cualquier <code>TODO</code> o enlace de ejemplo bloquea la publicación.</li>
-      <li><strong>Tu fichero manda.</strong> Los importadores escriben siempre en un fichero nuevo y nunca sobrescriben el tuyo.</li>
+      <li><strong>Tu fichero manda.</strong> Lo importado nunca pisa tus proyectos ni tus evidencias. Studio no guarda nada hasta que pulses <em>Guardar</em>, y la sincronización semanal te lo propone en un pull request.</li>
+      <li><strong>Tus datos privados, privados.</strong> El email solo aparece si lo escribes tú, y el teléfono nunca se publica. Las claves de LinkedIn se guardan en tu carpeta de usuario, nunca en el repositorio.</li>
     </ol>
     <p class="note">Por dentro: Java 25 con arquitectura hexagonal. Un núcleo sin frameworks y un adaptador por cada entrada y cada salida; ArchUnit comprueba esas reglas en cada build. Las decisiones están en <code>docs/adr</code>.</p>
   </section>
@@ -205,7 +235,7 @@ Start-Process dist\cv\cv.docx    <span class="c"># el CV en Word</span></code></
 
   <section aria-labelledby="publicar">
     <h2 id="publicar">Publicar en GitHub Pages</h2>
-    <p>La primera vez, dos ajustes en tu repositorio. Después, cada <code>git push</code> publica solo.</p>
+    <p>La primera vez, tres ajustes en tu repositorio. Después, cada <code>git push</code> publica solo y tu perfil se mantiene al día.</p>
     <ol class="steps">
       <li class="step">
         <h3>Activa Pages</h3>
@@ -223,7 +253,26 @@ git commit -m "Actualizo mi perfil"
 git push</code></pre>
         <p>En la pestaña <em>Actions</em> verás <em>Deploy portfolio</em>: pasa <code>doctor</code>, construye la web y el CV, genera el PDF y publica en unos 3 minutos. Tu web queda en <code>https://&lt;usuario&gt;.github.io/&lt;repo&gt;/</code>, y esta guía en <code>/guide/</code>.</p>
       </li>
+      <li class="step">
+        <h3>Deja que se mantenga solo</h3>
+        <p><strong>Settings → Actions → General → Workflow permissions</strong>, marca <em>Allow GitHub Actions to create and approve pull requests</em>. Con eso, el workflow <em>Sync profile</em>:</p>
+        <ul>
+          <li><strong>cada lunes</strong> te abre un pull request con tus repositorios públicos nuevos, como proyectos en borrador;</li>
+          <li><strong>cada tres meses</strong> te abre una issue para que traigas LinkedIn desde Studio. LinkedIn no deja que un workflow lea tu perfil sin ti.</li>
+        </ul>
+        <p class="tip">Mientras un proyecto tenga <code>TODO</code>, <code>doctor</code> bloquea el despliegue: aceptar el pull request sin completarlo no cambia tu web.</p>
+      </li>
     </ol>
+    <table>
+      <caption class="sr-only">Workflows del repositorio</caption>
+      <thead><tr><th scope="col">Workflow</th><th scope="col">Cuándo</th><th scope="col">Qué hace</th></tr></thead>
+      <tbody>
+        <tr><td><em>Deploy portfolio</em></td><td>Cada push a <code>main</code></td><td>Publica la web, el CV en PDF y Word, y esta guía</td></tr>
+        <tr><td><em>Sync profile</em></td><td>Cada lunes y cada tres meses</td><td>Pull request con repos nuevos e issue de LinkedIn</td></tr>
+        <tr><td><em>CI</em></td><td>Cada push a <code>main</code> y cada pull request</td><td>Compila y pasa los tests</td></tr>
+        <tr><td><em>Release CLI</em></td><td>Cada tag <code>v*</code></td><td>Publica <code>proofstack.jar</code></td></tr>
+      </tbody>
+    </table>
   </section>
 
   <section aria-labelledby="recetas">
@@ -232,7 +281,7 @@ git push</code></pre>
 
     <article class="recipe">
       <h3>Actualizar tu perfil y tu web</h3>
-      <pre><code>./proofstack studio profiles/tu-nombre/profile.yaml    <span class="c"># edita y guarda; Ctrl+C al terminar</span>
+      <pre><code>./proofstack studio profiles/tu-nombre/profile.yaml    <span class="c"># edita, trae LinkedIn o GitHub, guarda; Ctrl+C al terminar</span>
 ./proofstack doctor profiles/tu-nombre/profile.yaml    <span class="c"># 0 errores = se puede publicar</span>
 git add -A
 git commit -m "Actualizo mi perfil"
@@ -374,6 +423,12 @@ git push origin main v0.8.0</code></pre>
       <dd><code>doctor</code> encontró errores, o la variable <code>PROOFSTACK_PROFILE</code> falta o no es de repositorio. Ejecuta <code>./proofstack doctor</code> en local: verás lo mismo que el log.</dd>
       <dt>La web da 404</dt>
       <dd>El primer despliegue aún no ha terminado, o <em>Pages → Source</em> no está en <em>GitHub Actions</em>.</dd>
+      <dt><em>Traer de LinkedIn</em> dice que no está configurado</dt>
+      <dd>Ejecuta una vez <code>./proofstack setup profiles/tu-nombre</code> y pega el <em>Client ID</em> y el <em>Client Secret</em> de tu app de LinkedIn. Cómo crear la app: <code>docs/linkedin-api.md</code>.</dd>
+      <dt><em>Sync profile</em> falla al crear el pull request</dt>
+      <dd>Falta el permiso <em>Settings → Actions → General → Allow GitHub Actions to create and approve pull requests</em>. La rama <code>proofstack/sync-github</code> ya tiene los cambios: puedes abrir el pull request a mano.</dd>
+      <dt>Un repositorio que no quiero vuelve a salir</dt>
+      <dd>Añade su nombre, una línea por repositorio, a <code>github-ignore.txt</code>, junto a tu <code>profile.yaml</code>. <code>setup</code> lo hace solo con los que descartas.</dd>
       <dt>LinkedIn responde 401</dt>
       <dd>La app de LinkedIn debe usar la página <em>Member Data Portability (Member-Only Default Company Page)</em>, y la API solo sirve a cuentas del EEE o Suiza. Fuera de ahí, usa el ZIP.</dd>
       <dt>Maven muestra avisos <code>WARNING: … sun.misc.Unsafe</code></dt>
