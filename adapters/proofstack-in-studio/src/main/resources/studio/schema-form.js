@@ -168,6 +168,7 @@ export class SchemaForm {
       };
       box.append(this.field(prop, this.resolve(sub), child, `${path}.${prop}`, required.includes(prop)));
     }
+    if (node.properties?.current && node.properties?.endDate) linkCurrentAndEnd(box, path);
     return box;
   }
 
@@ -279,6 +280,25 @@ const SINGULAR = {
 /** Spanish plurals are irregular enough that a table beats a rule (\enlaces\ is not \enlac\). */
 function singular(key) {
   return SINGULAR[key] ?? 'elemento';
+}
+
+/**
+ * A job is either current or has an end date: the profile refuses both. Ticking "current" clears the end date and
+ * disables it, so the form can never build a document that saving rejects.
+ */
+function linkCurrentAndEnd(box, path) {
+  const current = box.querySelector(`input[data-path="${path}.current"]`);
+  const end = box.querySelector(`input[data-path="${path}.endDate"]`);
+  if (!current || !end) return;
+  const sync = () => { end.disabled = current.checked; };
+  current.addEventListener('change', () => {
+    if (current.checked && end.value !== '') {
+      end.value = '';
+      end.dispatchEvent(new Event('input', { bubbles: true })); // the field's own listener updates the document
+    }
+    sync();
+  });
+  sync();
 }
 
 /** The text an id is made from: what names the item (a job is named by its company, as the importers do). */

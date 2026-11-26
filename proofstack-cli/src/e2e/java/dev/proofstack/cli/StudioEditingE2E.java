@@ -220,6 +220,29 @@ class StudioEditingE2E extends StudioE2E {
         assertThat(file()).contains("https://github.com/example/billing");
     }
 
+    /** Review H4: "current job" and an end date exclude each other in the form, as they do in the schema. */
+    @Test
+    void theCurrentJobAndAnEndDateExcludeEachOther() throws IOException {
+        open();
+        section("Experiencia");
+        expand("Backend Engineer");
+        Locator current = page.getByLabel("Es mi puesto actual");
+        Locator end = page.getByLabel("Fin", new Page.GetByLabelOptions().setExact(true));
+
+        assertThat(end).isDisabled();
+        current.uncheck();
+        assertThat(end).isEnabled();
+        end.fill("2024-06");
+        button("Guardar Ctrl+S").click();
+
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).containsPattern("endDate: \"?2024-06\"?").doesNotContain("current: true");
+
+        current.check();
+        assertThat(end).isDisabled();
+        assertThat(end).hasValue("");
+    }
+
     /** R2.1: my work can always leave the browser. */
     @Test
     void myChangesCanBeDownloaded() throws IOException {
