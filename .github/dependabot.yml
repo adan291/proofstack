@@ -8,6 +8,10 @@ updates:
     groups:
       patches:
         update-types: [patch]
+    ignore:
+      # One Jackson on the classpath (ADR-008): it follows the version Spring Boot manages, raised with Boot.
+      - dependency-name: "tools.jackson:jackson-bom"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -16,3 +20,7 @@ updates:
     directory: /proofstack-ai-service
     schedule:
       interval: weekly
+    ignore:
+      # Java LTS only (ADR-003): 25 now; the next LTS is a decision, not a weekly bump.
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
