@@ -14,7 +14,21 @@ public record PortfolioView(
         PersonView person,
         List<NodeView> nodes,
         List<ExperienceView> experience,
-        List<EducationView> education) {
+        List<EducationView> education,
+        List<FeaturedView> featured) {
+    public boolean hasFeatured() {
+        return !featured.isEmpty();
+    }
+    /** A project shown without a click: what it is, what it proved, its stack and its links. */
+    public record FeaturedView(String name, String summary, String result, List<String> techStack,
+                               List<LinkView> links) {
+        public boolean hasTechStack() {
+            return !techStack.isEmpty();
+        }
+        public boolean hasLinks() {
+            return !links.isEmpty();
+        }
+    }
 
     public boolean hasNodes() {
         return !nodes.isEmpty();

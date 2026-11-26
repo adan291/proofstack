@@ -40,9 +40,9 @@ final class CvDocx {
             paragraph(body, "Heading1", t.skills());
             cv.skills().forEach(g -> labelled(body, g.area(), g.names()));
         }
-        if (!cv.jobs().isEmpty()) {
+        if (!cv.mainJobs().isEmpty()) {
             paragraph(body, "Heading1", t.experience());
-            cv.jobs().forEach(job -> {
+            cv.mainJobs().forEach(job -> {
                 paragraph(body, "Heading2", job.role() + " · " + job.company());
                 meta(body, job.meta());
                 bullets(body, job.highlights());
@@ -50,6 +50,10 @@ final class CvDocx {
                     labelled(body, t.technologies(), job.technologies());
                 }
             });
+        }
+        if (cv.hasOtherJobs()) {
+            paragraph(body, "Heading1", t.otherExperience());
+            bullets(body, cv.otherJobs().stream().map(Cv.Job::oneLine).toList());
         }
         if (!cv.projects().isEmpty()) {
             paragraph(body, "Heading1", t.projects());

@@ -9,10 +9,12 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.samskivert.mustache.Mustache;
 import com.samskivert.mustache.Template;
@@ -43,6 +45,8 @@ import dev.proofstack.core.port.out.PortfolioRenderer;
 public final class ArchitectureThemeRenderer implements PortfolioRenderer {
 
     private static final String THEME = "/themes/architecture/";
+    private static final int FEATURED = 3;
+    private static final int FEATURED_STACK = 6;
 
     private static final String BASE_CSP = "default-src 'self'; script-src 'self'; style-src 'self'; "
             + "img-src 'self' data:; base-uri 'none'; form-action 'none'";
@@ -115,7 +119,8 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
         PortfolioView.AssistantView assistant = assistantEndpoint == null ? null
                 : new PortfolioView.AssistantView(assistantEndpoint.toString());
         String csp = assistantEndpoint == null ? BASE_CSP : BASE_CSP + "; connect-src " + origin(assistantEndpoint);
-        return new PortfolioView(profile.language(), t, csp, assistant, person, nodes, experience, education);
+        return new PortfolioView(profile.language(), t, csp, assistant, person, nodes, experience, education,
+                featured(profile));
     }
 
     static URI askEndpoint(URI base) {
@@ -170,6 +175,35 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
                 .toList();
         return new ProjectView(p.name(), p.summary(), p.problem(), p.solution(), p.techStack(), p.learnings(),
                 links(p.links()), evidence);
+    }
+
+    /**
+     * The projects a visitor sees first. Projects backed by a result, with problem and solution written down and a
+     * link come first; ties keep the order of the profile, so the author decides by ordering the file.
+     */
+    static List<PortfolioView.FeaturedView> featured(Profile profile) {
+        List<Project> projects = profile.projects();
+        return IntStream.range(0, projects.size()).boxed()
+                .sorted(Comparator.comparingInt((Integer i) -> -weight(projects.get(i), profile)))
+                .limit(FEATURED)
+                .map(projects::get)
+                .map(p -> new PortfolioView.FeaturedView(p.name(), p.summary(), result(p, profile),
+                        p.techStack().stream().limit(FEATURED_STACK).toList(), links(p.links())))
+                .toList();
+    }
+
+    private static int weight(Project p, Profile profile) {
+        return (result(p, profile).isEmpty() ? 0 : 2) + (isBlank(p.problem()) || isBlank(p.solution()) ? 0 : 2)
+                + (p.links().isEmpty() ? 0 : 1);
+    }
+
+    private static String result(Project p, Profile profile) {
+        return p.evidenceIds().stream().map(profile::evidence).flatMap(Optional::stream)
+                .map(Evidence::result).filter(r -> !isBlank(r)).findFirst().orElse("");
+    }
+
+    private static boolean isBlank(String text) {
+        return text == null || text.isBlank();
     }
 
     private static EvidenceView evidence(Evidence e, UiText t) {

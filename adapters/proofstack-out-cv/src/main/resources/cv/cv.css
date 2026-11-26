@@ -112,3 +112,9 @@ h3 .org { font-weight: 600; color: var(--accent); }
   .cv { max-width: none; margin: 0; padding: 0; border-top: 0; box-shadow: none; }
   .contact a { color: inherit; }
 }
+
+/* Other experience: one line per job */
+.other { padding-left: 13pt; }
+.other li { margin: 2pt 0; }
+.other .role { font-weight: 700; }
+.other .org { font-weight: 600; color: var(--accent); }

@@ -8,7 +8,7 @@ import dev.proofstack.core.domain.Area;
 
 /** Section titles the CV adds around the profile's own text. Unknown languages fall back to English. */
 public record CvText(
-        String lang, String profile, String skills, String experience, String projects, String education,
+        String lang, String profile, String skills, String experience, String otherExperience, String projects, String education,
         String certifications, String languages, String stack, String result, String technologies, String present,
         Map<Area, String> areas, Locale locale) {
 
@@ -21,12 +21,12 @@ public record CvText(
         return areas.get(area);
     }
 
-    private static final CvText ENGLISH = new CvText("en", "Profile", "Skills", "Experience", "Selected projects",
+    private static final CvText ENGLISH = new CvText("en", "Profile", "Skills", "Experience", "Other experience", "Selected projects",
             "Education", "Certifications", "Languages", "Stack", "Result", "Technologies", "Present", areas(
             "Backend", "Architecture", "Messaging", "Data", "DevOps & observability", "AI",
             "Hardware & automation", "Leadership", "Communication"), Locale.ENGLISH);
 
-    private static final CvText SPANISH = new CvText("es", "Perfil", "Habilidades", "Experiencia",
+    private static final CvText SPANISH = new CvText("es", "Perfil", "Habilidades", "Experiencia", "Otra experiencia",
             "Proyectos destacados", "Formación", "Certificaciones", "Idiomas", "Stack", "Resultado", "Tecnologías", "Actualidad", areas(
             "Backend", "Arquitectura", "Mensajería", "Datos", "DevOps y observabilidad", "IA",
             "Hardware y automatización", "Liderazgo", "Comunicación"), Locale.forLanguageTag("es"));

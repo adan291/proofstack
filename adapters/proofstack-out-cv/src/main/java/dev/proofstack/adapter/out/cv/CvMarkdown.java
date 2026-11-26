@@ -27,9 +27,9 @@ final class CvMarkdown {
             cv.skills().forEach(g -> md.append("- **").append(g.area()).append(":** ").append(g.names()).append('\n'));
             md.append('\n');
         }
-        if (!cv.jobs().isEmpty()) {
+        if (!cv.mainJobs().isEmpty()) {
             section(md, t.experience());
-            cv.jobs().forEach(job -> {
+            cv.mainJobs().forEach(job -> {
                 md.append("### ").append(job.role()).append(" · ").append(job.company()).append("\n\n");
                 meta(md, job.meta());
                 bullets(md, job.highlights());
@@ -37,6 +37,10 @@ final class CvMarkdown {
                     md.append(t.technologies()).append(": ").append(job.technologies()).append("\n\n");
                 }
             });
+        }
+        if (cv.hasOtherJobs()) {
+            section(md, t.otherExperience());
+            bullets(md, cv.otherJobs().stream().map(Cv.Job::oneLine).toList());
         }
         if (!cv.projects().isEmpty()) {
             section(md, t.projects());

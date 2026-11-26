@@ -20,7 +20,23 @@ record Cv(CvText t, String name, String headline, List<Contact> contact, String 
     }
 
     boolean hasJobs() {
-        return !jobs.isEmpty();
+        return !mainJobs().isEmpty();
+    }
+    /**
+     * Jobs that list technologies go under Experience. When some do and some do not, the rest (often work outside
+     * software) is shown in one line each under Other experience, so it stays on the CV without taking the space.
+     */
+    List<Job> mainJobs() {
+        return splitJobs() ? jobs.stream().filter(Job::technical).toList() : jobs;
+    }
+    List<Job> otherJobs() {
+        return splitJobs() ? jobs.stream().filter(j -> !j.technical()).toList() : List.of();
+    }
+    boolean hasOtherJobs() {
+        return !otherJobs().isEmpty();
+    }
+    private boolean splitJobs() {
+        return jobs.stream().anyMatch(Job::technical) && !jobs.stream().allMatch(Job::technical);
     }
 
     boolean hasProjects() {
@@ -84,6 +100,16 @@ record Cv(CvText t, String name, String headline, List<Contact> contact, String 
         /** Location and period on one line; empty when both are. */
         String meta() {
             return location.isEmpty() || period.isEmpty() ? location + period : location + " · " + period;
+        }
+
+        boolean technical() {
+            return !technologies.isEmpty();
+        }
+
+        /** "Role · Company (meta): highlights", for the one-line entries of Other experience. */
+        String oneLine() {
+            return role + " · " + company + (meta().isEmpty() ? "" : " (" + meta() + ")")
+                    + (highlights.isEmpty() ? "" : ": " + String.join(" ", highlights));
         }
 
         boolean hasHighlights() {

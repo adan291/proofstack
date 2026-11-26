@@ -16,43 +16,31 @@ person:
   links:
     - { label: LinkedIn, url: "https://www.linkedin.com/in/asanchezmanzano/" }
     - { label: GitHub, url: "https://github.com/adan291" }
+    - { label: Portfolio, url: "https://adan291.github.io/proofstack/" }
 
+# Solo lo que un puesto backend va a buscar. El resto de tecnologías sigue en cada puesto y proyecto.
 skills:
   - { name: Java, area: backend }
   - { name: Spring Boot, area: backend }
-  - { name: Spring MVC, area: backend }
   - { name: Spring Security y JWT, area: backend }
   - { name: Jakarta EE / Tomcat, area: backend }
-  - { name: JavaFX, area: backend }
-  - { name: TypeScript y Node.js, area: backend }
-  - { name: Python, area: backend }
-  - { name: Ada, area: backend }
   - { name: JUnit y Mockito, area: backend }
-  - { name: React, area: backend }
-  - { name: Sockets y programación multihilo, area: backend }
-  - { name: Bots y scraping con Python, area: backend }
+  - { name: TypeScript y Node.js, area: backend }
+  - { name: React (frontend), area: backend }
   - { name: Arquitectura hexagonal, area: architecture }
   - { name: API REST y OpenAPI, area: architecture }
-  - { name: Desarrollo guiado por specs (Kiro), area: architecture }
+  - { name: Desarrollo guiado por specs, area: architecture }
   - { name: PostgreSQL, area: data }
   - { name: MySQL, area: data }
   - { name: MongoDB, area: data }
   - { name: Hibernate / JPA, area: data }
-  - { name: SQL y JDBC, area: data }
   - { name: Docker, area: devops }
   - { name: Maven y Git, area: devops }
-  - { name: Jenkins, area: devops }
-  - { name: "Despliegue en Vercel, Render y Fly.io", area: devops }
-  - { name: SonarQube, area: devops }
-  - { name: Linux y administración de servidores, area: devops }
-  - { name: Observabilidad (Actuator), area: devops }
+  - { name: "CI/CD (Jenkins, GitLab CI, GitHub Actions)", area: devops }
+  - { name: Linux, area: devops }
   - { name: Agentes de IA y orquestación multi-agente, area: ai }
   - { name: LLMs locales (Ollama), area: ai }
-  - { name: Búsqueda semántica / embeddings, area: ai }
-  - { name: NotebookLM / Google AI Studio, area: communication }
-  - { name: OBS / vídeo técnico, area: communication }
-  - { name: Coordinación de equipos, area: leadership }
-
+  - { name: RAG y embeddings, area: ai }
 experience:
   - id: serbatic
     role: Desarrollador de software
@@ -132,6 +120,27 @@ education:
       - Entornos y servidores Linux y Windows.
 
 projects:
+  - id: proofstack
+    name: Proofstack
+    summary: >
+      Generador open source de portfolio web y CV a partir de un solo profile.yaml, con importadores de LinkedIn
+      y GitHub y un editor local. Este portfolio y este CV están generados con él.
+    problem: >
+      Un portfolio y un CV mantenidos a mano se desincronizan, y suelen ser listas de tecnologías sin pruebas
+      de lo que se ha hecho.
+    solution: >
+      Dominio en Java 25 con arquitectura hexagonal: el núcleo no depende de ningún framework y cada salida
+      (web, CV en Markdown, HTML, DOCX y PDF, servidor MCP, servicio de preguntas con IA) es un adaptador. Las reglas
+      de capas se comprueban con ArchUnit, las decisiones se documentan en ADRs y GitHub Actions compila, prueba,
+      publica la web en Pages y genera las releases.
+    techStack: [Java 25, Maven, ArchUnit, JUnit 5, Playwright, Mustache, JSON Schema, GitHub Actions, Docker]
+    links:
+      - { label: GitHub, url: "https://github.com/adan291/proofstack" }
+    learnings:
+      - Los tests de arquitectura convierten las decisiones en reglas que no se pueden saltar.
+      - El CV se genera sin IA a propósito. Un modelo que reescribe el texto acaba inventando métricas.
+    areas: [backend, architecture, devops]
+    evidence: [proofstack-quality]
   - id: event-platform
     name: Plataforma interna de gestión de eventos
     summary: >
@@ -252,7 +261,7 @@ projects:
       - { label: GitHub, url: "https://github.com/adan291/Pedidos" }
     learnings:
       - RabbitMQ y WebSocket están configurados (cola, emisor, receptor, notificación de cambios de estado), pero el flujo de pedidos todavía no los llama. Conectarlos es el paso pendiente.
-    areas: [backend, messaging]
+    areas: [backend]
 
   - id: tomcat-jakarta-migration
     name: Migración Tomcat 9 a Tomcat 10
@@ -263,18 +272,6 @@ projects:
     learnings:
       - Inventariar primero las dependencias transitivas que siguen en javax.
     areas: [backend]
-
-  - id: proofstack
-    name: Proofstack
-    summary: Generador open source de portfolios técnicos a partir de un profile.yaml. Este portfolio está hecho con él.
-    problem: Los portfolios de backend suelen ser listas de tecnologías sin pruebas.
-    solution: Portfolio como código, dominio hexagonal en Java 25 y renderers intercambiables (web, CV, posts).
-    techStack: [Java 25, Maven, ArchUnit, JSON Schema, Mustache]
-    links:
-      - { label: GitHub, url: "https://github.com/adan291/proofstack" }
-    learnings:
-      - Los tests de arquitectura convierten las decisiones en reglas que no se pueden saltar.
-    areas: [backend, architecture]
 
   - id: streamcrowd
     name: StreamCrowd
@@ -300,6 +297,18 @@ projects:
     areas: [ai, backend]
 
 evidence:
+  - id: proofstack-quality
+    category: technical
+    title: Proofstack, un proyecto con calidad de producto
+    context: Quería que mi portfolio demostrara cómo trabajo, no solo qué tecnologías conozco.
+    action: >
+      Separé el dominio de las salidas con arquitectura hexagonal en 11 módulos Maven, escribí los tests antes
+      de cada cambio, documenté cada decisión en un ADR y automaticé la integración, la web y las releases con
+      GitHub Actions.
+    result: >
+      Más de 300 tests, incluidos tests de navegador con Playwright, una auditoría de accesibilidad con axe-core
+      y 4 tests de arquitectura con ArchUnit. 16 ADRs. Cada push compila, prueba y publica la web y el CV.
+    areas: [backend, architecture, devops]
   - id: agentlife-safety
     category: technical
     title: Agentes de IA con límites verificables en Agent Life
@@ -309,8 +318,9 @@ evidence:
       validé cada diff antes de usarlo, ejecuté las pruebas en Docker sin red y traté el contenido del
       repositorio y la salida del modelo como datos, nunca como instrucciones.
     result: >
-      Ningún agente puede hacer push, merge ni tocar .git ni CI. El proyecto tiene 376 commits y unos 200
-      ficheros de test, y un pre-push hook bloquea publicar con hallazgos de seguridad altos o medios.
+      Ningún agente puede hacer push, merge ni tocar .git ni CI, y el código del agente solo se acepta si pasan
+      las pruebas en un contenedor sin red. Unos 200 ficheros de test, y un pre-push hook bloquea publicar con
+      hallazgos de seguridad altos o medios.
     areas: [ai, devops]
 
   - id: ges-migration
@@ -320,7 +330,7 @@ evidence:
     action: >
       Definí cada fase como spec antes de programarla (arquitectura en capas, API REST, roles, facturación)
       y migré a Spring Boot 3.2 con Java 21, JPA y JWT, con un cliente JavaFX que consume la API.
-    result: El proyecto tiene 44 commits y 51 ficheros de test, y la API la puede consumir cualquier cliente.
+    result: La API la puede consumir cualquier cliente y la interfaz se puede sustituir sin tocar el dominio. 51 ficheros de test.
     areas: [backend, architecture]
 
   - id: event-platform-backend
@@ -331,8 +341,8 @@ evidence:
       Diseñé la API REST en capas (app, domain, infra) con Spring Boot y MongoDB, la seguridad con JWT y refresh
       tokens, la gestión de archivos sobre almacenamiento S3 y el despliegue con Docker Compose y CI.
     result: >
-      La API expone 7 controladores y 32 endpoints. El repositorio tiene 38 commits, 32 de ellos míos,
-      y 7 clases de test.
+      La API expone 7 controladores y 32 endpoints, con autenticación JWT y archivos en almacenamiento S3.
+      El backend fue trabajo mío: 32 de los 38 commits del repositorio.
     areas: [backend, architecture]
 
   - id: team-coordination
@@ -355,11 +365,6 @@ labs:
     type: ai
     description: Experimentos de IA aplicada al backend. Agentes, orquestación multi-agente, LLM local y MCP.
     projects: [agent-life, ai-devos, relacionar-clases, semantic-search]
-
-  - id: hardware-lab
-    name: Hardware & Automation Lab
-    type: automation
-    description: ESP32 + MQTT + Spring Boot. Del primer LED a "prepárame un café" con un agente.
 
 languages:
   - { name: Español, level: Nativo }

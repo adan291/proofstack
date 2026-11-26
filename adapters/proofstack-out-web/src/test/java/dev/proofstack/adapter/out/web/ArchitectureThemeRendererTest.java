@@ -1,6 +1,5 @@
 package dev.proofstack.adapter.out.web;
 
-import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,6 +13,7 @@ import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.PersonalInfo;
 import dev.proofstack.core.domain.Profile;
+import dev.proofstack.core.domain.ProfileDate;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.Skill;
 import dev.proofstack.core.port.out.Artifact;
@@ -39,6 +39,26 @@ class ArchitectureThemeRendererTest {
             org.assertj.core.api.Assertions.assertThatThrownBy(() -> new ArchitectureThemeRenderer(null, bad))
                     .as(bad).isInstanceOf(IllegalArgumentException.class);
         }
+    }
+
+    @Test
+    void featuresTheBestDocumentedProjectsFirstAndKeepsProfileOrderOnTies() {
+        Project bare = new Project("a", "Bare", "Only a summary", null, null, List.of(), List.of(), List.of(),
+                List.of(Area.BACKEND), List.of());
+        Project documented = new Project("b", "Documented", "With problem and solution", "Why", "How",
+                List.of("Java"), List.of(), List.of(), List.of(Area.BACKEND), List.of());
+        Project linked = new Project("c", "Linked", "With a link", null, null, List.of(), List.of(),
+                List.of(new Link("GitHub", "https://github.com/example/c")), List.of(Area.BACKEND), List.of());
+        Project another = new Project("d", "Another", "Also bare", null, null, List.of(), List.of(), List.of(),
+                List.of(Area.BACKEND), List.of());
+        Profile base = profile("Ada");
+        Profile profile = new Profile(base.person(), base.experience(), base.education(),
+                List.of(bare, documented, linked, another), base.skills(), base.evidence(), base.labs());
+        assertThat(ArchitectureThemeRenderer.featured(profile))
+                .extracting(PortfolioView.FeaturedView::name).containsExactly("Documented", "Linked", "Bare");
+        String html = html(profile);
+        assertThat(html).contains("id=\"featured-title\"");
+        assertThat(html.indexOf("featured-title")).isLessThan(html.indexOf("system-title"));
     }
 
     @Test

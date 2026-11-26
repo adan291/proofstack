@@ -283,6 +283,12 @@ a:hover { color: var(--accent-2); }
   a { color: #000; }
 }
 
+/* ---------- Featured projects ---------- */
+.cards--featured { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.card--featured { display: flex; flex-direction: column; border-top: 3px solid var(--accent-2); }
+.card--featured .card__title { font: 700 1.15rem var(--mono); color: var(--accent); }
+.card__result { padding: .5rem .75rem; border-left: 3px solid var(--accent-2); border-radius: 0 8px 8px 0; background: rgba(158, 240, 196, .07); font-size: .95rem; }
+.card--featured .card__links { margin-top: auto; padding-top: .5rem; }
 /* ---------- Effects ----------
    All decorative and progressive: without JS the page is static, and
    prefers-reduced-motion turns every animation off (see the block at the end). */

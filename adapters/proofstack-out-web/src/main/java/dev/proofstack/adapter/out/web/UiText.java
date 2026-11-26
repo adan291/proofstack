@@ -45,6 +45,11 @@ public record UiText(
         return "es".equals(locale.getLanguage()) ? "Descargar CV" : "Download CV";
     }
 
+    /** Title of the featured projects shown right after the hero. */
+    public String featured() {
+        return "es".equals(locale.getLanguage()) ? "Proyectos destacados" : "Featured projects";
+    }
+
     String area(Area area) {
         return areas.get(area);
     }

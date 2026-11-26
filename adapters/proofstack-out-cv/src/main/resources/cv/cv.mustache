@@ -36,7 +36,7 @@
   {{#hasJobs}}
   <section>
     <h2>{{t.experience}}</h2>
-    {{#jobs}}
+    {{#mainJobs}}
     <article class="entry">
       <div class="entry__head">
         <h3><span class="role">{{role}}</span> <span class="org">· {{company}}</span></h3>
@@ -45,9 +45,17 @@
       {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
       {{#technologies}}<p class="tech"><span class="label">{{t.technologies}}:</span> {{.}}</p>{{/technologies}}
     </article>
-    {{/jobs}}
+    {{/mainJobs}}
   </section>
   {{/hasJobs}}
+  {{#hasOtherJobs}}
+  <section>
+    <h2>{{t.otherExperience}}</h2>
+    <ul class="other">
+      {{#otherJobs}}<li><span class="role">{{role}}</span> <span class="org">· {{company}}</span>{{#meta}} <span class="meta">({{.}})</span>{{/meta}}{{#hasHighlights}}: {{#highlights}}{{.}} {{/highlights}}{{/hasHighlights}}</li>{{/otherJobs}}
+    </ul>
+  </section>
+  {{/hasOtherJobs}}
   {{#hasProjects}}
   <section>
     <h2>{{t.projects}}</h2>

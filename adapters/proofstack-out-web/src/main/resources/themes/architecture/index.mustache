@@ -54,6 +54,22 @@
     </div>
   </section>
   {{/assistant}}
+  {{#hasFeatured}}
+  <section class="featured" aria-labelledby="featured-title">
+    <h2 id="featured-title" class="section-title">{{t.featured}}</h2>
+    <div class="cards cards--featured">
+      {{#featured}}
+      <article class="card card--featured">
+        <h3 class="card__title">{{name}}</h3>
+        <p class="card__summary">{{summary}}</p>
+        {{#result}}<p class="card__result"><strong>{{t.result}}.</strong> {{.}}</p>{{/result}}
+        {{#hasTechStack}}<ul class="chips chips--small" aria-label="{{t.techStack}}">{{#techStack}}<li class="chip">{{.}}</li>{{/techStack}}</ul>{{/hasTechStack}}
+        {{#hasLinks}}<ul class="card__links">{{#links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/links}}</ul>{{/hasLinks}}
+      </article>
+      {{/featured}}
+    </div>
+  </section>
+  {{/hasFeatured}}
 
   {{#hasNodes}}
   <section class="system" aria-labelledby="system-title">
