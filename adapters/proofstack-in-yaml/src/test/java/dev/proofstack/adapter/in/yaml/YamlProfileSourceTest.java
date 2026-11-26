@@ -12,7 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,9 +42,33 @@ class YamlProfileSourceTest {
         assertThat(profile.languages()).extracting("name", "level")
                 .containsExactly(org.assertj.core.groups.Tuple.tuple("Español", "Nativo"),
                         org.assertj.core.groups.Tuple.tuple("English", null));
-        assertThat(profile.certifications().getFirst().issued()).isEqualTo(YearMonth.of(2024, 3));
+        assertThat(profile.certifications().getFirst().issued()).isEqualTo(ProfileDate.of(2024, 3));
         assertThat(profile.certifications().getFirst().link().url()).isEqualTo("https://example.com/c/1");
         assertThat(profile.certifications().get(1).issuer()).isNull();
+    }
+
+    /** A year alone is enough, quoted or not; a month stays optional (spec proofstack-year-dates, R1). */
+    @Test
+    void datesMayBeJustAYear() throws IOException {
+        Profile profile = source.load(write("""
+                person: { name: Ada, headline: Engineer }
+                education:
+                  - { id: dam, title: DAM, institution: IES, startDate: 2018, endDate: "2020" }
+                experience:
+                  - { id: acme, role: Dev, company: ACME, startDate: 2020-05, endDate: 2021 }
+                certifications:
+                  - { title: Java SE 21, date: 2024 }
+                """));
+
+        assertThat(profile.education().getFirst().period())
+                .isEqualTo(new dev.proofstack.core.domain.Period(ProfileDate.of(2018), ProfileDate.of(2020)));
+        assertThat(profile.experience().getFirst().period().end()).isEqualTo(ProfileDate.of(2021));
+        assertThat(profile.certifications().getFirst().issued()).isEqualTo(ProfileDate.of(2024));
+        assertThatThrownBy(() -> source.load(write("""
+                person: { name: Ada, headline: Engineer }
+                education:
+                  - { id: dam, title: DAM, institution: IES, startDate: 18 }
+                """))).isInstanceOf(ProfileValidationException.class);
     }
 
     @Test
@@ -99,7 +123,7 @@ class YamlProfileSourceTest {
         assertThat(profile.language()).isEqualTo("es");
         assertThat(profile.person().name()).isEqualTo("Ada Lovelace");
         assertThat(profile.skills().getFirst().area()).isEqualTo(Area.BACKEND);
-        assertThat(profile.experience().getFirst().period().start()).isEqualTo(YearMonth.of(2022, 1));
+        assertThat(profile.experience().getFirst().period().start()).isEqualTo(ProfileDate.of(2022, 1));
         assertThat(profile.experience().getFirst().current()).isTrue();
         assertThat(profile.evidence().getFirst().category()).isEqualTo(EvidenceCategory.LEADERSHIP);
         assertThat(profile.labs().getFirst().type()).isEqualTo(LabType.AI);

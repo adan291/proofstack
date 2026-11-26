@@ -183,10 +183,7 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
     }
 
     static String period(Period period, UiText t) {
-        DateTimeFormatter month = DateTimeFormatter.ofPattern("MMM yyyy", t.locale());
-        String start = month.format(period.start());
-        String end = period.endDate().map(month::format).orElse(t.present());
-        return start + " – " + end;
+        return period.format(t.locale(), t.present());
     }
 
     static String initials(String name) {

@@ -1,6 +1,5 @@
 package dev.proofstack.adapter.out.cv;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -111,14 +110,13 @@ final class CvBuilder {
     }
 
     private static List<Cert> certifications(Profile profile, CvText t) {
-        DateTimeFormatter month = DateTimeFormatter.ofPattern("MMM yyyy", t.locale());
         return profile.certifications().stream()
                 .filter(c -> !clean(c.title()).isEmpty())
                 .sorted(Comparator.comparing((dev.proofstack.core.domain.Certification c) -> c.issued() == null
-                        ? java.time.YearMonth.of(1900, 1) : c.issued()).reversed())
+                        ? dev.proofstack.core.domain.ProfileDate.of(1900) : c.issued()).reversed())
                 .map(c -> new Cert(clean(c.title()),
                         String.join(" · ", java.util.stream.Stream.of(clean(c.issuer()),
-                                c.issued() == null ? "" : month.format(c.issued())).filter(s -> !s.isEmpty()).toList()),
+                                c.issued() == null ? "" : c.issued().format(t.locale())).filter(s -> !s.isEmpty()).toList()),
                         c.link() == null ? "" : c.link().url()))
                 .toList();
     }
@@ -194,8 +192,7 @@ final class CvBuilder {
     }
 
     static String period(Period period, CvText t) {
-        DateTimeFormatter month = DateTimeFormatter.ofPattern("MMM yyyy", t.locale());
-        return month.format(period.start()) + " – " + period.endDate().map(month::format).orElse(t.present());
+        return period.format(t.locale(), t.present());
     }
 
     private static List<String> usable(List<String> texts) {

@@ -3,7 +3,7 @@ package dev.proofstack.adapter.in.linkedin;
 import dev.proofstack.core.domain.Area;
 import org.junit.jupiter.api.Test;
 
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,12 +21,12 @@ class ParsingHelpersTest {
 
     @Test
     void datesInEnglishSpanishNumericAndYearOnly() {
-        assertThat(LinkedInDates.parse("Jan 2020")).contains(YearMonth.of(2020, 1));
-        assertThat(LinkedInDates.parse("ene 2020")).contains(YearMonth.of(2020, 1));
-        assertThat(LinkedInDates.parse("ago. 2021")).contains(YearMonth.of(2021, 8));
-        assertThat(LinkedInDates.parse("September 2019")).contains(YearMonth.of(2019, 9));
-        assertThat(LinkedInDates.parse("03/2018")).contains(YearMonth.of(2018, 3));
-        assertThat(LinkedInDates.parse("2017")).contains(YearMonth.of(2017, 1));
+        assertThat(LinkedInDates.parse("Jan 2020")).contains(ProfileDate.of(2020, 1));
+        assertThat(LinkedInDates.parse("ene 2020")).contains(ProfileDate.of(2020, 1));
+        assertThat(LinkedInDates.parse("ago. 2021")).contains(ProfileDate.of(2021, 8));
+        assertThat(LinkedInDates.parse("September 2019")).contains(ProfileDate.of(2019, 9));
+        assertThat(LinkedInDates.parse("03/2018")).contains(ProfileDate.of(2018, 3));
+        assertThat(LinkedInDates.parse("2017")).contains(ProfileDate.of(2017));
         assertThat(LinkedInDates.parse("")).isEmpty();
         assertThat(LinkedInDates.parse("someday")).isEmpty();
         assertThat(LinkedInDates.parse("13/2018")).isEmpty();

@@ -38,7 +38,7 @@ class PublishReadinessTest {
     void placeholdersAreFoundInEveryFieldThatIsPublished() {
         String todo = "TODO: fill";
         var job = new dev.proofstack.core.domain.Experience("acme", "Developer", "ACME", todo,
-                dev.proofstack.core.domain.Period.ongoingSince(java.time.YearMonth.of(2022, 1)),
+                dev.proofstack.core.domain.Period.ongoingSince(dev.proofstack.core.domain.ProfileDate.of(2022, 1)),
                 List.of("Did things"), List.of("Java", todo), List.of());
         Project project = new Project("billing", "Billing", "Outbox", "Deploys", "Outbox table",
                 List.of(todo), List.of(), List.of(new Link(todo, "https://github.com/ada/billing")),

@@ -31,6 +31,6 @@ No cambia ADR-014: el frontend sigue sin build ni dependencias. Las dependencias
 
 ## Lo que encontraron al implementarlos
 
-- Cada carga ped?a `/favicon.ico` y recib?a un 404 (`b0afe58`).
-- A?adir una skill o una evidencia y guardar fallaba: los enum sin `type` (?rea, categor?a) no se rellenaban al crear el elemento (`0424d33`).
-- Pulsar un hallazgo dentro de un elemento de lista cerrado no llevaba el foco al campo, y las URL sal?an como textarea de tres l?neas (`da15ea2`).
+- Cada carga pedía `/favicon.ico` y recibía un 404 (`b0afe58`).
+- Añadir una skill o una evidencia y guardar fallaba: los enum sin `type` (área, categoría) no se rellenaban al crear el elemento (`0424d33`).
+- Pulsar un hallazgo dentro de un elemento de lista cerrado no llevaba el foco al campo, y las URL salían como textarea de tres líneas (`da15ea2`).

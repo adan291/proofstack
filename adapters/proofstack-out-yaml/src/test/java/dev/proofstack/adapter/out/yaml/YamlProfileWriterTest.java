@@ -3,6 +3,7 @@ package dev.proofstack.adapter.out.yaml;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,6 +56,24 @@ class YamlProfileWriterTest {
 
         writer.write(original, out, false);
 
+        assertThat(reader.load(out)).isEqualTo(original);
+    }
+
+    /** A year stays a year: written as "2018", read back as a year (year-dates R2.3). */
+    @Test
+    void aYearWithoutMonthSurvivesTheRoundTrip() throws IOException {
+        Profile example = reader.load(REPO.resolve("profiles/example/profile.yaml"));
+        Profile original = new Profile(example.language(), example.person(), example.experience(),
+                List.of(new dev.proofstack.core.domain.Education("dam", "DAM", "IES",
+                        new dev.proofstack.core.domain.Period(dev.proofstack.core.domain.ProfileDate.of(2018),
+                                dev.proofstack.core.domain.ProfileDate.of(2020)), List.of())),
+                example.projects(), example.skills(), example.evidence(), example.labs(), example.languages(),
+                example.certifications());
+        Path out = tmp.resolve("profile.yaml");
+
+        writer.write(original, out, false);
+
+        assertThat(Files.readString(out)).contains("startDate: \"2018\"").contains("endDate: \"2020\"");
         assertThat(reader.load(out)).isEqualTo(original);
     }
 

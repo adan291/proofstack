@@ -1,6 +1,6 @@
 package dev.proofstack.core.domain;
 
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 /** Test data builders. */
@@ -24,7 +24,7 @@ public final class Fixtures {
     }
 
     public static Experience experience(String id, List<String> evidenceIds) {
-        return new Experience(id, "Developer", "ACME", null, Period.ongoingSince(YearMonth.of(2022, 1)),
+        return new Experience(id, "Developer", "ACME", null, Period.ongoingSince(ProfileDate.of(2022, 1)),
                 List.of("Did things"), List.of("Java"), evidenceIds);
     }
 

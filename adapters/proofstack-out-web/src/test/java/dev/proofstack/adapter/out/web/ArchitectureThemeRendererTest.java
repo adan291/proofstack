@@ -1,6 +1,6 @@
 package dev.proofstack.adapter.out.web;
 
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -90,8 +90,10 @@ class ArchitectureThemeRendererTest {
     @Test
     void helpersFormatNamesAndPeriods() {
         assertThat(ArchitectureThemeRenderer.initials("Ada  Lovelace Byron")).isEqualTo("AL");
-        assertThat(ArchitectureThemeRenderer.period(new Period(YearMonth.of(2020, 3), YearMonth.of(2021, 12)), UiText.ENGLISH))
+        assertThat(ArchitectureThemeRenderer.period(new Period(ProfileDate.of(2020, 3), ProfileDate.of(2021, 12)), UiText.ENGLISH))
                 .isEqualTo("Mar 2020 – Dec 2021");
+        assertThat(ArchitectureThemeRenderer.period(new Period(ProfileDate.of(2018), ProfileDate.of(2020)), UiText.ENGLISH))
+                .isEqualTo("2018 – 2020");
     }
 
     @Test
@@ -167,7 +169,7 @@ class ArchitectureThemeRendererTest {
         Evidence team = new Evidence("team", EvidenceCategory.LEADERSHIP, "Coordinated a team of 20",
                 "Large delivery", "Planning and follow-up", "Delivered", null, List.of());
         Experience job = new Experience("job", "Backend Developer", "ACME", null,
-                Period.ongoingSince(YearMonth.of(2022, 1)), List.of(), List.of("Java"), List.of());
+                Period.ongoingSince(ProfileDate.of(2022, 1)), List.of(), List.of("Java"), List.of());
         return new Profile(person, List.of(job), List.of(), List.of(migration),
                 List.of(new Skill("Java", Area.BACKEND)), List.of(team), List.of());
     }

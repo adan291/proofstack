@@ -136,6 +136,22 @@ class YamlProfileDocumentStoreTest {
         assertThat(json.readTree(store.read().json())).isEqualTo(doc);
     }
 
+    /** An unquoted year is an integer in the document: Studio saves it and it still reads as that year. */
+    @Test
+    void anUnquotedYearSurvivesASave() throws IOException {
+        Files.writeString(file, ORIGINAL + """
+                education:
+                  - { id: dam, title: DAM, institution: IES, startDate: 2018, endDate: 2020-06 }
+                """);
+        Stored before = store.read();
+
+        store.replace(before.json(), before.version());
+
+        assertThat(new YamlProfileSource().load(file).education().getFirst().period())
+                .isEqualTo(new dev.proofstack.core.domain.Period(dev.proofstack.core.domain.ProfileDate.of(2018),
+                        dev.proofstack.core.domain.ProfileDate.of(2020, 6)));
+    }
+
     @Test
     void theRealProfileSurvivesAReadAndSaveRoundTrip() throws IOException {
         Path real = Path.of("../../profiles/example/profile.yaml");

@@ -96,6 +96,7 @@ proofstack build profiles/yo/profile.yaml --out dist --with-cv              # la
 ```
 
 - **Sin IA:** el CV solo contiene lo que dice tu perfil, y los `TODO` se omiten.
+- **Fechas:** escribe solo lo que sabes, el año (`2018`) o el año y el mes (`2018-05`). El CV y la web nunca añaden un mes que no hayas puesto ([ADR-015](docs/adr/ADR-015-year-precision-dates.md)).
 - **Apto para ATS:** una columna, solo texto, títulos nativos en el Word.
 - **PDF:** el workflow de Pages lo genera con Chrome en cada despliegue, y el botón de la web lo descarga. En local, abre `cv.html` y usa *Imprimir → Guardar como PDF*.
 - Incluye idiomas y certificaciones si tu perfil los tiene.

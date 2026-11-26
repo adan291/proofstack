@@ -12,7 +12,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -70,7 +70,7 @@ class LinkedInExportImporterTest {
         Experience current = p.experience().getFirst();
         assertThat(current.id()).isEqualTo("acme");
         assertThat(current.current()).isTrue();
-        assertThat(current.period().start()).isEqualTo(YearMonth.of(2022, 1));
+        assertThat(current.period().start()).isEqualTo(ProfileDate.of(2022, 1));
         assertThat(current.highlights()).containsExactly("Migré Tomcat 9 a 10", "Coordiné a 20 personas");
         assertThat(p.experience().get(1).id()).isEqualTo("acme-2");
         assertThat(p.experience().get(1).highlights().getFirst()).startsWith("TODO");
@@ -79,7 +79,7 @@ class LinkedInExportImporterTest {
         assertThat(p.projects().getFirst().summary()).isEqualTo("Embeddings, \"vector\" search");
     }
 
-    /** LinkedIn often gives only a year, or nothing: the month is unknown, so it is flagged instead of invented. */
+    /** A year alone is kept as a year; a missing start date is flagged instead of invented (year-dates R3). */
     @Test
     void datesLinkedInDoesNotGiveAreFlaggedNotInvented() throws IOException {
         Map<String, String> files = export();
@@ -89,14 +89,20 @@ class LinkedInExportImporterTest {
                 + "Third Co,Intern,Learned,,2018,\n");
         files.put("Education.csv", "School Name,Start Date,End Date,Notes,Degree Name,Activities\n"
                 + "IES Ejemplo,2018,2020,,CFGS DAM,\n");
+        files.put("Certifications.csv", "Name,Url,Authority,Started On,Finished On,License Number\n"
+                + "AWS Developer,,Amazon,2023,,\n");
 
         Profile p = importer.importProfile(zip(files));
+        assertThat(p.certifications().getFirst().issued()).isEqualTo(ProfileDate.of(2023));
 
         String dates = dev.proofstack.core.domain.TodoCounter.DATES;
         assertThat(p.experience().get(0).highlights()).noneMatch(h -> h.startsWith(dates));
         assertThat(p.experience().get(1).highlights()).anyMatch(h -> h.startsWith(dates));
-        assertThat(p.experience().get(2).highlights()).anyMatch(h -> h.startsWith(dates));
-        assertThat(p.education().getFirst().highlights()).anyMatch(h -> h.startsWith(dates));
+        assertThat(p.experience().get(2).highlights()).noneMatch(h -> h.startsWith(dates));
+        assertThat(p.experience().get(2).period().start()).isEqualTo(ProfileDate.of(2018));
+        assertThat(p.education().getFirst().highlights()).noneMatch(h -> h.startsWith(dates));
+        assertThat(p.education().getFirst().period())
+                .isEqualTo(new dev.proofstack.core.domain.Period(ProfileDate.of(2018), ProfileDate.of(2020)));
     }
 
     @Test
@@ -114,7 +120,7 @@ class LinkedInExportImporterTest {
                 org.assertj.core.groups.Tuple.tuple("English", null));
         assertThat(p.certifications()).extracting("title").containsExactly("Java SE 21", "Sin enlace");
         assertThat(p.certifications().getFirst().issuer()).isEqualTo("Oracle");
-        assertThat(p.certifications().getFirst().issued()).isEqualTo(YearMonth.of(2024, 3));
+        assertThat(p.certifications().getFirst().issued()).isEqualTo(ProfileDate.of(2024, 3));
         assertThat(p.certifications().getFirst().link().url()).isEqualTo("https://example.com/c/1");
         assertThat(p.certifications().get(1).link()).isNull();
     }

@@ -1,6 +1,6 @@
 package dev.proofstack.adapter.in.linkedin;
 
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
@@ -25,12 +25,8 @@ final class LinkedInDates {
     private LinkedInDates() {
     }
 
-    /** "2020": {@link #parse} reads it as January, which LinkedIn never said. */
-    static boolean isYearOnly(String value) {
-        return value != null && YEAR.matcher(value.strip()).matches();
-    }
 
-    static Optional<YearMonth> parse(String value) {
+    static Optional<ProfileDate> parse(String value) {
         if (value == null || value.isBlank()) {
             return Optional.empty();
         }
@@ -38,18 +34,18 @@ final class LinkedInDates {
         Matcher m = MONTH_YEAR.matcher(v);
         if (m.matches()) {
             Integer month = MONTHS.get(m.group(1).substring(0, 3));
-            return month == null ? Optional.empty() : Optional.of(YearMonth.of(Integer.parseInt(m.group(2)), month));
+            return month == null ? Optional.empty() : Optional.of(ProfileDate.of(Integer.parseInt(m.group(2)), month));
         }
         m = NUMERIC.matcher(v);
         if (m.matches()) {
             int month = Integer.parseInt(m.group(1));
             return month >= 1 && month <= 12
-                    ? Optional.of(YearMonth.of(Integer.parseInt(m.group(2)), month))
+                    ? Optional.of(ProfileDate.of(Integer.parseInt(m.group(2)), month))
                     : Optional.empty();
         }
         m = YEAR.matcher(v);
         if (m.matches()) {
-            return Optional.of(YearMonth.of(Integer.parseInt(m.group(1)), 1));
+            return Optional.of(ProfileDate.of(Integer.parseInt(m.group(1))));
         }
         return Optional.empty();
     }

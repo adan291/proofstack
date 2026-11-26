@@ -72,6 +72,20 @@ class StudioEditingE2E extends StudioE2E {
         assertThat(yaml.indexOf("Hexagonal architecture")).isLessThan(yaml.indexOf("Spring Boot"));
     }
 
+    /** A date may be a year alone (spec proofstack-year-dates): the field takes it, and the file keeps it as a year. */
+    @Test
+    void aDateCanBeJustAYear() throws IOException {
+        open();
+        section("Experiencia");
+        expand("Backend Engineer");
+
+        page.getByLabel("Inicio *").fill("2021");
+        button("Guardar Ctrl+S").click();
+
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).contains("startDate: \"2021\"");
+    }
+
     @Test
     void anInvalidDocumentIsNotSavedAndTheFieldIsMarked() throws IOException {
         expectedFailures.add(422);

@@ -78,9 +78,6 @@ export class SchemaForm {
       // Without an empty option a select shows its first value, which the document does not have.
       if (!required || holder.get() === undefined) input.append(option('', '—'));
       node.enum.forEach((v) => input.append(option(v, v)));
-    } else if (node.pattern === '^[0-9]{4}-(0[1-9]|1[0-2])$') {
-      input = el('input');
-      input.type = 'month';
     } else if ((node.maxLength ?? 0) > 300 && key !== 'url' && key !== 'email') {
       input = el('textarea');
       input.rows = Math.min(10, Math.max(3, Math.ceil(String(holder.get() ?? '').length / 80) + 1));

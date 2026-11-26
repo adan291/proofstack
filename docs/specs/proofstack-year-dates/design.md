@@ -15,9 +15,9 @@ Se registrará en un ADR nuevo (ADR-015, «Fechas con precisión de año»). No 
 - **core:** `ProfileDate` sustituye a `YearMonth` en `Period` y en `Certification.issued`. Los tipos usan `YearMonth` en 14 ficheros de producción; cada uso pasa a `ProfileDate` o a su clave de orden. `Period` valida R1.3.
 - **in-yaml:** `DocumentMapper` lee los dos formatos y el entero. `profile.schema.json` cambia según la tabla.
 - **out-yaml y `YamlProfileDocumentStore`:** escriben `ProfileDate.toString()`. Los años van entre comillas por `TextQuoting` (H1), para que se relean como texto.
-- **out-cv, out-web y `ProfileKnowledge`:** usan `ProfileDate.format`.
+- **out-cv y out-web:** usan `Period.format`. `ProfileKnowledge`, `ContentBrief` y el adaptador LLM no cambian: ya imprimían `toString()`, que da `2018` o `2018-05`.
 - **in-linkedin:** `LinkedInDates.parse` devuelve `ProfileDate`. Desaparece el aviso de «solo el año» de H3; se mantiene el de «sin fecha de inicio».
-- **Studio:** sin cambios de código. El formulario sale del esquema; se comprobará que `schema-form.js` muestra bien un `oneOf` de string e integer y, si no, se tratará el caso.
+- **Studio:** el campo de fecha deja de ser `<input type=month>`, que no admite un año solo, y pasa a ser de texto, validado por el esquema. Lo comprueba un test de navegador.
 
 ## Pruebas
 

@@ -22,12 +22,12 @@ import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.PersonalInfo;
 import dev.proofstack.core.domain.Profile;
+import dev.proofstack.core.domain.ProfileDate;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.domain.Skill;
 import dev.proofstack.core.domain.Violation;
 
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -92,7 +92,7 @@ final class DocumentMapper {
 
     private Certification certification(CertificationDoc d) {
         Link link = d.link() == null ? null : new Link(d.link().label(), d.link().url());
-        return new Certification(d.title(), d.issuer(), d.date() == null ? null : yearMonth(d.date(), "date"), link);
+        return new Certification(d.title(), d.issuer(), d.date() == null ? null : date(d.date(), "date"), link);
     }
 
     private Lab lab(LabDoc d) {
@@ -123,14 +123,15 @@ final class DocumentMapper {
     }
 
     private static Period period(String start, String end) {
-        return new Period(yearMonth(start, "startDate"), end == null ? null : yearMonth(end, "endDate"));
+        return new Period(date(start, "startDate"), end == null ? null : date(end, "endDate"));
     }
 
-    private static YearMonth yearMonth(String value, String field) {
+    /** {@code 2024}, {@code 2024-03}, or the integer a YAML reader makes of an unquoted year. */
+    private static ProfileDate date(String value, String field) {
         try {
-            return value == null ? null : YearMonth.parse(value);
-        } catch (java.time.format.DateTimeParseException e) {
-            throw new InvalidValueException(field, "must be a year-month like 2024-03");
+            return value == null ? null : ProfileDate.parse(value);
+        } catch (InvalidValueException e) {
+            throw new InvalidValueException(field, e.reason());
         }
     }
 

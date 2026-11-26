@@ -3,7 +3,7 @@ package dev.proofstack.adapter.out.cv;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -44,15 +44,31 @@ class CvRendererTest {
         assertThat(md).contains("- Resultado: Entregado en plazo").contains("*Madrid · ene 2022 – Actualidad*");
     }
 
+    /** A year alone is printed alone, in every format; never "Jan 2018" (year-dates R2.1). */
+    @Test
+    void aYearWithoutMonthIsPrintedAsTheYear() {
+        Education study = new Education("dam", "CFGS DAM", "IES Ejemplo",
+                new Period(ProfileDate.of(2018), ProfileDate.of(2020)), List.of());
+        Profile profile = new Profile("en", new PersonalInfo("Ada", "Dev", null, null, null, List.of()),
+                List.of(), List.of(study), List.of(), List.of(), List.of(), List.of(),
+                List.of(), List.of(new Certification("AWS Developer", "Amazon", ProfileDate.of(2023), null)));
+
+        String md = markdown(new CvRenderer(), profile);
+
+        assertThat(md).contains("*2018 – 2020*").contains("Amazon · 2023").doesNotContain("Jan");
+        assertThat(html(profile)).contains("2018 – 2020").doesNotContain("Jan");
+        assertThat(docxText(new CvRenderer().render(profile))).contains("2018 – 2020").doesNotContain("Jan");
+    }
+
     /** A period the importer could not read is a placeholder: printing it would put an invented month on the CV. */
     @Test
     void aPeriodFlaggedAsUnknownIsLeftOut() {
         String flag = dev.proofstack.core.domain.TodoCounter.DATES + ": LinkedIn only gives the year";
         Experience job = new Experience("old", "Developer", "Old Co", null,
-                new Period(YearMonth.of(2019, 1), YearMonth.of(2019, 1)), List.of("Did things", flag), List.of(),
+                new Period(ProfileDate.of(2019, 1), ProfileDate.of(2019, 1)), List.of("Did things", flag), List.of(),
                 List.of());
         Education study = new Education("dam", "CFGS DAM", "IES Ejemplo",
-                new Period(YearMonth.of(2018, 1), YearMonth.of(2020, 1)), List.of(flag));
+                new Period(ProfileDate.of(2018, 1), ProfileDate.of(2020, 1)), List.of(flag));
         Profile profile = new Profile("en", new PersonalInfo("Ada", "Dev", null, null, null, List.of()),
                 List.of(job), List.of(study), List.of(), List.of(), List.of(), List.of());
 
@@ -173,9 +189,9 @@ class CvRendererTest {
     @Test
     void newestExperienceComesFirst() {
         Experience old = new Experience("old", "Intern", "Old Co", null,
-                new Period(YearMonth.of(2014, 1), YearMonth.of(2014, 6)), List.of(), List.of(), List.of());
+                new Period(ProfileDate.of(2014, 1), ProfileDate.of(2014, 6)), List.of(), List.of(), List.of());
         Experience recent = new Experience("new", "Engineer", "New Co", null,
-                Period.ongoingSince(YearMonth.of(2022, 1)), List.of(), List.of(), List.of());
+                Period.ongoingSince(ProfileDate.of(2022, 1)), List.of(), List.of(), List.of());
         Profile profile = new Profile("en", person("Ada"), List.of(old, recent), List.of(), List.of(), List.of(),
                 List.of(), List.of());
 
@@ -201,7 +217,7 @@ class CvRendererTest {
         Profile profile = new Profile(base.language(), base.person(), base.experience(), base.education(),
                 base.projects(), base.skills(), base.evidence(), base.labs(),
                 List.of(new Language("Español", "Nativo"), new Language("Inglés", null)),
-                List.of(new Certification("Java SE 21", "Oracle", YearMonth.of(2024, 3),
+                List.of(new Certification("Java SE 21", "Oracle", ProfileDate.of(2024, 3),
                         new Link("Credential", "https://example.com/c/1")),
                         new Certification("Scrum Master", null, null, null)));
 
@@ -296,9 +312,9 @@ class CvRendererTest {
         Evidence proof = new Evidence("ev1", EvidenceCategory.TECHNICAL, "Title", "Context", "Action",
                 "Entregado en plazo", new Link("Repo", "https://github.com/example/repo"), List.of());
         Experience job = new Experience("job", "Backend Developer", "ACME", "Madrid",
-                Period.ongoingSince(YearMonth.of(2022, 1)), List.of("Built the API"), List.of("Java"), List.of());
-        Education study = new Education("edu", "DAM", "Instituto", new Period(YearMonth.of(2019, 9),
-                YearMonth.of(2020, 6)), List.of());
+                Period.ongoingSince(ProfileDate.of(2022, 1)), List.of("Built the API"), List.of("Java"), List.of());
+        Education study = new Education("edu", "DAM", "Instituto", new Period(ProfileDate.of(2019, 9),
+                ProfileDate.of(2020, 6)), List.of());
         return new Profile(language, person(name), List.of(job), List.of(study),
                 List.of(project("p1", "Proofstack", "Portfolio as code", List.of(Area.BACKEND), "ev1")),
                 List.of(new Skill("Java", Area.BACKEND)), List.of(proof), List.of());

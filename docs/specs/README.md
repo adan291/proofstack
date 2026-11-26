@@ -12,12 +12,12 @@ Cada fase de Proofstack empezó como un spec de Kiro con tres partes: requisitos
 | 6 · Plantilla pública | [`proofstack-template`](proofstack-template/requirements.md) |
 | 7 · Studio: editor local, CV en Word y PDF | [`proofstack-studio`](proofstack-studio/requirements.md) |
 
-Propuestas tras la revisión de noviembre de 2026 (pendientes de aprobar):
+Tras la revisión de noviembre de 2026:
 
 | Tema | Spec |
 |---|---|
 | Tests de Studio en un navegador real (H9), hecha | [`proofstack-studio-browser-tests`](proofstack-studio-browser-tests/requirements.md) |
-| Fechas con precisión de año (H3) | [`proofstack-year-dates`](proofstack-year-dates/requirements.md) |
+| Fechas con precisión de año (H3), hecha | [`proofstack-year-dates`](proofstack-year-dates/requirements.md) |
 | Conflictos en Studio sin perder ediciones (H23) | [`proofstack-studio-merge`](proofstack-studio-merge/requirements.md) |
 | Un solo codec YAML (H10) | [`proofstack-yaml-codec`](proofstack-yaml-codec/requirements.md) |
 

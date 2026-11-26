@@ -17,7 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -111,7 +111,7 @@ class LinkedInMemberDataSourceTest {
         assertThat(p.toString()).doesNotContain("Calle Secreta");
         assertThat(p.experience()).extracting("company").containsExactly("ACME", "Old Co");
         assertThat(p.experience().getFirst().current()).isTrue();
-        assertThat(p.education().getFirst().period().start()).isEqualTo(YearMonth.of(2018, 1));
+        assertThat(p.education().getFirst().period().start()).isEqualTo(ProfileDate.of(2018));
         assertThat(p.skills()).extracting("name").containsExactly("Java", "Apache Kafka");
         assertThat(p.projects()).isEmpty();
         assertThat(p.languages()).extracting("name", "level").containsExactly(org.assertj.core.groups.Tuple.tuple("Español", "Native"));

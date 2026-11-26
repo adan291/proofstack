@@ -2,7 +2,7 @@ package dev.proofstack.core.domain;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 import static dev.proofstack.core.domain.Fixtures.*;
@@ -13,14 +13,14 @@ class DomainInvariantsTest {
 
     @Test
     void periodRejectsEndBeforeStart() {
-        assertThatThrownBy(() -> new Period(YearMonth.of(2024, 5), YearMonth.of(2024, 4)))
+        assertThatThrownBy(() -> new Period(ProfileDate.of(2024, 5), ProfileDate.of(2024, 4)))
                 .isInstanceOfSatisfying(InvalidValueException.class,
                         e -> assertThat(e.field()).isEqualTo("endDate"));
     }
 
     @Test
     void periodWithoutEndIsOngoing() {
-        assertThat(Period.ongoingSince(YearMonth.of(2024, 1)).isOngoing()).isTrue();
+        assertThat(Period.ongoingSince(ProfileDate.of(2024, 1)).isOngoing()).isTrue();
     }
 
     @Test

@@ -6,7 +6,6 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.PersonalInfo;
 import dev.proofstack.core.domain.Profile;
+import dev.proofstack.core.domain.ProfileDate;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.Skill;
@@ -173,23 +173,20 @@ public final class LinkedInExportImporter implements ProfileImporter {
     }
 
     /**
-     * The schema needs a month, LinkedIn does not always have one. Whatever had to be filled in is flagged with
-     * {@link TodoCounter#DATES}: doctor blocks it and the CV leaves the period out, so no invented month is published.
+     * A year alone is kept as a year (ADR-015). Only a missing start date has to be filled in; it is flagged with
+     * {@link TodoCounter#DATES}: doctor blocks it and the CV leaves the period out, so no invented date is published.
      */
     private static Period period(String start, String end, List<String> highlights) {
-        Optional<YearMonth> from = LinkedInDates.parse(start);
-        Optional<YearMonth> to = LinkedInDates.parse(end);
+        Optional<ProfileDate> from = LinkedInDates.parse(start);
+        Optional<ProfileDate> to = LinkedInDates.parse(end);
         if (from.isEmpty()) {
             highlights.add(TodoCounter.DATES + ": no start date in LinkedIn; set startDate (YYYY-MM)");
-            YearMonth placeholder = to.orElse(YearMonth.of(2000, 1));
+            ProfileDate placeholder = to.orElse(ProfileDate.of(2000));
             return new Period(placeholder, to.orElse(null));
         }
         if (to.isPresent() && to.get().isBefore(from.get())) {
             highlights.add(TodoCounter.DATES + ": the end date was before the start date in LinkedIn; check both");
             return new Period(from.get(), from.get());
-        }
-        if (LinkedInDates.isYearOnly(start) || LinkedInDates.isYearOnly(end)) {
-            highlights.add(TodoCounter.DATES + ": LinkedIn only gives the year; set the month in startDate/endDate");
         }
         return new Period(from.get(), to.orElse(null));
     }

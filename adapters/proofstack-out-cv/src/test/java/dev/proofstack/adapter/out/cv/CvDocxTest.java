@@ -6,7 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.YearMonth;
+import dev.proofstack.core.domain.ProfileDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,7 +125,7 @@ class CvDocxTest {
         Evidence proof = new Evidence("ev1", EvidenceCategory.TECHNICAL, "Title", "Context", "Action",
                 "Entregado en plazo", null, List.of());
         Experience job = new Experience("job", "Backend Developer", "ACME", "Madrid",
-                Period.ongoingSince(YearMonth.of(2022, 1)), List.of("Built the API"), List.of("Java"), List.of());
+                Period.ongoingSince(ProfileDate.of(2022, 1)), List.of("Built the API"), List.of("Java"), List.of());
         Project project = new Project("p1", "Proofstack", "Portfolio as code", "A real problem", "A real solution",
                 List.of("Java"), List.of(), List.of(new Link("GitHub", "https://github.com/example/p")),
                 List.of(Area.BACKEND), List.of("ev1"));
