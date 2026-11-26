@@ -25,7 +25,6 @@ class HexagonalArchitectureTest {
         assertThat(all.containPackage("dev.proofstack.adapter.out.web")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.cv")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.llm")).isTrue();
-        assertThat(all.containPackage("dev.proofstack.adapter.yaml")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.linkedin")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.github")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.studio")).isTrue();
@@ -55,6 +54,18 @@ class HexagonalArchitectureTest {
     void outboundAdaptersDoNotKnowInboundAdapters() {
         noClasses().that().resideInAPackage("dev.proofstack.adapter.out..")
                 .should().dependOnClassesThat().resideInAPackage("dev.proofstack.adapter.in..")
+                .check(all);
+    }
+
+    /**
+     * A persistence format read and written in both directions is one adapter, {@code adapter.<format>} (ADR-016):
+     * it must not depend on the inbound or outbound adapters, nor they on it.
+     */
+    @Test
+    void persistenceAdaptersAreIndependentOfTheOthers() {
+        com.tngtech.archunit.library.dependencies.SlicesRuleDefinition.slices()
+                .matching("dev.proofstack.adapter.(*)..")
+                .should().notDependOnEachOther()
                 .check(all);
     }
 

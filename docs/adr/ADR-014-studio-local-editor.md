@@ -10,7 +10,7 @@ Editar `profile.yaml` a mano exige conocer el esquema y es fácil romper la inde
 ## Decisión
 
 - **`proofstack studio <profile>`** sirve un editor web en `127.0.0.1` con el `HttpServer` del JDK, el mismo que ya usa el callback OAuth de LinkedIn. Es un adaptador de entrada nuevo (`proofstack-in-studio`) que solo habla con el core a través de `EditProfileUseCase`.
-- **El core no conoce JSON como tipo.** El documento viaja como texto. `ProfileDocumentStore` (puerto out) lo valida con el esquema y las reglas de dominio, y lo escribe. La implementación vive en `proofstack-in-yaml`, que ya tiene Jackson y el esquema.
+- **El core no conoce JSON como tipo.** El documento viaja como texto. `ProfileDocumentStore` (puerto out) lo valida con el esquema y las reglas de dominio, y lo escribe. La implementación vive en `proofstack-in-yaml`, que ya tiene Jackson y el esquema (desde ADR-016, en `proofstack-yaml`).
 - **Nunca se escribe un perfil inválido.** Se valida antes de guardar. La escritura es atómica (temporal y renombrado) y deja `profile.yaml.bak`. La versión es el SHA-256 del fichero, y un guardado con una versión antigua responde 409 en vez de pisar cambios hechos en otro editor o con Git.
 - **El YAML se guarda desde el árbol del documento**, no reconstruido desde el dominio: se respeta el orden de claves y se conservan los comentarios de cabecera.
 - **Frontend sin build ni dependencias** (HTML, CSS y un módulo ES). Los formularios se generan desde el JSON Schema, de modo que un campo nuevo del esquema aparece sin tocar la interfaz.

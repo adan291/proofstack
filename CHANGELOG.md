@@ -29,6 +29,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado
+- `proofstack-in-yaml` y `proofstack-out-yaml` pasan a ser un solo módulo, `proofstack-yaml`, con un único codec para leer y escribir `profile.yaml` (ADR-016). Los ficheros que se escriben no cambian ni un byte.
 - `proofstack --version` lee la versión del pom, así que basta con `mvn versions:set` para publicar una versión nueva. El workflow de release falla si el tag no coincide con esa versión.
 
 - `proofstack.jar` conservaba un solo `META-INF/NOTICE` y un `LICENSE` de 6 líneas que solo remite a la licencia. Ahora incluye los NOTICE de todas las dependencias y el texto completo de Apache-2.0, como pide la licencia.
@@ -56,6 +57,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Guía visual en `docs/guide/`, publicada en la web en `/guide/`.
 
 ### Cambiado
+- `proofstack-in-yaml` y `proofstack-out-yaml` pasan a ser un solo módulo, `proofstack-yaml`, con un único codec para leer y escribir `profile.yaml` (ADR-016). Los ficheros que se escriben no cambian ni un byte.
 - Todos los módulos pasan a la versión `0.7.0` (antes `0.1.0-SNAPSHOT`).
 - Acciones de GitHub actualizadas a `checkout@v5` y `setup-java@v5`.
 - README y `docs/getting-started.md` reescritos para empezar desde cero, con una tabla de problemas frecuentes.

@@ -2,7 +2,7 @@ name: AI service image
 
 on:
   pull_request:
-    paths: ['proofstack-ai-service/**', 'proofstack-core/**', 'adapters/proofstack-in-yaml/**', 'pom.xml']
+    paths: ['proofstack-ai-service/**', 'proofstack-core/**', 'adapters/proofstack-yaml/**', 'pom.xml']
   push:
     tags: ['v*']
 

@@ -325,7 +325,7 @@ Invoke-RestMethod http://localhost:8080/api/ask -Method Post -ContentType "appli
         <tr><td>Que <code>./proofstack</code> use mi cambio</td><td><code>mvn -DskipTests package -pl proofstack-cli -am</code>. El lanzador usa este jar si existe.</td></tr>
         <tr><td>Saber dónde está cada cosa</td><td><code>proofstack-core</code> (dominio), <code>adapters/proofstack-in-*</code> (entradas), <code>adapters/proofstack-out-*</code> (salidas), <code>proofstack-cli</code> (comandos). La tabla completa está en el README.</td></tr>
         <tr><td>Cambiar el diseño de la web o del CV</td><td><code>adapters/proofstack-out-web/src/main/resources/themes/architecture/</code> y <code>adapters/proofstack-out-cv/src/main/resources/cv/</code>.</td></tr>
-        <tr><td>Añadir un campo al perfil</td><td>Esquema en <code>schema/profile.schema.json</code>, dominio en <code>proofstack-core</code>, lectura en <code>proofstack-in-yaml</code>. Studio lo muestra solo.</td></tr>
+        <tr><td>Añadir un campo al perfil</td><td>Esquema en <code>schema/profile.schema.json</code>, dominio en <code>proofstack-core</code>, lectura y escritura en <code>adapters/proofstack-yaml</code>. Studio lo muestra solo.</td></tr>
       </tbody>
     </table>
 

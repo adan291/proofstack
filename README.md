@@ -176,23 +176,23 @@ La API es pública y sin autenticación, por diseño. La protegen el rate limit,
 ## Arquitectura
 
 ```
-profile.yaml ─► in-yaml ─────┐                          ┌─► out-web  ─► web estática
-LinkedIn ────► in-linkedin ──┤                          ├─► out-cv   ─► CV (md, html, docx)
-GitHub ──────► in-github ────┼─► core (dominio+puertos) ├─► out-llm  ─► Ollama / Gemini ─► borradores
-navegador ───► in-studio ────┘                          └─► out-yaml ─► profile.yaml
+LinkedIn ────► in-linkedin ──┐                          ┌─► out-web  ─► web estática
+GitHub ──────► in-github ────┼─► core (dominio+puertos) ├─► out-cv   ─► CV (md, html, docx)
+navegador ───► in-studio ────┘            ▲             └─► out-llm  ─► Ollama / Gemini ─► borradores
+                                          ▼
+                              yaml ◄─► profile.yaml (lectura y escritura)
 ```
 
 | Módulo | Responsabilidad |
 |---|---|
 | `proofstack-core` | Dominio, casos de uso y puertos. Solo Java, sin frameworks. |
-| `adapters/proofstack-in-yaml` | YAML → JSON Schema → dominio, y el perfil como documento editable (escritura atómica) |
+| `adapters/proofstack-yaml` | `profile.yaml` en los dos sentidos: leer y validar con el esquema, editar (Studio) y escribir (importadores), con un único codec ([ADR-016](docs/adr/ADR-016-one-adapter-per-persistence-format.md)) |
 | `adapters/proofstack-in-linkedin` | Export ZIP y API de portabilidad de LinkedIn → perfil borrador |
 | `adapters/proofstack-in-github` | Repos públicos → proyectos borrador |
 | `adapters/proofstack-in-studio` | Editor local: servidor HTTP del JDK en `127.0.0.1` y frontend sin build |
 | `adapters/proofstack-out-web` | Web estática accesible, con CSP, en `es` y `en` |
 | `adapters/proofstack-out-cv` | CV en Markdown, HTML y Word, y ajuste a una oferta |
 | `adapters/proofstack-out-llm` | Prompts versionados y salida validada, con Ollama y Gemini |
-| `adapters/proofstack-out-yaml` | Escribe `profile.yaml` (lo usan los importadores) |
 | `proofstack-cli` | Raíz de composición y CLI |
 | `proofstack-ai-service` | Servicio RAG opcional (Spring AI) |
 | `proofstack-mcp-server` | Servidor MCP de solo lectura |
