@@ -57,6 +57,11 @@ final class InitCommand implements Callable<Integer> {
         } catch (ProfileWriter.TargetExistsException | InvalidValueException e) {
             err.println(e.getMessage());
             return ProofstackCli.INVALID;
+        } catch (dev.proofstack.core.domain.ProfileValidationException e) {
+            err.println("Invalid input (" + e.violations().size() + " problem"
+                    + (e.violations().size() == 1 ? "" : "s") + "):");
+            e.violations().forEach(v -> err.println("  - " + v));
+            return ProofstackCli.INVALID;
         } catch (UncheckedIOException e) {
             err.println(e.getMessage());
             return ProofstackCli.ERROR;

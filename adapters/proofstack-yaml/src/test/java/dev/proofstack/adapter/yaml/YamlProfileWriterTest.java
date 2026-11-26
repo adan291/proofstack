@@ -76,6 +76,23 @@ class YamlProfileWriterTest {
         assertThat(reader.load(out)).isEqualTo(original);
     }
 
+    /** The domain is looser than the schema (lengths): an import must not create a file that does not validate. */
+    @Test
+    void neverWritesAProfileTheSchemaRejects() {
+        Profile example = reader.load(REPO.resolve("profiles/example/profile.yaml"));
+        Profile tooLong = new Profile(example.language(), example.person(), example.experience(),
+                example.education(), example.projects(),
+                List.of(new dev.proofstack.core.domain.Skill("x".repeat(301), dev.proofstack.core.domain.Area.BACKEND)),
+                example.evidence(), example.labs(), example.languages(), example.certifications());
+        Path out = tmp.resolve("profile.yaml");
+
+        assertThatThrownBy(() -> writer.write(tooLong, out, false))
+                .isInstanceOfSatisfying(dev.proofstack.core.domain.ProfileValidationException.class,
+                        e -> assertThat(e.violations()).extracting(dev.proofstack.core.domain.Violation::path)
+                                .contains("$.skills[0].name"));
+        assertThat(out).doesNotExist();
+    }
+
     @Test
     void writesReadableYamlWithHeader() throws IOException {
         Profile original = reader.load(REPO.resolve("profiles/example/profile.yaml"));

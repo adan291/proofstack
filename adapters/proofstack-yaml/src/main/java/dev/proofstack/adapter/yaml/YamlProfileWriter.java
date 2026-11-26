@@ -34,12 +34,17 @@ public final class YamlProfileWriter implements ProfileWriter {
             # Schema: schema/profile.schema.json
             """;
 
+    private static final YamlProfileSource SCHEMA_CHECK = new YamlProfileSource();
+
     @Override
     public void write(Profile profile, Path target, boolean overwrite) {
         if (Files.exists(target) && !overwrite) {
             throw new TargetExistsException(target);
         }
-        String body = YamlCodec.toYaml(YamlCodec.YAML.valueToTree(document(profile)));
+        tools.jackson.databind.JsonNode tree = YamlCodec.YAML.valueToTree(document(profile));
+        // The domain is looser than the schema (text lengths): never leave a file that `validate` would reject.
+        SCHEMA_CHECK.fromTree(tree);
+        String body = YamlCodec.toYaml(tree);
         YamlCodec.writeAtomically(target, header(target) + "\n" + body, null, null);
     }
 

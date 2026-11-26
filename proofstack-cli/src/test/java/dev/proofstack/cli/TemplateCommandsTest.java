@@ -56,6 +56,16 @@ class TemplateCommandsTest {
         assertThat(err.toString()).containsPattern("WARN \\d+ TODO placeholders").contains("proofstack doctor");
     }
 
+    @Test
+    void initWithATooLongHeadlineSaysWhyAndWritesNothing() {
+        Path dir = tmp.resolve("profiles/ada");
+
+        assertThat(run("init", dir.toString(), "--name", "Ada", "--headline", "x".repeat(301))).isEqualTo(1);
+
+        assertThat(err.toString()).contains("$.person.headline").doesNotContain("Exception");
+        assertThat(dir.resolve("profile.yaml")).doesNotExist();
+    }
+
     /** Windows consoles use a legacy code page: anything doctor adds around the user's text must be plain ASCII. */
     @Test
     void doctorDecorationsArePlainAscii() throws IOException {

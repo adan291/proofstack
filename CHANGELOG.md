@@ -27,6 +27,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - `doctor`, el contador de `TODO` y el CV recorrían los campos del perfil cada uno a su manera. Por eso `doctor` no veía un `TODO` en la URL de un enlace que el contador sí contaba. Ahora los tres usan un único recorrido del dominio (`ProfileTexts`).
 - Tras un `git pull`, `./proofstack` ejecutaba sin avisar el jar compilado con el código anterior. Ahora avisa si algún fuente es más reciente que `proofstack-cli/target/proofstack.jar` y dice cómo recompilar. Con un `proofstack.jar` descargado no compara nada.
 - Studio: añadir una skill o una evidencia y guardar fallaba con «required property 'area' not found». Pulsar un aviso de un elemento de lista cerrado no llevaba al campo. Las URL salían como un cuadro de texto de varias líneas. Cada carga provocaba un 404 en `/favicon.ico`.
+- Los importadores e `init` podían escribir un perfil que luego no pasaba `validate`, porque el dominio admite textos más largos que el esquema (300 caracteres en nombres y títulos). Ahora el writer valida contra el esquema antes de escribir y no deja ningún fichero. `init` explica el problema en vez de mostrar una traza.
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado
