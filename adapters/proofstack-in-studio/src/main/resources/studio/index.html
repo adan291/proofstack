@@ -15,6 +15,10 @@
 <header class="bar">
   <h1 class="bar__title">Proofstack Studio</h1>
   <p id="status" class="bar__status" role="status" aria-live="polite"></p>
+  <div class="bar__imports" role="group" aria-label="Traer datos">
+    <button id="import-linkedin" class="btn" type="button" disabled>Traer de LinkedIn</button>
+    <button id="import-github" class="btn" type="button" disabled>Traer repos de GitHub</button>
+  </div>
   <button id="download" class="btn" type="button" disabled>Descargar mis cambios</button>
   <button id="reload" class="btn" type="button" hidden>Recargar desde el disco</button>
   <button id="save" class="btn btn--primary" type="button" disabled>Guardar <kbd>Ctrl+S</kbd></button>
@@ -53,6 +57,19 @@
     <div class="merge__actions">
       <button id="merge-cancel" class="btn" type="button">Cancelar</button>
       <button class="btn btn--primary" type="submit">Aplicar</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="imported" class="merge" aria-labelledby="imported-title">
+  <form method="dialog">
+    <h2 id="imported-title" class="merge__title"></h2>
+    <p id="imported-intro"></p>
+    <ul id="imported-added" class="imported__list"></ul>
+    <p id="imported-left-title" hidden>Están en tu perfil y no en la importación. Se quedan como estaban:</p>
+    <ul id="imported-left" class="imported__list" hidden></ul>
+    <p>Nada se ha guardado. Revisa lo nuevo en el editor y pulsa Guardar si te convence, o Recargar desde el disco para descartarlo.</p>
+    <div class="merge__actions">
+      <button class="btn btn--primary" type="submit">Entendido</button>
     </div>
   </form>
 </dialog>

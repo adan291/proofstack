@@ -9,7 +9,9 @@
    Además, tu cuenta de LinkedIn debe estar en el Espacio Económico Europeo o Suiza. Si no lo está, la API responde *401 "You are not authorized to call this API"*; usa entonces `proofstack import linkedin` con el ZIP de exportación.
 2. En la pestaña **Products**, añade **Member Data Portability API (Member)**. Esto concede el permiso `r_dma_portability_self_serve`.
 3. En la pestaña **Auth**, añade esta *Authorized redirect URL*: `http://127.0.0.1:63141/callback`.
-4. Copia el *Client ID* y el *Client Secret* en variables de entorno de tu sesión. **No los guardes en ningún fichero del repositorio.**
+4. Ejecuta `./proofstack setup` y pega el *Client ID* y el *Client Secret* cuando te los pida. Se guardan en `~/.proofstack/linkedin.properties` (en Windows, `C:\Users\<tú>\.proofstack\`), un fichero que solo puede leer tu usuario y que está fuera del repositorio. El token de acceso nunca se guarda: caduca y se pide de nuevo con el botón de LinkedIn.
+
+A partir de ahí, en Studio basta con pulsar **Traer de LinkedIn**. Si lo prefieres, las variables de entorno siguen funcionando y tienen prioridad sobre el fichero:
 
 ```powershell
 $env:LINKEDIN_CLIENT_ID = "..."

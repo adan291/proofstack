@@ -13,6 +13,7 @@ Proofstack genera el portfolio técnico y el CV de un perfil backend desde un ú
 | Web estática, accesible y con CSP, publicada en GitHub Pages | `proofstack build` |
 | CV en PDF (desde la web), HTML, Markdown y Word, apto para filtros ATS | `proofstack cv` |
 | CV adaptado a una oferta, sin añadir nada que no tengas | `proofstack cv --job oferta.txt` |
+| Todo de una vez: perfil, GitHub, LinkedIn y editor | `proofstack setup` |
 | Editor en el navegador, con validación y vista previa | `proofstack studio` |
 | Importación desde LinkedIn (ZIP o API) y GitHub | `proofstack import …` |
 | Borradores de posts, README y guiones con un LLM local o Gemini | `proofstack generate …` |
@@ -37,10 +38,18 @@ La primera vez compila la herramienta con Maven (un par de minutos). Sin Maven, 
 ### 2. Crea y rellena tu perfil
 
 ```bash
-./proofstack init   profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
-./proofstack studio profiles/tu-nombre/profile.yaml     # editor en el navegador; Ctrl+C para cerrarlo
-./proofstack doctor profiles/tu-nombre/profile.yaml     # ¿se puede publicar? Bloquea TODOs y enlaces de ejemplo
+./proofstack setup
 ```
+
+`setup` te pregunta tu nombre y tu usuario de GitHub, y luego:
+1. Crea el perfil.
+2. Trae tus repositorios públicos y te deja elegir cuáles entran.
+3. La primera vez, configura tu app de LinkedIn e importa tu trayectoria.
+4. Te dice qué falta y abre **Studio**, el editor en el navegador.
+
+En Studio, los botones *Traer de LinkedIn* y *Traer repos de GitHub* repiten la importación cuando quieras. Se puede ejecutar de nuevo sin riesgo: tus proyectos y evidencias nunca se tocan.
+
+Por separado: `init`, `import …`, `studio` y `doctor` (que bloquea la publicación mientras haya `TODO` o enlaces de ejemplo).
 
 ### 3. Lanza la web y el CV en tu equipo
 
@@ -66,6 +75,12 @@ En local, el botón *Descargar CV* abre `cv.html`. El PDF lo genera el workflow 
 ### 4. Publícalo
 
 Sigue [Publicar en GitHub Pages](#publicar-en-github-pages). Cada `git push` a `main` vuelve a construir y publicar la web, el CV en PDF y en Word, y la guía.
+
+A partir de ahí el workflow *Sync profile* trabaja solo:
+- **Cada lunes** te abre un pull request con tus repositorios públicos nuevos.
+- **Cada tres meses** te abre una issue para que traigas los cambios de LinkedIn. LinkedIn no permite que un workflow lea tu perfil sin ti.
+
+Para el pull request, activa *Settings → Actions → General → Allow GitHub Actions to create and approve pull requests*. Los repositorios que no quieras mostrar van en `github-ignore.txt`, junto a tu perfil.
 
 **Para el día a día** (actualizar el perfil, un CV por oferta, traer LinkedIn otra vez, publicar una versión nueva) la guía tiene [recetas paso a paso](https://adan291.github.io/proofstack/guide/#recetas).
 

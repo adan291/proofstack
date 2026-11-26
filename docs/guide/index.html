@@ -142,18 +142,23 @@ cd &lt;repo&gt;</code></pre>
     <h2 id="perfil">Tu perfil</h2>
     <ol class="steps">
       <li class="step">
-        <h3>Créalo</h3>
-        <pre><code><span class="c"># Desde cero</span>
-./proofstack init profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer" --language es
-
-<span class="c"># O desde tu LinkedIn: Ajustes → Privacidad de datos → Obtener una copia de tus datos</span>
-./proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/tu-nombre/profile.yaml</code></pre>
+        <h3>Créalo con un solo comando</h3>
+        <pre><code>./proofstack setup</code></pre>
+        <p>Te pregunta tu nombre y tu usuario de GitHub, y hace el resto:</p>
+        <ol class="sub">
+          <li>Crea <code>profiles/tu-nombre/profile.yaml</code>, o usa el que ya tengas.</li>
+          <li>Trae tus repositorios públicos de GitHub y te deja elegir cuáles van al portfolio. Los que descartes se apuntan en <code>github-ignore.txt</code> y no vuelven a salir.</li>
+          <li>Configura LinkedIn la primera vez: te dice cómo crear tu app (5 minutos, solo una vez) y guarda sus claves en tu carpeta de usuario, nunca en el repositorio. Después abre LinkedIn para que pulses <em>Permitir</em> e importa tu trayectoria.</li>
+          <li>Te dice qué falta y abre Studio.</li>
+        </ol>
+        <p>Puedes repetirlo cuando quieras: tus proyectos y evidencias nunca se tocan, y si no hay nada nuevo el fichero queda igual. Si tu LinkedIn no está en el EEE o Suiza, usa el ZIP: <code>./proofstack setup --linkedin-zip Basic_LinkedInDataExport.zip</code>.</p>
         <p class="tip">Ejemplo real: <code>profiles/adan/profile.yaml</code>.</p>
       </li>
       <li class="step">
         <h3>Rellénalo con Studio</h3>
         <pre><code>./proofstack studio profiles/tu-nombre/profile.yaml</code></pre>
         <p>Se abre el navegador con una sección por bloque: persona, experiencia, proyectos, evidencias, idiomas… El panel <em>Antes de publicar</em> te lleva a cada campo que falta, y a la derecha ves cómo quedan el CV y la web.</p>
+        <p>Arriba tienes <em>Traer de LinkedIn</em> y <em>Traer repos de GitHub</em>. Traen lo nuevo a lo que estás editando y te enseñan qué ha entrado. No se guarda nada hasta que pulses <em>Guardar</em>.</p>
         <dl class="howto">
           <dt>Guardar</dt><dd><kbd>Ctrl</kbd>+<kbd>S</kbd> o el botón <em>Guardar</em>. Si algo es inválido, no se guarda y se marca en rojo.</dd>
           <dt>Cerrar</dt><dd><kbd>Ctrl</kbd>+<kbd>C</kbd> en la terminal.</dd>
@@ -261,13 +266,9 @@ git push                                               <span class="c"># la web 
 
     <article class="recipe">
       <h3>Traer cambios de LinkedIn</h3>
-      <p>Con la API, si tienes la app de LinkedIn configurada (<code>docs/linkedin-api.md</code>):</p>
-      <pre><code><span class="c"># PowerShell: credenciales de tu app de LinkedIn, solo para esta terminal</span>
-$env:LINKEDIN_CLIENT_ID = "..."
-$env:LINKEDIN_CLIENT_SECRET = "..."
-$env:LINKEDIN_REDIRECT_URI = "http://127.0.0.1:63141/callback"
-
-./proofstack import linkedin-api `
+      <p>Abre Studio y pulsa <em>Traer de LinkedIn</em>. Autoriza en la pestaña que se abre, revisa lo nuevo y guarda. La primera vez, ejecuta antes <code>./proofstack setup</code> para dar de alta tu app de LinkedIn. Cada tres meses, el workflow <em>Sync profile</em> te abre una issue para recordártelo.</p>
+      <p>Desde la terminal, con la API:</p>
+      <pre><code>./proofstack import linkedin-api `
   --merge-into profiles/tu-nombre/profile.yaml `
   --out profiles/tu-nombre/profile.linkedin.yaml --force</code></pre>
       <p>O con el ZIP que descargas de LinkedIn:</p>
@@ -279,8 +280,9 @@ $env:LINKEDIN_REDIRECT_URI = "http://127.0.0.1:63141/callback"
 
     <article class="recipe">
       <h3>Añadir tus repos nuevos de GitHub</h3>
-      <pre><code>./proofstack import github tu-usuario -p profiles/tu-nombre/profile.yaml -o dist/profile.github.yaml</code></pre>
-      <p>Añade como proyectos los repos públicos que aún no están en tu perfil. Copia los que quieras a tu perfil y complétalos con el problema y la solución.</p>
+      <p><strong>No tienes que hacer nada.</strong> Cada lunes, el workflow <em>Sync profile</em> busca tus repositorios públicos nuevos y te abre un pull request con ellos como proyectos en borrador. Complétalos (problema, solución, resultado) o bórralos, y acepta el pull request. Mientras queden <code>TODO</code>, la web no cambia.</p>
+      <p>Para que pueda abrir el pull request, activa una vez <em>Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests</em>.</p>
+      <p>Si no quieres esperar al lunes: botón <em>Traer repos de GitHub</em> en Studio, <em>Actions → Sync profile → Run workflow</em> en GitHub, o <code>./proofstack setup</code>. Un repositorio que no quieras mostrar nunca va en <code>github-ignore.txt</code>, junto a tu perfil, una línea por repositorio.</p>
     </article>
 
     <article class="recipe">

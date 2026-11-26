@@ -112,3 +112,7 @@ kbd { font: .75rem var(--mono); opacity: .75; }
 .merge__option { display: flex; gap: .5rem; align-items: baseline; margin: .25rem 0; }
 .merge__value { white-space: pre-wrap; word-break: break-word; }
 .merge__actions { display: flex; justify-content: flex-end; gap: .75rem; }
+
+/* Import buttons and their summary */
+.bar__imports { display: flex; gap: .5rem; }
+.imported__list { max-height: 40vh; overflow: auto; margin: .5rem 0 1rem; padding-left: 1.25rem; }

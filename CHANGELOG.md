@@ -5,6 +5,9 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 ## [Unreleased]
 
 ### Añadido
+- `proofstack setup`: crea el perfil o usa el existente, trae los repositorios de GitHub (eliges cuáles), configura LinkedIn la primera vez e importa la trayectoria, ejecuta `doctor` y abre Studio. Si no hay nada nuevo, el fichero no cambia ni un byte, y si cambia conserva los comentarios de cabecera. La app de LinkedIn se guarda en `~/.proofstack/linkedin.properties`, legible solo por su dueño; el token nunca se guarda.
+- Studio: botones *Traer de LinkedIn* y *Traer repos de GitHub*. Mezclan lo nuevo en lo que estás editando con las mismas reglas que `import`, enseñan qué ha entrado y no guardan nada hasta que pulses Guardar.
+- Workflow *Sync profile*: cada lunes abre un pull request con los repositorios públicos nuevos, como proyectos en borrador, y cada tres meses una issue para traer LinkedIn. `github-ignore.txt`, junto al perfil, lista los repositorios que no deben volver a ofrecerse; lo respetan `setup`, `import github` y Studio.
 - `cv --phone` (o la variable `PROOFSTACK_PHONE`): añade el teléfono a la línea de contacto del CV sin guardarlo en el perfil, que es público. El CV de la web nunca lo lleva.
 - Web: sección «Proyectos destacados» justo después de la cabecera, con los 3 proyectos mejor documentados (resultado, problema y solución, enlace) visibles sin hacer clic. Los empates respetan el orden del perfil.
 - CV: los puestos sin tecnologías pasan a una sección «Otra experiencia» con una línea por puesto, cuando otros puestos sí las tienen. Deja más espacio a la experiencia técnica y a los proyectos.

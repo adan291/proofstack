@@ -1,0 +1,98 @@
+# Keeps your profile up to date without you having to remember it.
+#   - Every Monday: your new public GitHub repositories arrive as a pull request, as draft projects.
+#     Review it, complete each project (problem, solution, result) and merge: the site publishes itself.
+#   - Every three months: an issue reminds you to bring LinkedIn up to date. LinkedIn does not let a workflow read
+#     your profile without you; Studio does it in one click (Traer de LinkedIn).
+# Needs the PROOFSTACK_PROFILE repository variable (see pages.yml), and for the pull request:
+#   Settings → Actions → General → Workflow permissions → "Allow GitHub Actions to create and approve pull requests".
+name: Sync profile
+on:
+  schedule:
+    - cron: '17 6 * * 1'      # Mondays: GitHub repositories
+    - cron: '23 6 1 */3 *'    # Every three months: LinkedIn reminder
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: sync-profile
+  cancel-in-progress: false
+jobs:
+  github:
+    if: vars.PROOFSTACK_PROFILE != '' && (github.event_name == 'workflow_dispatch' || github.event.schedule == '17 6 * * 1')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # push the proofstack/sync-github branch
+      pull-requests: write   # open the pull request
+    env:
+      PROFILE: ${{ vars.PROOFSTACK_PROFILE }}
+      OWNER: ${{ github.repository_owner }}
+      GH_TOKEN: ${{ github.token }}
+      BRANCH: proofstack/sync-github
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - run: mvn -B -ntp -DskipTests package -pl proofstack-cli -am
+      - name: New repositories
+        id: repos
+        run: |
+          # setup takes the GitHub user from the profile's own GitHub link; without one, the owner of this repository.
+          ARGS=(setup "$(dirname "$PROFILE")" --skip-linkedin --no-studio --yes)
+          if ! grep -qE 'url: "?https://github\.com/[A-Za-z0-9-]+/?"? *\}? *$' "$PROFILE"; then ARGS+=(--github "$OWNER"); fi
+          java -jar proofstack-cli/target/proofstack.jar "${ARGS[@]}" | tee setup.log
+          if git diff --quiet -- "$PROFILE"; then
+            echo "No new repositories."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            grep -E '^\s+\+ ' setup.log | sed -E 's/^\s+\+ /- /' > added.md || true
+          fi
+      - name: Pull request
+        if: steps.repos.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$BRANCH"
+          git add -- "$PROFILE"
+          git commit -m "Nuevos repositorios de GitHub en el perfil"
+          git push --force origin "$BRANCH"
+          {
+            echo "Repositorios públicos nuevos, añadidos como proyectos en borrador:"
+            echo
+            cat added.md
+            echo
+            echo "Antes de aceptar: completa en cada uno el problema, la solución y el resultado (proofstack studio), o borra los que no quieras mostrar."
+            echo "Mientras queden TODO, \`proofstack doctor\` bloquea la publicación, así que la web no cambia hasta que esté listo."
+          } > body.md
+          if gh pr view "$BRANCH" --json state -q .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$BRANCH" --body-file body.md
+          else
+            gh pr create --head "$BRANCH" --title "Nuevos repositorios de GitHub" --body-file body.md \
+              || { echo "::error::Enable Settings → Actions → General → Allow GitHub Actions to create and approve pull requests"; exit 1; }
+          fi
+  linkedin:
+    if: github.event.schedule == '23 6 1 */3 *'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Reminder
+        run: |
+          TITLE="Revisa si tu LinkedIn tiene novedades"
+          if [ "$(gh issue list --state open --search "in:title \"$TITLE\"" --json number -q length)" != "0" ]; then
+            echo "The reminder is already open."
+            exit 0
+          fi
+          gh issue create --title "$TITLE" --body "Han pasado tres meses. Si has cambiado de puesto, terminado un curso o añadido skills en LinkedIn, tráelo al perfil:
+
+          1. \`./proofstack studio <tu perfil>\`
+          2. Pulsa **Traer de LinkedIn** y autoriza.
+          3. Revisa lo nuevo, guarda y haz \`git push\`.
+
+          Si no hay nada nuevo, cierra esta issue."

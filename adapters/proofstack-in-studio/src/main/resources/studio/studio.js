@@ -72,6 +72,8 @@ async function start() {
   show(state.form.sections()[1] ?? state.form.sections()[0]);
   $('#app').hidden = false;
   $('#loading').remove();
+  $('#import-linkedin').disabled = false;
+  $('#import-github').disabled = false;
   refreshPreview();
   announce(state.violations.length
     ? 'El fichero tiene errores. Corrígelos y guarda.'
@@ -378,6 +380,80 @@ function download() {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
+
+// ------------------------------------------------------------------ imports (LinkedIn, GitHub)
+/** The GitHub user of the profile's own GitHub link, if it has one. */
+function gitHubAccount() {
+  for (const link of state.doc?.person?.links ?? []) {
+    const m = /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9-]{1,39})\/?$/i.exec(link?.url ?? '');
+    if (m) return m[1];
+  }
+  return null;
+}
+
+/** Merges LinkedIn or GitHub into the draft on the server; the result is shown, never saved by itself. */
+async function importFrom(kind) {
+  const body = { document: state.doc };
+  if (kind === 'github') {
+    const account = gitHubAccount() ?? prompt('Tu usuario de GitHub:')?.trim();
+    if (!account) return;
+    body.account = account;
+  }
+  const buttons = [$('#import-linkedin'), $('#import-github')];
+  buttons.forEach((b) => { b.disabled = true; });
+  announce(kind === 'linkedin'
+    ? 'Autoriza el acceso en la pestaña de LinkedIn que se ha abierto. Esperando…'
+    : `Buscando los repositorios públicos de ${body.account}…`);
+  try {
+    const result = await api(`/api/import/${kind}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (result.status === 200) {
+      state.doc = result.body.document;
+      setDirty(true);
+      show(state.section);
+      showImported(kind, result.body);
+      announce('Importado. Revisa los cambios y guarda.', 'warn');
+    } else if (result.status === 422) {
+      state.violations = result.body.violations ?? [];
+      renderIssues();
+      announce('Corrige los errores marcados en rojo antes de importar.', 'error');
+    } else if (result.status === 412 && kind === 'linkedin') {
+      announce('LinkedIn aún no está configurado. Ejecuta una vez «./proofstack setup» en la terminal y vuelve a pulsar.', 'error');
+    } else if (result.status === 404 && kind === 'github') {
+      announce(`GitHub no conoce al usuario «${body.account}».`, 'error');
+    } else {
+      announce(`No se pudo importar: ${result.body?.error ?? result.status}.`, 'error');
+    }
+  } finally {
+    buttons.forEach((b) => { b.disabled = false; });
+  }
+}
+
+function showImported(kind, body) {
+  const source = kind === 'linkedin' ? 'LinkedIn' : 'GitHub';
+  $('#imported-title').textContent = body.added.length
+    ? `${source}: ${body.added.length} ${body.added.length === 1 ? 'novedad' : 'novedades'}`
+    : `${source}: nada nuevo`;
+  $('#imported-intro').textContent = body.added.length
+    ? (kind === 'github'
+      ? 'Repositorios añadidos como proyectos. Completa el problema, la solución y el resultado de cada uno: es lo que los hace valer.'
+      : 'Añadido o actualizado desde LinkedIn. Tus proyectos y evidencias no se tocan.')
+    : 'Tu perfil ya tenía todo lo que hay ahí.';
+  const fill = (list, items) => {
+    list.replaceChildren(...items.map((text) => Object.assign(document.createElement('li'), { textContent: text })));
+    list.hidden = items.length === 0;
+  };
+  fill($('#imported-added'), body.added);
+  fill($('#imported-left'), body.leftOut ?? []);
+  $('#imported-left-title').hidden = !(body.leftOut ?? []).length;
+  $('#imported').showModal();
+}
+
+$('#import-linkedin').addEventListener('click', () => importFrom('linkedin'));
+$('#import-github').addEventListener('click', () => importFrom('github'));
 
 // ------------------------------------------------------------------ preview
 

@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+import dev.proofstack.core.port.in.ImportIntoDraftUseCase;
 import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.domain.Violation;
@@ -29,6 +30,7 @@ import dev.proofstack.core.port.in.EditProfileUseCase.Invalid;
 import dev.proofstack.core.port.in.EditProfileUseCase.Saved;
 import dev.proofstack.core.port.in.EditProfileUseCase.Snapshot;
 import dev.proofstack.core.port.out.Artifact;
+import dev.proofstack.core.port.out.ImportException;
 import dev.proofstack.core.port.out.PortfolioRenderer;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -61,6 +63,9 @@ public final class StudioServer implements AutoCloseable {
     private final PortfolioRenderer site;
     private final PortfolioRenderer cv;
     private final String schema;
+    private final StudioImports imports;
+    /** One LinkedIn login at a time: its callback listens on a fixed port. */
+    private final java.util.concurrent.atomic.AtomicBoolean linkedInBusy = new java.util.concurrent.atomic.AtomicBoolean();
     private final JsonMapper json = JsonMapper.builder().build();
     private final HttpServer server;
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
@@ -83,6 +88,13 @@ public final class StudioServer implements AutoCloseable {
      */
     public StudioServer(EditProfileUseCase editor, Supplier<Profile> saved, PortfolioRenderer site,
                         PortfolioRenderer cv, String schema, int port) {
+        this(editor, saved, site, cv, schema, port, null);
+    }
+
+    /** @param imports the LinkedIn and GitHub buttons, or {@code null} to answer 404 on their routes */
+    public StudioServer(EditProfileUseCase editor, Supplier<Profile> saved, PortfolioRenderer site,
+                        PortfolioRenderer cv, String schema, int port, StudioImports imports) {
+        this.imports = imports;
         this.editor = Objects.requireNonNull(editor, "editor");
         this.saved = Objects.requireNonNull(saved, "saved");
         this.site = Objects.requireNonNull(site, "site");
@@ -148,6 +160,16 @@ public final class StudioServer implements AutoCloseable {
     }
 
     private void route(HttpExchange exchange, String method, String path) throws IOException {
+        if (path.equals("/api/import/linkedin") || path.equals("/api/import/github")) {
+            if (!method.equals("POST")) {
+                error(exchange, 405, "use POST");
+            } else if (imports == null) {
+                error(exchange, 404, "imports are not available in this Studio");
+            } else {
+                importInto(exchange, path.endsWith("linkedin"));
+            }
+            return;
+        }
         if (path.equals("/api/profile/merge")) {
             if (method.equals("POST")) {
                 mergeProfile(exchange);
@@ -298,6 +320,69 @@ public final class StudioServer implements AutoCloseable {
             node.set("mine", c.mine() == null ? json.nullNode() : c.mine());
             node.set("theirs", c.theirs() == null ? json.nullNode() : c.theirs());
         }
+        sendJson(exchange, 200, out);
+    }
+
+    /**
+     * {@code POST /api/import/linkedin|github} {@code {document, account?}}: the draft with LinkedIn or GitHub merged
+     * in. Never writes: the editor shows the result and the user saves it with a normal {@code PUT}.
+     */
+    private void importInto(HttpExchange exchange, boolean linkedIn) throws IOException {
+        String body = body(exchange);
+        if (body == null) {
+            return;
+        }
+        JsonNode request;
+        try {
+            request = json.readTree(body);
+        } catch (tools.jackson.core.JacksonException e) {
+            request = null;
+        }
+        if (request == null || !request.isObject() || !request.path("document").isObject()
+                || (!linkedIn && !request.path("account").isString())) {
+            error(exchange, 400, linkedIn ? "send JSON like {\"document\": {...}}"
+                    : "send JSON like {\"document\": {...}, \"account\": \"github-user\"}");
+            return;
+        }
+        String draft = json.writeValueAsString(request.get("document"));
+        if (linkedIn && !linkedInBusy.compareAndSet(false, true)) {
+            error(exchange, 409, "a LinkedIn login is already open in your browser; finish it or wait 5 minutes");
+            return;
+        }
+        ImportIntoDraftUseCase.Imported imported;
+        try {
+            imported = linkedIn ? imports.drafts().career(draft, imports.linkedIn().get())
+                    : imports.drafts().projects(draft, imports.gitHub(), request.path("account").asString().strip());
+        } catch (ProfileValidationException e) {
+            ObjectNode out = json.createObjectNode();
+            out.put("error", "the profile has errors; fix them before importing");
+            out.set("violations", violations(e.violations()));
+            sendJson(exchange, 422, out);
+            return;
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            // Not configured (LinkedIn app) or a bad account name: the message is written for the user.
+            error(exchange, 412, e.getMessage());
+            return;
+        } catch (ImportException e) {
+            error(exchange, switch (e.kind()) {
+                case INVALID_INPUT -> 400;
+                case NOT_FOUND -> 404;
+                case RATE_LIMITED -> 429;
+                case UNAVAILABLE -> 502;
+            }, e.getMessage());
+            return;
+        } finally {
+            if (linkedIn) {
+                linkedInBusy.set(false);
+            }
+        }
+        ObjectNode out = json.createObjectNode();
+        out.set("document", json.readTree(imported.json()));
+        ArrayNode added = out.putArray("added");
+        imported.added().forEach(added::add);
+        ArrayNode leftOut = out.putArray("leftOut");
+        imported.leftOut().forEach(leftOut::add);
+        out.put("todoCount", imported.todoCount());
         sendJson(exchange, 200, out);
     }
 

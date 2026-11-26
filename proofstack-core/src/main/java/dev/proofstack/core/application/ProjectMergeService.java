@@ -36,18 +36,30 @@ public final class ProjectMergeService implements MergeProjectsUseCase {
     @Override
     public MergeReport merge(Path profilePath, String account, boolean includeForks, Path target, boolean overwrite) {
         Targets.requireDifferent(profilePath, target);
-        Profile profile = profiles.load(profilePath);
+        Merged merged = mergeProjects(profiles.load(profilePath), projects.fetchProjects(account, includeForks));
+        Profile result = merged.profile();
+        List<String> added = merged.added();
+        List<String> skipped = merged.skipped();
+        writer.write(result, target, overwrite);
+        return new MergeReport(added, skipped, TodoCounter.count(result));
+    }
+
+    /** The profile plus the candidates it does not have yet, and the ids of both groups. */
+    record Merged(Profile profile, List<String> added, List<String> skipped) {
+    }
+
+    /** Pure merge: existing projects always win, matched by id or by any of their URLs. */
+    static Merged mergeProjects(Profile profile, List<Project> candidates) {
         Set<String> ids = new HashSet<>();
         Set<String> urls = new HashSet<>();
         for (Project p : profile.projects()) {
             ids.add(p.id());
             p.links().stream().map(Link::url).map(ProjectMergeService::normalizeUrl).forEach(urls::add);
         }
-
         List<Project> merged = new ArrayList<>(profile.projects());
         List<String> added = new ArrayList<>();
         List<String> skipped = new ArrayList<>();
-        for (Project candidate : projects.fetchProjects(account, includeForks)) {
+        for (Project candidate : candidates) {
             boolean known = ids.contains(candidate.id()) || candidate.links().stream()
                     .map(Link::url).map(ProjectMergeService::normalizeUrl).anyMatch(urls::contains);
             if (known) {
@@ -58,12 +70,10 @@ public final class ProjectMergeService implements MergeProjectsUseCase {
                 ids.add(candidate.id());
             }
         }
-
         Profile result = new Profile(profile.language(), profile.person(), profile.experience(), profile.education(),
                 merged, profile.skills(), profile.evidence(), profile.labs(), profile.languages(),
                 profile.certifications());
-        writer.write(result, target, overwrite);
-        return new MergeReport(added, skipped, TodoCounter.count(result));
+        return new Merged(result, added, skipped);
     }
 
     private static String normalizeUrl(String url) {

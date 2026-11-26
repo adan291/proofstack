@@ -59,7 +59,8 @@ final class LinkedInApiCommand implements Callable<Integer> {
             return ProofstackCli.INVALID;
         }
         try {
-            LinkedInMemberDataSource linkedIn = LinkedInMemberDataSource.fromEnvironment(importCommand.parent.env(),
+            LinkedInMemberDataSource linkedIn = LinkedInMemberDataSource.fromEnvironment(
+                    dev.proofstack.adapter.in.linkedin.LinkedInSettings.withSaved(importCommand.parent.env()),
                     uri -> openBrowser(uri, stdout));
             ImportReport report = new CareerImportService(new YamlProfileSource(), new YamlProfileWriter())
                     .importCareer(linkedIn, mergeInto, out, force);

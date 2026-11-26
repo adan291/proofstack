@@ -45,7 +45,7 @@ import picocli.CommandLine.Spec;
 
         versionProvider = ProofstackCli.Version.class,
         description = "Portfolio-as-code for backend engineers.",
-        subcommands = {InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, StudioCommand.class, ProofstackCli.Generate.class,
+        subcommands = {SetupCommand.class, InitCommand.class, ProofstackCli.Validate.class, DoctorCommand.class, ProofstackCli.Build.class, CvCommand.class, StudioCommand.class, ProofstackCli.Generate.class,
                 ProofstackCli.Import.class})
 public final class ProofstackCli implements Runnable {
 
@@ -430,7 +430,8 @@ public final class ProofstackCli implements Runnable {
                 }
                 try {
                     var service = new dev.proofstack.core.application.ProjectMergeService(new YamlProfileSource(),
-                            dev.proofstack.adapter.in.github.GitHubProjectSource.fromEnvironment(importCommand.parent.env),
+                            GitHubIgnore.filtered(dev.proofstack.adapter.in.github.GitHubProjectSource.fromEnvironment(
+                                    importCommand.parent.env), GitHubIgnore.fileFor(profile)),
                             new YamlProfileWriter());
                     var report = service.merge(profile, user, includeForks, out, force);
                     stdout.println("OK Added " + report.added().size() + " project(s) from github.com/" + user

@@ -1,5 +1,12 @@
 package dev.proofstack.cli;
 
+import java.util.Map;
+import dev.proofstack.adapter.in.github.GitHubProjectSource;
+import dev.proofstack.adapter.in.linkedin.LinkedInMemberDataSource;
+import dev.proofstack.adapter.in.linkedin.LinkedInSettings;
+import dev.proofstack.adapter.in.studio.StudioImports;
+import dev.proofstack.adapter.yaml.YamlProfileJsonCodec;
+import dev.proofstack.core.application.DraftImportService;
 import java.awt.Desktop;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +48,9 @@ final class StudioCommand implements Callable<Integer> {
     @Option(names = "--no-browser", description = "Do not open the browser; just print the URL")
     boolean noBrowser;
 
+    @picocli.CommandLine.ParentCommand
+    ProofstackCli parent;
+
     @Spec
     CommandLine.Model.CommandSpec spec;
 
@@ -58,7 +68,7 @@ final class StudioCommand implements Callable<Integer> {
         }
         StudioServer server;
         try {
-            server = start(profile, port);
+            server = start(profile, port, parent == null ? Map.of() : parent.env(), err);
         } catch (UncheckedIOException e) {
             err.println(e.getMessage());
             return ProofstackCli.ERROR;
@@ -81,16 +91,46 @@ final class StudioCommand implements Callable<Integer> {
 
     /** Wires Studio for one profile file. Package-private so tests can start it without blocking. */
     static StudioServer start(Path profile, int port) {
+        return start(profile, port, Map.of(), new PrintWriter(java.io.Writer.nullWriter()));
+    }
+
+    /** @param env where the LinkedIn app and GITHUB_TOKEN come from; {@code log} gets the LinkedIn consent URL */
+    static StudioServer start(Path profile, int port, Map<String, String> env, PrintWriter log) {
         Path file = profile.toAbsolutePath().normalize();
         YamlProfileSource source = new YamlProfileSource();
         StudioServer server = new StudioServer(new ProfileEditingService(new YamlProfileDocumentStore(file)),
-                () -> source.load(file), new ArchitectureThemeRenderer(), new CvRenderer(), schema(), port);
+                () -> source.load(file), new ArchitectureThemeRenderer(), new CvRenderer(), schema(), port,
+                imports(env, log, file));
         try {
             server.start();
             return server;
         } catch (RuntimeException e) {
             server.close();
             throw e;
+        }
+    }
+
+    /** LinkedIn and GitHub for the import buttons. The LinkedIn app comes from proofstack setup or the environment. */
+    static StudioImports imports(Map<String, String> env, PrintWriter log, Path profile) {
+        return new StudioImports(new DraftImportService(new YamlProfileJsonCodec()), () -> {
+            if (!LinkedInSettings.configured(env)) {
+                throw new IllegalStateException("LinkedIn is not configured yet: run ./proofstack setup once");
+            }
+            return LinkedInMemberDataSource.fromEnvironment(LinkedInSettings.withSaved(env), uri -> {
+                log.println("  LinkedIn: authorise in your browser. If it did not open: " + uri);
+                log.flush();
+                browse(uri);
+            });
+        }, GitHubIgnore.filtered(GitHubProjectSource.fromEnvironment(env), GitHubIgnore.fileFor(profile)));
+    }
+
+    private static void browse(java.net.URI uri) {
+        try {
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(uri);
+            }
+        } catch (IOException | UnsupportedOperationException | SecurityException e) {
+            // the URL is in the terminal
         }
     }
 

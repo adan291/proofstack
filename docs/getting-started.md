@@ -23,17 +23,14 @@ Ejecuta siempre desde la carpeta del repositorio: las rutas como `profiles/...` 
 ## 3. Crea tu perfil
 
 ```bash
-# Desde cero
-./proofstack init profiles/tu-nombre --name "Tu Nombre" --headline "Backend Engineer · Java" --language es
-
-# Desde tu LinkedIn (Ajustes → Privacidad de datos → Obtener una copia de tus datos)
-./proofstack import linkedin Basic_LinkedInDataExport.zip --out profiles/tu-nombre/profile.yaml
-
-# Y después añade tus repos públicos
-./proofstack import github tu-usuario -p profiles/tu-nombre/profile.yaml -o dist/profile.github.yaml
+./proofstack setup
 ```
 
-Si vives en el EEE o en Suiza, puedes importar LinkedIn sin ZIP con `import linkedin-api` ([`linkedin-api.md`](linkedin-api.md)).
+Te pregunta tu nombre y tu usuario de GitHub. Crea el perfil, trae tus repositorios públicos (eliges cuáles), configura LinkedIn la primera vez y lo importa, te dice qué falta y abre Studio. Puedes repetirlo cuando quieras: no toca tus proyectos ni tus evidencias.
+
+Si tu cuenta de LinkedIn no está en el EEE o Suiza, usa el ZIP (Ajustes → Privacidad de datos → Obtener una copia de tus datos): `./proofstack setup --linkedin-zip Basic_LinkedInDataExport.zip`.
+
+Los pasos por separado siguen existiendo: `init`, `import linkedin`, `import linkedin-api` ([`linkedin-api.md`](linkedin-api.md)) e `import github`.
 
 ## 4. Rellénalo
 
