@@ -25,7 +25,7 @@ import picocli.CommandLine.Spec;
 
 /** {@code proofstack studio}: edit a profile.yaml in the browser, with validation and a live preview. */
 @Command(name = "studio", description = {"Edit a profile.yaml in your browser: forms, doctor findings and a preview.",
-        "Listens on 127.0.0.1 only. Invalid profiles are never saved; the previous file is kept as profile.yaml.bak.",
+        "Listens on 127.0.0.1 only. Invalid profiles are never saved; the file as it was before the first save is kept as profile.yaml.bak.",
         "Stop it with Ctrl+C."})
 final class StudioCommand implements Callable<Integer> {
 

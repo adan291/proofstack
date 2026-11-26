@@ -25,8 +25,9 @@ import tools.jackson.databind.node.JsonNodeFactory;
  * <ul>
  *   <li>Only the file given at construction is ever read or written.</li>
  *   <li>Nothing invalid is written: every document is checked with the schema and the domain first.</li>
- *   <li>Writes are atomic (temporary file in the same directory, then a rename) and the previous file is kept as
- *       {@code profile.yaml.bak}.</li>
+ *   <li>Writes are atomic (temporary file in the same directory, then a rename). The first save of this store
+ *       keeps the file as it was in {@code profile.yaml.bak}; later saves leave that copy alone, so it still holds
+ *       the version written by hand, comments included, however many times the editor saves.</li>
  *   <li>The version is the SHA-256 of the file bytes, so an edit made by another program is detected.</li>
  *   <li>The YAML is written from the document tree, not rebuilt from the domain: the user's key order survives, and
  *       so do the comments at the top of the file.</li>
@@ -39,6 +40,7 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
     private final Path file;
     private final YamlProfileSource source = new YamlProfileSource();
     private final JsonMapper json = JsonMapper.builder().build();
+    private boolean backedUp;
 
     public YamlProfileDocumentStore(Path file) {
         this.file = Objects.requireNonNull(file, "file").toAbsolutePath().normalize();
@@ -51,7 +53,7 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
     @Override
     public Stored read() {
         byte[] bytes = bytes();
-        String text = new String(bytes, StandardCharsets.UTF_8);
+        String text = text(bytes);
         try {
             JsonNode tree = YamlCodec.YAML.readTree(text);
             if (tree == null || tree.isMissingNode() || tree.isNull()) {
@@ -84,9 +86,17 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
         } catch (JacksonException e) {
             throw new ProfileValidationException(new Violation("$", "invalid JSON: " + e.getOriginalMessage()));
         }
-        String next = header(new String(current, StandardCharsets.UTF_8)) + YamlCodec.toYaml(tree);
-        YamlCodec.writeAtomically(file, next, file.resolveSibling(file.getFileName() + ".bak"), current);
+        String next = header(text(current)) + YamlCodec.toYaml(tree);
+        Path backup = backedUp ? null : file.resolveSibling(file.getFileName() + ".bak");
+        YamlCodec.writeAtomically(file, next, backup, current);
+        backedUp = true;
         return version(next.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** The file as text, without the byte order mark that Notepad and other Windows editors write first. */
+    private static String text(byte[] bytes) {
+        String text = new String(bytes, StandardCharsets.UTF_8);
+        return text.startsWith("\uFEFF") ? text.substring(1) : text;
     }
 
     /** The leading comment block of the file (schema modeline, notes), kept as the user wrote it. */

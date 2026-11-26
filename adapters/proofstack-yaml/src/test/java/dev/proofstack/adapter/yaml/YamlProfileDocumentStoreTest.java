@@ -1,12 +1,11 @@
 package dev.proofstack.adapter.yaml;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -69,6 +68,29 @@ class YamlProfileDocumentStoreTest {
             assertThat(files.map(p -> p.getFileName().toString())).containsExactlyInAnyOrder("profile.yaml",
                     "profile.yaml.bak");
         }
+    }
+
+    /** Review H7: the backup used to be overwritten by every save, so the hand-written file was gone after two. */
+    @Test
+    void theBackupKeepsTheFileAsItWasBeforeTheFirstSaveOfTheSession() throws IOException {
+        Stored before = store.read();
+        String v1 = store.replace(before.json().replace("Backend Engineer", "Staff Engineer"), before.version());
+        store.replace(store.read().json().replace("Staff Engineer", "Principal Engineer"), v1);
+
+        assertThat(Files.readString(dir.resolve("profile.yaml.bak"))).isEqualTo(ORIGINAL);
+        assertThat(Files.readString(file)).contains("headline: Principal Engineer");
+    }
+
+    /** Review H8: Notepad saves UTF-8 with a BOM; the header comments must survive it, and the BOM must not come back. */
+    @Test
+    void aFileSavedWithABomKeepsItsHeaderComments() throws IOException {
+        Files.write(file, ("\uFEFF" + ORIGINAL).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+
+        Stored before = store.read();
+        store.replace(before.json().replace("Backend Engineer", "Staff Engineer"), before.version());
+
+        assertThat(Files.readString(file)).startsWith("# yaml-language-server: $schema=../../schema/profile.schema.json\n"
+                + "# Notas a mano que deben sobrevivir.\n\n").contains("headline: Staff Engineer");
     }
 
     @Test
