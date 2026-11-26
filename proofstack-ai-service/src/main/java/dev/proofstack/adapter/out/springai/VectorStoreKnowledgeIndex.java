@@ -1,5 +1,6 @@
 package dev.proofstack.adapter.out.springai;
 
+import dev.proofstack.core.domain.content.ContentGenerationException;
 import dev.proofstack.core.domain.knowledge.KnowledgeChunk;
 import dev.proofstack.core.domain.knowledge.ScoredChunk;
 import dev.proofstack.core.port.out.KnowledgeIndex;
@@ -54,11 +55,19 @@ public final class VectorStoreKnowledgeIndex implements KnowledgeIndex {
 
     @Override
     public List<ScoredChunk> search(String query, int topK) {
-        List<Document> hits = store.similaritySearch(SearchRequest.builder()
-                .query(queryPrefix + query)
-                .topK(topK)
-                .similarityThresholdAll()
-                .build());
+        List<Document> hits;
+        try {
+            hits = store.similaritySearch(SearchRequest.builder()
+                    .query(queryPrefix + query)
+                    .topK(topK)
+                    .similarityThresholdAll()
+                    .build());
+        } catch (RuntimeException e) {
+            // The query is embedded by the model provider: down, it is the same failure as the chat model (503),
+            // and its message (hosts, ports) never reaches the visitor.
+            throw new ContentGenerationException("embedding model unavailable: " + e.getClass().getSimpleName(),
+                    ContentGenerationException.Kind.PROVIDER_UNAVAILABLE, e);
+        }
         List<ScoredChunk> result = new ArrayList<>();
         for (Document hit : hits) {
             KnowledgeChunk chunk = chunks.get(String.valueOf(hit.getMetadata().getOrDefault(CHUNK_ID, hit.getId())));

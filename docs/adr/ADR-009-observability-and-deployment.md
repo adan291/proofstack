@@ -38,3 +38,4 @@ El servicio RAG (ADR-007) es la única pieza de Proofstack que se ejecuta de for
 - Se sigue usando una sola instancia: el índice y el rate limit viven en memoria (ver ADR-007).
 - Sin GPU, Ollama en CPU puede tardar varios segundos por respuesta. La alternativa es usar un proveedor gestionado cambiando el starter de Spring AI.
 - No he podido construir la imagen localmente porque no hay Docker Desktop. Sí verifiqué la extracción de capas, el arranque con `JarLauncher`, el health probe y los ficheros compose (`docker compose config`). El workflow `docker.yml` construirá la imagen en CI.
+- Actualización (2026-11): la imagen se construyó y se ejecutó en local con Docker 29. Arranca como UID 10001 con el sistema de ficheros de solo lectura y `cap_drop: ALL`, sirve `/api/status` y, con Ollama caído, `/api/ask` responde 503 sin detalles internos.

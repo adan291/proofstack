@@ -41,6 +41,36 @@ class SpringAiAdaptersTest {
         assertThat(index.size()).isEqualTo(2);
     }
 
+    /** The embedding model (Ollama) down at question time is the same failure as the chat model down: 503, not 500. */
+    @Test
+    void anUnreachableEmbeddingModelIsAProviderFailure() {
+        org.springframework.ai.embedding.EmbeddingModel down = new org.springframework.ai.embedding.EmbeddingModel() {
+            @Override
+            public org.springframework.ai.embedding.EmbeddingResponse call(
+                    org.springframework.ai.embedding.EmbeddingRequest request) {
+                throw new IllegalStateException("I/O error on POST request for http://ollama:11434/api/embed");
+            }
+
+            @Override
+            public float[] embed(org.springframework.ai.document.Document document) {
+                throw new IllegalStateException("I/O error on POST request for http://ollama:11434/api/embed");
+            }
+
+            @Override
+            public int dimensions() {
+                return 256;
+            }
+        };
+        var index = new VectorStoreKnowledgeIndex(SimpleVectorStore.builder(down).build(), "", "");
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> index.search("Kafka", 2))
+                .isInstanceOfSatisfying(dev.proofstack.core.domain.content.ContentGenerationException.class, e -> {
+                    assertThat(e.kind()).isEqualTo(
+                            dev.proofstack.core.domain.content.ContentGenerationException.Kind.PROVIDER_UNAVAILABLE);
+                    assertThat(e.getMessage()).doesNotContain("ollama:11434");
+                });
+    }
+
     @Test
     void reindexReplacesPreviousContent() {
         VectorStoreKnowledgeIndex index = index();
