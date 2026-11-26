@@ -203,6 +203,23 @@ class StudioEditingE2E extends StudioE2E {
         assertThat(file()).containsPattern("(?m)id: portfolio-as-code$").contains("name: Proofstack CLI");
     }
 
+    /** Review H3: adding an item to a list inside another item keeps the outer item open, so the new one is usable. */
+    @Test
+    void addingALinkInsideAProjectKeepsTheProjectOpen() throws IOException {
+        open();
+        section("Proyectos");
+        expand("Event-driven billing");
+
+        button("Añadir enlace").click();
+        Locator link = page.locator("#editor details[open] details[open]").last();
+        link.getByLabel("Texto del enlace *").fill("Repo");
+        link.getByLabel("URL *").fill("https://github.com/example/billing");
+        button("Guardar Ctrl+S").click();
+
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).contains("https://github.com/example/billing");
+    }
+
     /** R2.1: my work can always leave the browser. */
     @Test
     void myChangesCanBeDownloaded() throws IOException {

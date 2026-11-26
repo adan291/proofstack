@@ -146,8 +146,11 @@ function onChange(structural, path) {
   if (structural) {
     const top = path.match(/^\$\.([A-Za-z]+)/)?.[1] ?? state.section;
     show(top);
-    const item = $('#editor').querySelector(`[data-path="${CSS.escape(path)}"]`);
-    if (item?.tagName === 'DETAILS') {
+    // Re-rendering closes every list item: reopen the ones around the change, or a link added inside a project
+    // would land in a closed project and look as if nothing happened.
+    openTo(path);
+    const item = $('#editor').querySelector(`details[data-path="${CSS.escape(path)}"]`);
+    if (item) {
       item.open = true;
       item.querySelector('input, textarea, select')?.focus();
     }
