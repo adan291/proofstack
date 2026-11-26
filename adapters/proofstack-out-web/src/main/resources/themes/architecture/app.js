@@ -62,8 +62,114 @@
     });
   }
 
+  var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Background: a slow network of points that links up near the pointer. Purely decorative.
+  function setUpBackground() {
+    var canvas = document.querySelector('[data-fx-bg]');
+    if (!canvas || reducedMotion || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var points = [];
+    var pointer = { x: -9999, y: -9999 };
+    var width = 0, height = 0, frame = 0;
+    var LINK = 130;
+    function resize() {
+      var ratio = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      var wanted = Math.min(90, Math.round(width * height / 16000));
+      while (points.length < wanted) {
+        points.push({ x: Math.random() * width, y: Math.random() * height,
+                      vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3 });
+      }
+      points.length = wanted;
+    }
+    function draw() {
+      ctx.clearRect(0, 0, width, height);
+      for (var i = 0; i < points.length; i++) {
+        var p = points[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > width) p.vx = -p.vx;
+        if (p.y < 0 || p.y > height) p.vy = -p.vy;
+        for (var j = i + 1; j < points.length; j++) {
+          var q = points[j];
+          var d = Math.hypot(p.x - q.x, p.y - q.y);
+          if (d < LINK) {
+            ctx.strokeStyle = 'rgba(124,196,255,' + (0.2 * (1 - d / LINK)).toFixed(3) + ')';
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+          }
+        }
+        var m = Math.hypot(p.x - pointer.x, p.y - pointer.y);
+        if (m < LINK * 1.4) {
+          ctx.strokeStyle = 'rgba(158,240,196,' + (0.35 * (1 - m / (LINK * 1.4))).toFixed(3) + ')';
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(pointer.x, pointer.y);
+          ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(124,196,255,.6)';
+        ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
+      }
+      frame = requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', resize);
+    window.addEventListener('pointermove', function (e) { pointer.x = e.clientX; pointer.y = e.clientY; });
+    document.addEventListener('pointerleave', function () { pointer.x = pointer.y = -9999; });
+    // Stop drawing while the tab is hidden.
+    document.addEventListener('visibilitychange', function () {
+      cancelAnimationFrame(frame);
+      if (!document.hidden) frame = requestAnimationFrame(draw);
+    });
+    resize();
+    frame = requestAnimationFrame(draw);
+  }
+  // Cards and nodes: light that follows the pointer, plus a small tilt. CSS variables only, no inline styles.
+  function setUpTilt() {
+    if (reducedMotion || !window.matchMedia('(hover: hover)').matches) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.card, .node'), function (el) {
+      el.addEventListener('pointermove', function (e) {
+        var r = el.getBoundingClientRect();
+        var x = (e.clientX - r.left) / r.width;
+        var y = (e.clientY - r.top) / r.height;
+        el.style.setProperty('--mx', (x * 100).toFixed(1) + '%');
+        el.style.setProperty('--my', (y * 100).toFixed(1) + '%');
+        el.style.setProperty('--rx', ((0.5 - y) * 5).toFixed(2) + 'deg');
+        el.style.setProperty('--ry', ((x - 0.5) * 5).toFixed(2) + 'deg');
+      });
+      el.addEventListener('pointerleave', function () {
+        el.style.setProperty('--rx', '0deg');
+        el.style.setProperty('--ry', '0deg');
+      });
+    });
+  }
+  // Sections fade in when they reach the viewport. Without IntersectionObserver nothing is hidden.
+  function setUpReveal() {
+    if (reducedMotion || !('IntersectionObserver' in window)) return;
+    var items = document.querySelectorAll('.section-title, .diagram, .timeline__item, .card, .lab');
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px' });
+    Array.prototype.forEach.call(items, function (el) {
+      el.classList.add('reveal');
+      observer.observe(el);
+    });
+  }
   document.addEventListener('DOMContentLoaded', function () {
     setUpAsk();
+    setUpBackground();
+    setUpTilt();
+    setUpReveal();
     var nodes = Array.prototype.slice.call(document.querySelectorAll('[data-node]'));
     if (nodes.length === 0) return;
 

@@ -29,7 +29,7 @@
   <section>
     <h2>{{t.skills}}</h2>
     <ul class="skills">
-      {{#skills}}<li><strong>{{area}}:</strong> {{names}}</li>{{/skills}}
+      {{#skills}}<li><strong>{{area}}:</strong> <span class="chips">{{#items}}<span class="chip">{{.}}</span><span class="sep">, </span>{{/items}}</span></li>{{/skills}}
     </ul>
   </section>
   {{/hasSkills}}
@@ -89,8 +89,8 @@
   {{#hasLanguages}}
   <section>
     <h2>{{t.languages}}</h2>
-    <ul class="inline">
-      {{#languages}}<li>{{name}}{{#level}} ({{.}}){{/level}}</li>{{/languages}}
+    <ul class="langs">
+      {{#languages}}<li><span class="langs__name">{{name}}</span>{{#hasBar}}<span class="bar bar--{{bar}}" aria-hidden="true"></span>{{/hasBar}}{{#level}}<span class="langs__level">{{.}}</span>{{/level}}</li>{{/languages}}
     </ul>
   </section>
   {{/hasLanguages}}

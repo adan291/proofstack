@@ -85,7 +85,7 @@ final class CvBuilder {
         }
         return order.stream()
                 .filter(byArea::containsKey)
-                .map(area -> new SkillGroup(t.area(area), String.join(", ", byArea.get(area))))
+                .map(area -> new SkillGroup(t.area(area), List.copyOf(byArea.get(area))))
                 .toList();
     }
 

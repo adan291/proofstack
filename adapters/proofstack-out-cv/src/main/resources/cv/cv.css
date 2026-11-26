@@ -65,6 +65,39 @@ h3 .org { font-weight: 600; color: var(--accent); }
 .label { font-weight: 600; color: #3b434b; }
 .result { padding: 1.5pt 6pt; border-left: 2pt solid var(--accent); background: var(--accent-soft); }
 
+/* Skill names as chips. The comma stays in the text (copy, ATS) but is not drawn. */
+.chips { display: flex; flex-wrap: wrap; gap: 2.5pt 3pt; }
+.chip {
+  padding: 0 5pt;
+  border: 1px solid #c9d3de;
+  border-radius: 3pt;
+  background: #f5f8fb;
+  font-size: 9pt;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.sep { position: absolute; width: 1px; overflow: hidden; color: transparent; font-size: 1pt; }
+.skills li { align-items: start; }
+.skills strong { padding-top: 1pt; }
+
+/* Languages: name, a six-step level bar, and the level as written in the profile */
+.langs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3pt 18pt; padding: 0; list-style: none; }
+.langs li { display: grid; grid-template-columns: 22mm 26mm auto; align-items: center; gap: 6pt; margin: 0; }
+.langs__name { font-weight: 600; }
+.langs__level { color: var(--muted); font-size: 9pt; }
+.bar {
+  display: block;
+  height: 5pt;
+  border-radius: 3pt;
+  background: linear-gradient(90deg, var(--accent) 0 var(--fill), #dfe6ee var(--fill) 100%);
+}
+.bar--1 { --fill: 16.7%; }
+.bar--2 { --fill: 33.3%; }
+.bar--3 { --fill: 50%; }
+.bar--4 { --fill: 66.7%; }
+.bar--5 { --fill: 83.3%; }
+.bar--6 { --fill: 100%; }
+
 /* Short lists on one line */
 .inline { display: flex; flex-wrap: wrap; padding: 0; list-style: none; }
 .inline li { margin: 0; }

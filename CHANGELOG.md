@@ -42,6 +42,8 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Avisos del compilador: posibles fugas de recursos al arrancar Studio, un Javadoc suelto y un `serialVersionUID`. `javac -Xlint:all` no da avisos.
 
 ### Cambiado
+- Web: fondo animado de puntos conectados que reacciona al ratu{00F3}n, nombre con degradado, datos que recorren el bus del diagrama, tarjetas con luz que sigue al cursor e inclinaciu{00F3}n, y secciones que aparecen al hacer scroll. Sin libreru{00ED}as ni cambios en la CSP; con `prefers-reduced-motion` todo queda estu{00E1}tico.
+- CV (HTML y PDF): habilidades como etiquetas e idiomas con una barra de nivel calculada a partir del nivel escrito en el perfil (MCER, nativo, nociones). El texto no cambia, asu{00ED} que el Markdown y el DOCX siguen iguales.
 - Diseño del CV (HTML y PDF): color de acento en el nombre, los títulos y las viñetas; fecha y lugar alineados a la derecha del puesto; empresa resaltada; habilidades en dos columnas; resultado de cada proyecto destacado y enlace junto al título; idiomas en una línea. Sigue siendo una sola columna de texto y cabe en 2 páginas. En el DOCX, el nombre y los títulos de sección llevan el mismo color.
 - `proofstack-in-yaml` y `proofstack-out-yaml` pasan a ser un solo módulo, `proofstack-yaml`, con un único codec para leer y escribir `profile.yaml` (ADR-016). Los ficheros que se escriben no cambian ni un byte.
 - `proofstack --version` lee la versión del pom, así que basta con `mvn versions:set` para publicar una versión nueva. El workflow de release falla si el tag no coincide con esa versión.
