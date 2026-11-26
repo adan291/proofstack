@@ -174,11 +174,11 @@ final class CvDocx {
                 + "<w:pPrDefault><w:pPr><w:spacing w:after=\"60\" w:line=\"264\" w:lineRule=\"auto\"/></w:pPr></w:pPrDefault>"
                 + "</w:docDefaults>"
                 + style("Normal", "Normal", null, "", "")
-                + style("Title", "Title", "Normal", "<w:spacing w:after=\"0\"/>", "<w:b/><w:sz w:val=\"40\"/>")
+                + style("Title", "Title", "Normal", "<w:spacing w:after=\"0\"/>", "<w:b/><w:color w:val=\"1F4E79\"/><w:sz w:val=\"40\"/>")
                 + style("Subtitle", "Subtitle", "Normal", "<w:spacing w:after=\"80\"/>", "<w:color w:val=\"3B434B\"/><w:sz w:val=\"24\"/>")
                 + style("Heading1", "heading 1", "Normal",
-                "<w:keepNext/><w:spacing w:before=\"200\" w:after=\"80\"/><w:pBdr><w:bottom w:val=\"single\" w:sz=\"6\" w:space=\"1\" w:color=\"1B1F23\"/></w:pBdr><w:outlineLvl w:val=\"0\"/>",
-                "<w:b/><w:caps/><w:sz w:val=\"22\"/>")
+                "<w:keepNext/><w:spacing w:before=\"200\" w:after=\"80\"/><w:pBdr><w:bottom w:val=\"single\" w:sz=\"6\" w:space=\"1\" w:color=\"1F4E79\"/></w:pBdr><w:outlineLvl w:val=\"0\"/>",
+                "<w:b/><w:caps/><w:color w:val=\"1F4E79\"/><w:sz w:val=\"22\"/>")
                 + style("Heading2", "heading 2", "Normal",
                 "<w:keepNext/><w:spacing w:before=\"120\" w:after=\"0\"/><w:outlineLvl w:val=\"1\"/>", "<w:b/><w:sz w:val=\"21\"/>")
                 + style("Meta", "CV meta", "Normal", "<w:spacing w:after=\"40\"/>", "<w:color w:val=\"5A636B\"/><w:sz w:val=\"19\"/>")

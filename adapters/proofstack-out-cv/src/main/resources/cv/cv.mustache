@@ -37,11 +37,13 @@
   <section>
     <h2>{{t.experience}}</h2>
     {{#jobs}}
-    <article>
-      <h3>{{role}} · {{company}}</h3>
-      {{#meta}}<p class="meta">{{.}}</p>{{/meta}}
+    <article class="entry">
+      <div class="entry__head">
+        <h3><span class="role">{{role}}</span> <span class="org">· {{company}}</span></h3>
+        {{#meta}}<p class="meta">{{.}}</p>{{/meta}}
+      </div>
       {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
-      {{#technologies}}<p class="tech">{{t.technologies}}: {{.}}</p>{{/technologies}}
+      {{#technologies}}<p class="tech"><span class="label">{{t.technologies}}:</span> {{.}}</p>{{/technologies}}
     </article>
     {{/jobs}}
   </section>
@@ -50,14 +52,14 @@
   <section>
     <h2>{{t.projects}}</h2>
     {{#projects}}
-    <article>
-      <h3>{{name}}</h3>
+    <article class="entry">
+      <div class="entry__head">
+        <h3><span class="role">{{name}}</span></h3>
+        {{#hasLink}}<p class="meta"><a href="{{linkUrl}}">{{#linkLabel}}{{.}}{{/linkLabel}}{{^linkLabel}}{{linkUrl}}{{/linkLabel}}</a></p>{{/hasLink}}
+      </div>
       <p>{{summary}}</p>
-      <ul>
-        {{#stack}}<li>{{t.stack}}: {{.}}</li>{{/stack}}
-        {{#result}}<li>{{t.result}}: {{.}}</li>{{/result}}
-        {{#hasLink}}<li><a href="{{linkUrl}}">{{#linkLabel}}{{.}}{{/linkLabel}}{{^linkLabel}}{{linkUrl}}{{/linkLabel}}</a></li>{{/hasLink}}
-      </ul>
+      {{#result}}<p class="result"><span class="label">{{t.result}}:</span> {{.}}</p>{{/result}}
+      {{#stack}}<p class="tech"><span class="label">{{t.stack}}:</span> {{.}}</p>{{/stack}}
     </article>
     {{/projects}}
   </section>
@@ -66,9 +68,11 @@
   <section>
     <h2>{{t.education}}</h2>
     {{#studies}}
-    <article>
-      <h3>{{title}} · {{institution}}</h3>
-      {{#meta}}<p class="meta">{{.}}</p>{{/meta}}
+    <article class="entry">
+      <div class="entry__head">
+        <h3><span class="role">{{title}}</span> <span class="org">· {{institution}}</span></h3>
+        {{#meta}}<p class="meta">{{.}}</p>{{/meta}}
+      </div>
       {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
     </article>
     {{/studies}}
@@ -85,7 +89,7 @@
   {{#hasLanguages}}
   <section>
     <h2>{{t.languages}}</h2>
-    <ul>
+    <ul class="inline">
       {{#languages}}<li>{{name}}{{#level}} ({{.}}){{/level}}</li>{{/languages}}
     </ul>
   </section>
