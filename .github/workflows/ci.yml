@@ -63,3 +63,5 @@ jobs:
           call proofstack.cmd --version || exit /b 1
           call proofstack.cmd doctor profiles\example\profile.yaml
           if %ERRORLEVEL% NEQ 1 (echo doctor on the example must exit 1, got %ERRORLEVEL% & exit /b 1)
+          rem doctor's expected 1 would otherwise become the exit code of the step
+          exit /b 0
