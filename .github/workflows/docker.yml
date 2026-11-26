@@ -6,12 +6,14 @@ on:
   push:
     tags: ['v*']
 
+# Only the publish job, which runs on a version tag, may write to the package registry.
 permissions:
   contents: read
-  packages: write
 
 jobs:
-  image:
+  # Pull requests: build the image to prove it builds, publish nothing.
+  build:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
@@ -22,8 +24,31 @@ jobs:
           cache: maven
       - run: mvn -B -ntp -pl proofstack-ai-service -am package
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+      - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
+        with:
+          context: proofstack-ai-service
+          push: false
+          tags: proofstack-ai-service:pr-${{ github.event.number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # Version tags: build and push to GHCR.
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+      - run: mvn -B -ntp -pl proofstack-ai-service -am package
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3.7.0
-        if: startsWith(github.ref, 'refs/tags/v')
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -31,7 +56,7 @@ jobs:
       - uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6.19.2
         with:
           context: proofstack-ai-service
-          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          push: true
           tags: ghcr.io/${{ github.repository_owner }}/proofstack-ai-service:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
