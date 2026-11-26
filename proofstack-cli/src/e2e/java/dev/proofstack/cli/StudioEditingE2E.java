@@ -243,6 +243,24 @@ class StudioEditingE2E extends StudioE2E {
         assertThat(end).hasValue("");
     }
 
+    /** Review H13: closing the conflict dialog with Escape leaves the same way out as its Cancel button. */
+    @Test
+    void closingTheConflictDialogWithEscapeStillOffersToReload() throws IOException {
+        expectedFailures.add(409);
+        open();
+        Files.writeString(profile, file().replace("headline: Backend Engineer", "headline: Engineering Lead"));
+        page.getByLabel("Titular *").fill("Staff Engineer");
+        button("Guardar Ctrl+S").click();
+        Locator dialog = page.getByRole(AriaRole.DIALOG);
+        assertThat(dialog).isVisible();
+
+        page.keyboard().press("Escape");
+
+        assertThat(dialog).isHidden();
+        assertThat(button("Recargar desde el disco")).isVisible();
+        assertThat(status()).hasText(Pattern.compile("No se ha combinado nada"));
+    }
+
     /** R2.1: my work can always leave the browser. */
     @Test
     void myChangesCanBeDownloaded() throws IOException {

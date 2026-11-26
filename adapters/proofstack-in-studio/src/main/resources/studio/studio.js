@@ -356,11 +356,16 @@ $('#merge-form').addEventListener('submit', () => {
   });
   mergeWithDisk(choose);
 });
-$('#merge-cancel').addEventListener('click', () => {
-  $('#merge').close();
+/** Cancel and Escape leave the same way out: nothing merged, my edit kept, and how to continue. */
+function mergeCancelled() {
   announce('No se ha combinado nada. Tus cambios siguen aquí: descárgalos o recarga desde el disco.', 'error');
   $('#reload').hidden = false;
+}
+$('#merge-cancel').addEventListener('click', () => {
+  $('#merge').close();
+  mergeCancelled();
 });
+$('#merge').addEventListener('cancel', mergeCancelled); // Escape closes the dialog by itself
 
 /** The edited document as profile.edited.json: the user's work, whatever happens to the file. */
 function download() {
