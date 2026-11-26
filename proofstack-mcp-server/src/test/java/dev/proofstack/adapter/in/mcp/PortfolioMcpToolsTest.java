@@ -1,6 +1,6 @@
 package dev.proofstack.adapter.in.mcp;
 
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;

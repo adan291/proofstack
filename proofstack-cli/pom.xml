@@ -28,7 +28,7 @@
         </dependency>
         <dependency>
             <groupId>dev.proofstack</groupId>
-            <artifactId>proofstack-in-yaml</artifactId>
+            <artifactId>proofstack-yaml</artifactId>
         </dependency>
         <dependency>
             <groupId>dev.proofstack</groupId>
@@ -49,10 +49,6 @@
         <dependency>
             <groupId>dev.proofstack</groupId>
             <artifactId>proofstack-in-linkedin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>dev.proofstack</groupId>
-            <artifactId>proofstack-out-yaml</artifactId>
         </dependency>
         <dependency>
             <groupId>dev.proofstack</groupId>

@@ -13,10 +13,10 @@ import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import dev.proofstack.adapter.in.linkedin.LinkedInExportImporter;
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import dev.proofstack.adapter.out.llm.LlmProviders;
 import dev.proofstack.adapter.out.web.ArchitectureThemeRenderer;
-import dev.proofstack.adapter.out.yaml.YamlProfileWriter;
+import dev.proofstack.adapter.yaml.YamlProfileWriter;
 import dev.proofstack.core.application.ContentService;
 import dev.proofstack.core.application.PortfolioService;
 import dev.proofstack.core.domain.ProfileValidationException;

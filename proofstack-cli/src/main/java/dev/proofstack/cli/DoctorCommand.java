@@ -1,6 +1,6 @@
 package dev.proofstack.cli;
 
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.domain.readiness.PublishReadiness;

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import dev.proofstack.adapter.in.studio.StudioServer;
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 
 /** Studio wired for real: HTTP in, YAML on disk out, through the core. */
 class StudioCommandTest {

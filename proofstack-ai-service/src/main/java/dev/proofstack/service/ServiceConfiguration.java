@@ -3,7 +3,7 @@ package dev.proofstack.service;
 import dev.proofstack.adapter.in.rest.ApiExceptionHandler;
 import dev.proofstack.adapter.in.rest.AskController;
 import dev.proofstack.adapter.in.rest.RateLimitFilter;
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import dev.proofstack.adapter.out.springai.ChatModelAnswerGenerator;
 import dev.proofstack.adapter.out.springai.VectorStoreKnowledgeIndex;
 import dev.proofstack.core.application.AskService;

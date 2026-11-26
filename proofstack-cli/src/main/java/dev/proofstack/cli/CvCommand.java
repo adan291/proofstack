@@ -9,7 +9,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import dev.proofstack.adapter.out.cv.CvOptions;
 import dev.proofstack.adapter.out.cv.CvRenderer;
 import dev.proofstack.adapter.out.cv.JobFit;

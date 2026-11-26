@@ -1,7 +1,7 @@
 package dev.proofstack.cli;
 
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
-import dev.proofstack.adapter.out.yaml.YamlProfileWriter;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileWriter;
 import dev.proofstack.core.application.ScaffoldService;
 import dev.proofstack.core.domain.InvalidValueException;
 import dev.proofstack.core.port.out.ProfileWriter;

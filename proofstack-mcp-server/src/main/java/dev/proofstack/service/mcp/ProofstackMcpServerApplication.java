@@ -1,7 +1,7 @@
 package dev.proofstack.service.mcp;
 
 import dev.proofstack.adapter.in.mcp.PortfolioMcpTools;
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.ProfileValidationException;
 import org.springframework.boot.SpringApplication;

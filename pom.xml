@@ -21,12 +21,11 @@
 
     <modules>
         <module>proofstack-core</module>
-        <module>adapters/proofstack-in-yaml</module>
+        <module>adapters/proofstack-yaml</module>
         <module>adapters/proofstack-out-web</module>
         <module>adapters/proofstack-out-cv</module>
         <module>adapters/proofstack-out-llm</module>
         <module>adapters/proofstack-in-linkedin</module>
-        <module>adapters/proofstack-out-yaml</module>
         <module>adapters/proofstack-in-github</module>
         <module>adapters/proofstack-in-studio</module>
         <module>proofstack-cli</module>
@@ -65,7 +64,7 @@
             </dependency>
             <dependency>
                 <groupId>dev.proofstack</groupId>
-                <artifactId>proofstack-in-yaml</artifactId>
+                <artifactId>proofstack-yaml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -91,11 +90,6 @@
             <dependency>
                 <groupId>dev.proofstack</groupId>
                 <artifactId>proofstack-in-linkedin</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>dev.proofstack</groupId>
-                <artifactId>proofstack-out-yaml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -1,8 +1,8 @@
 package dev.proofstack.cli;
 
 import dev.proofstack.adapter.in.linkedin.LinkedInMemberDataSource;
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
-import dev.proofstack.adapter.out.yaml.YamlProfileWriter;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileWriter;
 import dev.proofstack.core.application.CareerImportService;
 import dev.proofstack.core.domain.ProfileValidationException;
 import dev.proofstack.core.port.in.ImportProfileUseCase.ImportReport;

@@ -21,11 +21,11 @@ class HexagonalArchitectureTest {
                 .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
                 .importPackages("dev.proofstack");
         assertThat(all.containPackage("dev.proofstack.core.domain")).isTrue();
-        assertThat(all.containPackage("dev.proofstack.adapter.in.yaml")).isTrue();
+        assertThat(all.containPackage("dev.proofstack.adapter.yaml")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.web")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.cv")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.out.llm")).isTrue();
-        assertThat(all.containPackage("dev.proofstack.adapter.out.yaml")).isTrue();
+        assertThat(all.containPackage("dev.proofstack.adapter.yaml")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.linkedin")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.github")).isTrue();
         assertThat(all.containPackage("dev.proofstack.adapter.in.studio")).isTrue();

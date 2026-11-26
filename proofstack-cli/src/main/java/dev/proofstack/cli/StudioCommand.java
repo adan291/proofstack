@@ -12,8 +12,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
 import dev.proofstack.adapter.in.studio.StudioServer;
-import dev.proofstack.adapter.in.yaml.YamlProfileDocumentStore;
-import dev.proofstack.adapter.in.yaml.YamlProfileSource;
+import dev.proofstack.adapter.yaml.YamlProfileDocumentStore;
+import dev.proofstack.adapter.yaml.YamlProfileSource;
 import dev.proofstack.adapter.out.cv.CvRenderer;
 import dev.proofstack.adapter.out.web.ArchitectureThemeRenderer;
 import dev.proofstack.core.application.ProfileEditingService;
