@@ -15,6 +15,7 @@ on:
       - 'proofstack-*/**'
       - 'schema/**'
       - 'docs/guide/**'
+      - '.github/workflows/pages.yml'   # a change to the deploy itself is tested by deploying
   workflow_dispatch:
 
 # Only the deploy job can publish; the build job (which runs the code) only reads.
