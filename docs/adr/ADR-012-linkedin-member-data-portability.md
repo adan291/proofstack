@@ -11,7 +11,7 @@ El objetivo es que el portfolio se alimente de LinkedIn sin escribir los datos a
 
 - **Nuevo adaptador `LinkedInMemberDataSource`** (puerto `MemberProfileSource`).
   - Usa `GET /rest/memberSnapshotData` con `Linkedin-Version: 202312`, la única versión que acepta.
-  - Solo pide los dominios PROFILE, POSITIONS, EDUCATION, SKILLS y PROJECTS.
+  - Solo pide los dominios PROFILE, POSITIONS, EDUCATION, SKILLS, PROJECTS, LANGUAGES y CERTIFICATIONS. Los dos últimos se añadieron en la 0.7.0, al incorporar idiomas y certificaciones al perfil y al CV. Ninguno de los siete contiene email ni teléfono.
   - Sigue la paginación, pero solo dentro del mismo origen.
   - Los campos son los mismos que en las columnas del ZIP, así que reutiliza el mismo mapeo (`LinkedInExportImporter.fromTables`).
 - **OAuth de tres pasos para CLI.**

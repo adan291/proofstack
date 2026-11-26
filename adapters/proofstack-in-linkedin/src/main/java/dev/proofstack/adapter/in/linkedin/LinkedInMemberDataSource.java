@@ -18,9 +18,9 @@ import java.util.function.Supplier;
 
 import dev.proofstack.adapter.in.linkedin.CsvParser.Row;
 import dev.proofstack.core.domain.Profile;
-import dev.proofstack.core.port.out.MemberProfileSource;
 import dev.proofstack.core.port.out.ImportException;
 import dev.proofstack.core.port.out.ImportException.Kind;
+import dev.proofstack.core.port.out.MemberProfileSource;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -29,9 +29,9 @@ import tools.jackson.databind.ObjectMapper;
  * Driven adapter: the member's own LinkedIn profile through the Member Data Portability API
  * ({@code GET /rest/memberSnapshotData}), available self-serve to members in the EU (DMA).
  *
- * <p>Only the five domains a portfolio needs are requested (data minimisation): PROFILE, POSITIONS,
- * EDUCATION, SKILLS, PROJECTS. Email and phone are not even in those domains, and the mapping
- * ignores them anyway (shared with the ZIP importer).
+ * <p>Only the seven domains a portfolio needs are requested (data minimisation): PROFILE, POSITIONS,
+ * EDUCATION, SKILLS, PROJECTS, LANGUAGES and CERTIFICATIONS. Email and phone are not even in those domains,
+ * and the mapping ignores them anyway (shared with the ZIP importer).
  */
 public final class LinkedInMemberDataSource implements MemberProfileSource {
 
