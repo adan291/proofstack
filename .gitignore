@@ -24,3 +24,7 @@ Thumbs.db
 profiles/*/profile.linkedin.yaml
 # The CLI downloaded from a Release, next to the proofstack launcher
 /proofstack.jar
+# Fichero temporal de proofstack setup mientras importa
+profiles/*/profile.setup.yaml
+# Perfiles de prueba locales
+profiles/adan-desde-cero/
