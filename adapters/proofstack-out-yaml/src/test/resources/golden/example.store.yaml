@@ -1,0 +1,79 @@
+# yaml-language-server: $schema=../../schema/profile.schema.json
+# Minimal Proofstack profile. Copy this file, edit it and run:
+#   java -jar proofstack.jar build profiles/<you>/profile.yaml --out dist
+# Schema: schema/profile.schema.json (your editor can autocomplete with the YAML extension).
+
+language: en
+person:
+  name: Jane Doe
+  headline: Backend Engineer · Java & Distributed Systems
+  summary: |
+    I design and build backend systems that are boring to operate: well tested, observable and easy to change.
+  location: Remote
+  email: jane.doe@example.com
+  links:
+    - label: GitHub
+      url: https://github.com/example
+skills:
+  - name: Java 25
+    area: backend
+  - name: Spring Boot
+    area: backend
+  - name: Hexagonal architecture
+    area: architecture
+  - name: Kafka
+    area: messaging
+  - name: PostgreSQL
+    area: data
+  - name: Docker
+    area: devops
+experience:
+  - id: example-corp
+    role: Backend Engineer
+    company: Example Corp
+    startDate: 2022-03
+    current: true
+    highlights:
+      - Split a monolith billing module into an event-driven service.
+    technologies:
+      - Java
+      - Spring Boot
+      - Kafka
+    evidence:
+      - onboarding-guide
+projects:
+  - id: billing-events
+    name: Event-driven billing
+    summary: Extracted billing from a monolith using the outbox pattern.
+    problem: Billing changes required full monolith deployments.
+    solution: Outbox table + Kafka events consumed by a new billing service.
+    techStack:
+      - Java
+      - Spring Boot
+      - Kafka
+      - PostgreSQL
+    learnings:
+      - Start with the read model; it de-risks the migration.
+    areas:
+      - backend
+      - messaging
+      - architecture
+evidence:
+  - id: onboarding-guide
+    category: documentation
+    title: Onboarding guide for new backend hires
+    context: New engineers needed weeks to ship their first change.
+    action: Wrote a guide with architecture diagrams and a first-PR checklist.
+    result: First PR merged in the first week for the next three hires.
+languages:
+  - name: English
+    level: C1
+  - name: Spanish
+    level: Native
+certifications:
+  - title: "Oracle Certified Professional, Java SE"
+    issuer: Oracle
+    date: 2023-05
+    link:
+      label: Credential
+      url: https://example.com/credential/123
