@@ -12,6 +12,13 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - Guía (`docs/guide/`): instalación, recetas para el día a día, piezas opcionales (borradores con IA, MCP en Kiro, asistente) y qué hacer si cambias el código o publicas una versión.
 
 ### Corregido
+- Studio: el identificador de un elemento nuevo se fijaba con la primera tecla («Proofstack» quedaba en «p»), y dos elementos con la misma inicial no se podían guardar. Ahora sigue al nombre completo hasta que el usuario lo escribe, añade -2, -3 si otro elemento ya lo usa y deja de cambiar al guardar.
+- Studio: al combinar con el disco, una lista con un identificador repetido o vacío perdía elementos sin avisar. Ahora es un conflicto que decide el usuario.
+- Studio: al añadir, borrar o mover un enlace dentro de un proyecto, el proyecto se cerraba y parecía que no había pasado nada.
+- Studio: marcar «Es mi puesto actual» vacía y desactiva la fecha de fin, en vez de dejar rellenar las dos y fallar al guardar.
+- Studio: cerrar con Esc el diálogo de conflicto ofrece recargar, igual que el botón Cancelar.
+- Studio: si el fichero no se puede escribir de forma fiable, el guardado explica el motivo en vez de responder «internal error».
+- ADR-012: la importación por API pide siete dominios de LinkedIn, no cinco.
 - Studio y los importadores escribían sin comillas textos como `1e3`, `.inf` o `.NaN`. Al releer el fichero eran números, o el YAML ni siquiera se abría. Ahora van entre comillas, y antes de escribir se comprueba que el YAML se relee igual: si no, no se guarda nada.
 - Con un `profile.yaml` que no era YAML válido, Studio respondía "internal error". Ahora indica la línea y la columna del fallo y pide corregirlo en un editor de texto. No abre el formulario vacío, porque guardarlo pisaría el fichero.
 - `doctor` no revisaba skills, la ubicación y las tecnologías de cada puesto, el stack de los proyectos, los idiomas, las certificaciones (ni su enlace) ni el nombre de los labs. Un `TODO` o una URL de ejemplo en esos campos se publicaba. Ahora bloquea la publicación, y `TodoCounter` cuenta los mismos campos.
@@ -38,6 +45,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 - `proofstack.jar` conservaba un solo `META-INF/NOTICE` y un `LICENSE` de 6 líneas que solo remite a la licencia. Ahora incluye los NOTICE de todas las dependencias y el texto completo de Apache-2.0, como pide la licencia.
 
 ### Seguridad
+- Releases: el build (Maven, plugins y tests) se ejecuta con permisos de solo lectura y sin las credenciales guardadas. Solo el job que publica la release puede escribir en el repositorio, y comprueba el SHA-256 de los jar antes.
 - Studio: la vista previa (`/preview/*`) se servía a cualquier página. Otra web no podía leerla, pero sí podía saber que Studio estaba abierto y en qué puerto. Ahora se rechaza si el navegador indica que la petición viene de otro sitio (`Sec-Fetch-Site`). Quedan fuera de esta regla el CSS y el JS públicos de la vista previa, porque el iframe aislado los pide con origen opaco.
 - Servicio RAG: además del límite por IP, ahora hay un límite global (`PROOFSTACK_GLOBAL_RATE_LIMIT`, 60 por minuto) y otro de preguntas a la vez (`PROOFSTACK_MAX_CONCURRENT`, 2). En IPv6 se cuenta por /64. Antes, muchas direcciones juntas no tenían tope, y un /64 rotando direcciones contaba como clientes distintos. Amplía las mitigaciones de ADR-007.
 - Servicio RAG: `POST /api/ask;x=1` llegaba al controlador sin pasar por el rate limit, porque el filtro comparaba la URI sin normalizar. Ahora compara la misma ruta que usa Spring MVC. Lo comprueba un test contra Tomcat real. Detrás de Caddy esa ruta no se enrutaba, pero sí al ejecutar el jar directamente.
