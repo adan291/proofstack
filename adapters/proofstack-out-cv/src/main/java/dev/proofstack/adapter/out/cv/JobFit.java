@@ -36,18 +36,34 @@ public record JobFit(List<String> matched, List<String> gaps) {
         return new JobFit(matched, gaps);
     }
 
-    /** Every normalised word the profile says about its skills, jobs, projects and evidence. */
+    /**
+     * Every normalised word the profile says anywhere a reader can see it: headline and summary, skills, jobs,
+     * education, projects, evidence, labs, languages and certifications. A word in any of them is not a gap. Only
+     * the matching of projects for ordering ({@link #projectWords}) is narrower.
+     */
     static Set<String> vocabulary(Profile profile) {
         Set<String> words = new HashSet<>();
-        profile.skills().forEach(s -> words.addAll(JobOffer.tokens(s.name())));
+        add(words, profile.person().headline(), profile.person().summary());
+        profile.skills().forEach(s -> add(words, s.name()));
         profile.experience().forEach(e -> {
-            words.addAll(JobOffer.tokens(e.role()));
-            e.highlights().forEach(h -> words.addAll(JobOffer.tokens(h)));
-            e.technologies().forEach(t -> words.addAll(JobOffer.tokens(t)));
+            add(words, e.role(), e.company());
+            e.highlights().forEach(h -> add(words, h));
+            e.technologies().forEach(t -> add(words, t));
+        });
+        profile.education().forEach(e -> {
+            add(words, e.title(), e.institution());
+            e.highlights().forEach(h -> add(words, h));
         });
         profile.projects().forEach(p -> words.addAll(projectWords(p)));
-        profile.certifications().forEach(c -> words.addAll(JobOffer.tokens(c.title())));
+        profile.evidence().forEach(e -> add(words, e.title(), e.context(), e.action(), e.result()));
+        profile.labs().forEach(l -> add(words, l.name(), l.description()));
+        profile.languages().forEach(l -> add(words, l.name()));
+        profile.certifications().forEach(c -> add(words, c.title(), c.issuer()));
         return words;
+    }
+
+    private static void add(Set<String> words, String... texts) {
+        Stream.of(texts).filter(s -> s != null).forEach(s -> words.addAll(JobOffer.tokens(s)));
     }
 
     static Set<String> projectWords(dev.proofstack.core.domain.Project p) {

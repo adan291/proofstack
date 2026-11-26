@@ -1,11 +1,9 @@
 package dev.proofstack.adapter.out.cv;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.Test;
 
 import dev.proofstack.core.domain.Area;
@@ -19,6 +17,7 @@ import dev.proofstack.core.domain.Link;
 import dev.proofstack.core.domain.Period;
 import dev.proofstack.core.domain.PersonalInfo;
 import dev.proofstack.core.domain.Profile;
+import dev.proofstack.core.domain.ProfileDate;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.Skill;
 import dev.proofstack.core.port.out.Artifact;
@@ -255,6 +254,30 @@ class CvRendererTest {
         assertThat(tailored.indexOf("**Messaging:**")).isLessThan(tailored.indexOf("**Backend:**"));
         assertThat(tailored.lines().filter(l -> !l.isBlank()).count())
                 .isEqualTo(neutral.lines().filter(l -> !l.isBlank()).count());
+    }
+
+    /**
+     * Review H11: words the profile says in its summary, education, evidence or languages are not gaps. The vocabulary
+     * only looked at skills, jobs, projects and certifications, so "inglés" was a gap next to {@code Inglés: B2}.
+     */
+    @Test
+    void jobFitDoesNotReportAsGapsWordsTheProfileSaysElsewhere() {
+        Profile profile = new Profile("es",
+                new PersonalInfo("Ada", "Backend Developer", "Trabajo con Kubernetes a diario.", null, null, List.of()),
+                List.of(),
+                List.of(new Education("dam", "Desarrollo de aplicaciones multiplataforma", "IES Ejemplo",
+                        new Period(ProfileDate.of(2018), ProfileDate.of(2020)), List.of())),
+                List.of(), List.of(),
+                List.of(new Evidence("ev", EvidenceCategory.TECHNICAL, "Migración a Terraform", "Un contexto",
+                        "Una acción", "Un resultado", null, List.of())),
+                List.of(), List.of(new Language("Inglés", "B2")), List.of());
+        JobOffer offer = JobOffer.parse("Kubernetes, Kubernetes. Terraform, Terraform. Multiplataforma, multiplataforma. "
+                + "Inglés, inglés. Rust, Rust.");
+
+        JobFit fit = JobFit.of(profile, offer);
+
+        assertThat(fit.gaps()).containsExactly("rust");
+        assertThat(fit.matched()).contains("kubernetes", "terraform", "multiplataforma", "ingles");
     }
 
     @Test
