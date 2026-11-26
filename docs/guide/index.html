@@ -247,6 +247,13 @@ git push                                               <span class="c"># la web 
     </article>
 
     <article class="recipe">
+      <h3>Un CV con tu teléfono, solo para enviarlo</h3>
+      <p>El teléfono no se guarda en el perfil, porque el repositorio y la web son públicos. Se pasa al generar el CV:</p>
+      <pre><code>./proofstack cv profiles/tu-nombre/profile.yaml --out dist/cv-privado --phone "600 11 22 33"</code></pre>
+      <p>Para no escribirlo cada vez, guárdalo en la variable <code>PROOFSTACK_PHONE</code> de tu usuario (en PowerShell: <code>[Environment]::SetEnvironmentVariable("PROOFSTACK_PHONE", "600 11 22 33", "User")</code> y abre otra terminal). El CV publicado en la web nunca lo lleva. No compartas la carpeta <code>dist/cv-privado</code> en el repositorio: <code>dist/</code> ya está en <code>.gitignore</code>.</p>
+    </article>
+
+    <article class="recipe">
       <h3>Un CV centrado en un área</h3>
       <pre><code>./proofstack cv profiles/tu-nombre/profile.yaml --out dist/cv-ia --focus ai -p 4</code></pre>
       <p>Áreas: <code>backend</code>, <code>architecture</code>, <code>messaging</code>, <code>data</code>, <code>devops</code>, <code>ai</code>, <code>hardware</code>, <code>leadership</code>, <code>communication</code>. <code>-p</code> es el número de proyectos.</p>

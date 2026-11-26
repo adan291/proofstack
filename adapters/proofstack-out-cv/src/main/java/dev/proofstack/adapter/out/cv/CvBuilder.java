@@ -38,12 +38,12 @@ final class CvBuilder {
 
     static Cv build(Profile profile, CvOptions options, CvText t) {
         var person = profile.person();
-        return new Cv(t, clean(person.name()), clean(person.headline()), contact(profile),
+        return new Cv(t, clean(person.name()), clean(person.headline()), contact(profile, options),
                 clean(person.summary()), skills(profile, options, t), jobs(profile, t), projects(profile, options),
                 studies(profile, t), certifications(profile, t), languages(profile));
     }
 
-    private static List<Contact> contact(Profile profile) {
+    private static List<Contact> contact(Profile profile, CvOptions options) {
         var person = profile.person();
         List<Contact> contact = new ArrayList<>();
         if (!clean(person.location()).isEmpty()) {
@@ -51,6 +51,9 @@ final class CvBuilder {
         }
         if (!clean(person.email()).isEmpty()) {
             contact.add(new Contact(person.email().strip(), "mailto:" + person.email().strip()));
+        }
+        if (options.phone() != null) {
+            contact.add(new Contact(options.phone(), "tel:" + options.phone().replaceAll("[^+0-9]", "")));
         }
         person.links().forEach(link -> {
             if (!clean(link.label()).isEmpty()) {

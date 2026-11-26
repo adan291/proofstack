@@ -53,6 +53,11 @@ final class CvCommand implements Callable<Integer> {
                     + "what it asks for that your profile does not mention. Nothing is added to the CV.")
     Path job;
 
+    @Option(names = "--phone", paramLabel = "NUMBER", defaultValue = "${env:PROOFSTACK_PHONE}",
+            description = "Phone number for the contact line. It is not saved in the profile, which is public. "
+                    + "Default: the PROOFSTACK_PHONE environment variable, if set.")
+    String phone;
+
     @Spec
     CommandLine.Model.CommandSpec spec;
 
@@ -68,7 +73,7 @@ final class CvCommand implements Callable<Integer> {
         JobOffer offer;
         try {
             offer = readJob();
-            options = new CvOptions(parseFocus(), projects, offer);
+            options = new CvOptions(parseFocus(), projects, offer, phone);
         } catch (IllegalArgumentException e) {
             err.println(e.getMessage());
             return ProofstackCli.INVALID;

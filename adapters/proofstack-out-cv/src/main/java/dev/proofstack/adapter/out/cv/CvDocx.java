@@ -93,7 +93,7 @@ final class CvDocx {
     }
 
     private static String contact(Contact c) {
-        return c.linked() && !c.url().startsWith("mailto:") ? c.text() + ": " + c.url() : c.text();
+        return c.linked() && !c.url().startsWith("mailto:") && !c.url().startsWith("tel:") ? c.text() + ": " + c.url() : c.text();
     }
 
     // ------------------------------------------------------------------ paragraphs

@@ -12,7 +12,8 @@ person:
     seguridad JWT, aplico arquitectura hexagonal y migro sistemas legacy hacia arquitecturas
     modernas. Construyo sistemas con agentes de IA que trabajan sobre código real, con pruebas
     automáticas y límites de seguridad explícitos. Documento las decisiones antes de programarlas.
-  location: España
+  location: León, España
+  email: adansanchezmanzano@gmail.com
   links:
     - { label: LinkedIn, url: "https://www.linkedin.com/in/asanchezmanzano/" }
     - { label: GitHub, url: "https://github.com/adan291" }

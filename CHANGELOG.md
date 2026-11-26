@@ -5,6 +5,7 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). L
 ## [Unreleased]
 
 ### Añadido
+- `cv --phone` (o la variable `PROOFSTACK_PHONE`): añade el teléfono a la línea de contacto del CV sin guardarlo en el perfil, que es público. El CV de la web nunca lo lleva.
 - Web: sección «Proyectos destacados» justo después de la cabecera, con los 3 proyectos mejor documentados (resultado, problema y solución, enlace) visibles sin hacer clic. Los empates respetan el orden del perfil.
 - CV: los puestos sin tecnologías pasan a una sección «Otra experiencia» con una línea por puesto, cuando otros puestos sí las tienen. Deja más espacio a la experiencia técnica y a los proyectos.
 - Studio: si el fichero cambió en disco al guardar, combina esos cambios con los tuyos y pregunta solo por los campos que tocasteis los dos. Antes la única salida era recargar y perder lo editado. Añade *Descargar mis cambios*, y lo no guardado sobrevive a una recarga de la pestaña.
