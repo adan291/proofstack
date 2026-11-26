@@ -65,6 +65,16 @@ public final class StudioServer implements AutoCloseable {
     private final HttpServer server;
     private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
     private final StudioGuard guard;
+    /** Documents served in this session, by version: the only acceptable bases for a merge (R3.1). */
+    private final Map<String, String> served = java.util.Collections.synchronizedMap(
+            new java.util.LinkedHashMap<>(32, 0.75f, false) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                    return size() > 20;
+                }
+            });
+    /** Top-level lists whose items have a required id: merged by id, not by position. */
+    private final java.util.Set<String> idLists;
 
     /**
      * @param saved  the profile as it is on disk now, for the preview
@@ -78,6 +88,7 @@ public final class StudioServer implements AutoCloseable {
         this.site = Objects.requireNonNull(site, "site");
         this.cv = Objects.requireNonNull(cv, "cv");
         this.schema = Objects.requireNonNull(schema, "schema");
+        this.idLists = idLists(json.readTree(schema));
         try {
             this.server = HttpServer.create(new InetSocketAddress(InetAddress.getLoopbackAddress(), port), 0);
         } catch (IOException e) {
@@ -137,6 +148,14 @@ public final class StudioServer implements AutoCloseable {
     }
 
     private void route(HttpExchange exchange, String method, String path) throws IOException {
+        if (path.equals("/api/profile/merge")) {
+            if (method.equals("POST")) {
+                mergeProfile(exchange);
+            } else {
+                error(exchange, 405, "use POST");
+            }
+            return;
+        }
         if (path.equals("/api/profile")) {
             switch (method) {
                 case "GET" -> getProfile(exchange);
@@ -184,6 +203,7 @@ public final class StudioServer implements AutoCloseable {
         body.set("findings", findings(snapshot.findings()));
         body.set("invalid", violations(snapshot.invalid()));
         exchange.getResponseHeaders().set("ETag", "\"" + snapshot.version() + "\"");
+        served.put(snapshot.version(), snapshot.json());
         sendJson(exchange, 200, body);
     }
 
@@ -193,17 +213,13 @@ public final class StudioServer implements AutoCloseable {
             error(exchange, 428, "If-Match with the version you loaded is required");
             return;
         }
-        String body;
-        try (InputStream in = exchange.getRequestBody()) {
-            byte[] bytes = in.readNBytes((int) StudioGuard.MAX_BODY_BYTES + 1);
-            if (bytes.length > StudioGuard.MAX_BODY_BYTES) {
-                error(exchange, 413, "body larger than 1 MiB");
-                return;
-            }
-            body = new String(bytes, StandardCharsets.UTF_8);
+        String body = body(exchange);
+        if (body == null) {
+            return;
         }
         switch (editor.save(body, expected)) {
             case Saved s -> {
+                served.put(s.version(), body);
                 ObjectNode out = json.createObjectNode();
                 out.put("version", s.version());
                 out.set("findings", findings(s.findings()));
@@ -218,11 +234,105 @@ public final class StudioServer implements AutoCloseable {
             }
             case Conflict c -> {
                 ObjectNode out = json.createObjectNode();
-                out.put("error", "the file changed on disk; reload before saving");
+                out.put("error", "the file changed on disk; reload or merge before saving");
                 out.put("version", c.currentVersion());
+                out.put("baseKnown", served.containsKey(expected));
                 sendJson(exchange, 409, out);
             }
         }
+    }
+
+    /**
+     * {@code POST /api/profile/merge} {@code {base, document, choose?}}: my edit, made on version {@code base}, merged
+     * with what is on disk now. Never writes: the client reviews the result and saves it with a normal {@code PUT}.
+     */
+    private void mergeProfile(HttpExchange exchange) throws IOException {
+        String body = body(exchange);
+        if (body == null) {
+            return;
+        }
+        JsonNode request;
+        try {
+            request = json.readTree(body);
+        } catch (tools.jackson.core.JacksonException e) {
+            request = null;
+        }
+        if (request == null || !request.isObject() || !request.path("base").isString()
+                || !request.path("document").isObject()) {
+            error(exchange, 400, "send JSON like {\"base\": \"<version>\", \"document\": {...}}");
+            return;
+        }
+        String base = served.get(request.path("base").asString());
+        if (base == null) {
+            ObjectNode out = json.createObjectNode();
+            out.put("error", "this version was not served by this Studio session; reload instead");
+            out.put("baseKnown", false);
+            sendJson(exchange, 409, out);
+            return;
+        }
+        Snapshot now;
+        try {
+            now = editor.load();
+        } catch (ProfileValidationException e) {
+            ObjectNode out = json.createObjectNode();
+            out.put("error", "profile.yaml is not valid YAML; fix it in a text editor, then reload");
+            out.set("violations", violations(e.violations()));
+            sendJson(exchange, 422, out);
+            return;
+        }
+        Map<String, ThreeWayMerge.Side> choices = new java.util.HashMap<>();
+        for (Map.Entry<String, JsonNode> choice : request.path("choose").properties()) {
+            choices.put(choice.getKey(), "theirs".equals(choice.getValue().asString(""))
+                    ? ThreeWayMerge.Side.THEIRS : ThreeWayMerge.Side.MINE);
+        }
+        ThreeWayMerge.Result result = ThreeWayMerge.merge(json.readTree(base), request.get("document"),
+                json.readTree(now.json()), idLists, choices);
+        served.put(now.version(), now.json());
+        ObjectNode out = json.createObjectNode();
+        out.put("version", now.version());
+        out.set("merged", result.merged());
+        ArrayNode conflicts = out.putArray("conflicts");
+        for (ThreeWayMerge.Conflict c : result.conflicts()) {
+            ObjectNode node = conflicts.addObject();
+            node.put("path", c.path());
+            node.set("mine", c.mine() == null ? json.nullNode() : c.mine());
+            node.set("theirs", c.theirs() == null ? json.nullNode() : c.theirs());
+        }
+        sendJson(exchange, 200, out);
+    }
+
+    /** The request body, or {@code null} after answering 413 when it is larger than 1 MiB. */
+    private String body(HttpExchange exchange) throws IOException {
+        try (InputStream in = exchange.getRequestBody()) {
+            byte[] bytes = in.readNBytes((int) StudioGuard.MAX_BODY_BYTES + 1);
+            if (bytes.length > StudioGuard.MAX_BODY_BYTES) {
+                error(exchange, 413, "body larger than 1 MiB");
+                return null;
+            }
+            return new String(bytes, StandardCharsets.UTF_8);
+        }
+    }
+
+    /** Top-level arrays of objects whose schema requires an {@code id}: experience, projects, evidence... */
+    static java.util.Set<String> idLists(JsonNode schema) {
+        java.util.Set<String> lists = new java.util.HashSet<>();
+        for (Map.Entry<String, JsonNode> property : schema.path("properties").properties()) {
+            JsonNode node = resolve(schema, property.getValue());
+            if ("array".equals(node.path("type").asString(""))) {
+                JsonNode items = resolve(schema, node.path("items"));
+                for (JsonNode required : items.path("required")) {
+                    if ("id".equals(required.asString(""))) {
+                        lists.add(property.getKey());
+                    }
+                }
+            }
+        }
+        return java.util.Set.copyOf(lists);
+    }
+
+    private static JsonNode resolve(JsonNode schema, JsonNode node) {
+        String ref = node.path("$ref").asString("");
+        return ref.startsWith("#/$defs/") ? schema.path("$defs").path(ref.substring("#/$defs/".length())) : node;
     }
 
     // ------------------------------------------------------------------ static files and preview

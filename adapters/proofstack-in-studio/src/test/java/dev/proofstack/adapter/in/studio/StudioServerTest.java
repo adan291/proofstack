@@ -154,6 +154,83 @@ class StudioServerTest {
         assertThat(editor.saved).isEmpty();
     }
 
+    // ------------------------------------------------------------------ merge after a 409
+
+    private Response merge(String body) throws IOException {
+        return request("POST", "/api/profile/merge", Map.of("Host", host, "Origin", origin,
+                "X-Studio-Token", server.token(), "Content-Type", "application/json"), body);
+    }
+
+    private void changeOnDisk(String json) {
+        editor.json = json;
+        editor.version++;
+    }
+
+    @Test
+    void aMergeCombinesMyEditWithTheChangeOnDiskWithoutWriting() throws IOException {
+        editor.json = "{\"person\":{\"name\":\"Ada\",\"headline\":\"Dev\"}}";
+        request("GET", "/api/profile", Map.of("Host", host, "X-Studio-Token", server.token()), null);
+        changeOnDisk("{\"person\":{\"name\":\"Grace\",\"headline\":\"Dev\"}}");
+
+        Response r = merge("{\"base\":\"v1\",\"document\":{\"person\":{\"name\":\"Ada\",\"headline\":\"Staff\"}}}");
+
+        assertThat(r.status).as(r.body).isEqualTo(200);
+        assertThat(r.body).contains("\"version\":\"v2\"")
+                .contains("\"merged\":{\"person\":{\"name\":\"Grace\",\"headline\":\"Staff\"}}")
+                .contains("\"conflicts\":[]");
+        assertThat(editor.saved).as("a merge never writes").isEmpty();
+    }
+
+    @Test
+    void conflictsAreListedAndAChoiceResolvesThem() throws IOException {
+        editor.json = "{\"person\":{\"name\":\"Ada\",\"headline\":\"Dev\"}}";
+        request("GET", "/api/profile", Map.of("Host", host, "X-Studio-Token", server.token()), null);
+        changeOnDisk("{\"person\":{\"name\":\"Ada\",\"headline\":\"Lead\"}}");
+        String mine = "{\"person\":{\"name\":\"Ada\",\"headline\":\"Staff\"}}";
+
+        Response open = merge("{\"base\":\"v1\",\"document\":" + mine + "}");
+        assertThat(open.body).contains("{\"path\":\"$.person.headline\",\"mine\":\"Staff\",\"theirs\":\"Lead\"}");
+
+        Response chosen = merge("{\"base\":\"v1\",\"document\":" + mine + ",\"choose\":{\"$.person.headline\":\"theirs\"}}");
+        assertThat(chosen.body).contains("\"headline\":\"Lead\"").contains("\"conflicts\":[]");
+    }
+
+    @Test
+    void theListsMergedByIdComeFromTheRealSchema() throws IOException {
+        var schema = tools.jackson.databind.json.JsonMapper.builder().build()
+                .readTree(java.nio.file.Files.readString(java.nio.file.Path.of("../../schema/profile.schema.json")));
+
+        assertThat(StudioServer.idLists(schema))
+                .containsExactlyInAnyOrder("experience", "education", "projects", "evidence", "labs");
+    }
+
+    /** Only versions this session served can be a base: a client cannot invent one to slip changes through. */
+    @Test
+    void anUnknownBaseIs409WithoutMerge() throws IOException {
+        Response r = merge("{\"base\":\"v999\",\"document\":{}}");
+
+        assertThat(r.status).isEqualTo(409);
+        assertThat(r.body).contains("\"baseKnown\":false");
+    }
+
+    @Test
+    void aStaleSaveSaysWhetherAMergeIsPossible() throws IOException {
+        request("GET", "/api/profile", Map.of("Host", host, "X-Studio-Token", server.token()), null);
+        changeOnDisk("{\"person\":{\"name\":\"Grace\",\"headline\":\"Dev\"}}");
+
+        assertThat(put("{}", "\"v1\"").body).contains("\"baseKnown\":true");
+        assertThat(put("{}", "\"v0\"").body).contains("\"baseKnown\":false");
+    }
+
+    @Test
+    void mergeRequestsAreGuardedLikeEveryWrite() throws IOException {
+        assertThat(request("POST", "/api/profile/merge", Map.of("Host", host, "Origin", "https://evil.example",
+                "X-Studio-Token", server.token(), "Content-Type", "application/json"), "{}").status).isEqualTo(403);
+        assertThat(request("POST", "/api/profile/merge", Map.of("Host", host, "Origin", origin,
+                "Content-Type", "application/json"), "{}").status).isEqualTo(401);
+        assertThat(merge("not json").status).isEqualTo(400);
+    }
+
     // ------------------------------------------------------------------ attacks
 
     @Test
