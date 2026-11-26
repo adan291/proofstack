@@ -2,7 +2,6 @@ package dev.proofstack.core.domain;
 
 import org.junit.jupiter.api.Test;
 
-import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 import static dev.proofstack.core.domain.Fixtures.*;

@@ -1,6 +1,5 @@
 package dev.proofstack.core.domain;
 
-import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 /** Test data builders. */

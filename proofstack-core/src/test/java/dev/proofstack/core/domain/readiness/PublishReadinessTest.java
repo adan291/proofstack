@@ -64,7 +64,7 @@ class PublishReadinessTest {
         assertThat(dev.proofstack.core.domain.TodoCounter.count(profile)).isEqualTo(11);
     }
 
-    /** doctor and the TODO counter must look at the same fields, or one says "ready" while the other counts TODOs. */
+    /** doctor and the placeholder counter must look at the same fields, or one says "ready" while the other counts some. */
     @Test
     void doctorAndTheTodoCounterAgree() {
         Profile profile = new Profile("en",

@@ -1,6 +1,5 @@
 package dev.proofstack.core.domain;
 
-import dev.proofstack.core.domain.ProfileDate;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +68,7 @@ class ProfileMergeTest {
 
         Profile merged = ProfileMerge.careerFrom(mine, withFlags);
 
-        Experience matched = merged.experience().get(0); // matched with the current job whose company was TODO
+        Experience matched = merged.experience().get(0); // matched with the current job whose company was still a placeholder
         assertThat(matched.period()).isEqualTo(mine.experience().getFirst().period());
         assertThat(matched.highlights()).noneMatch(h -> h.startsWith(TodoCounter.DATES));
         assertThat(merged.experience().get(1).highlights()).contains(flag);
