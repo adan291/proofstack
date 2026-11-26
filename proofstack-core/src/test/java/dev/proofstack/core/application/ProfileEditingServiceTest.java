@@ -1,9 +1,8 @@
 package dev.proofstack.core.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 import dev.proofstack.core.domain.PersonalInfo;
@@ -41,6 +40,9 @@ class ProfileEditingServiceTest {
 
         @Override
         public String replace(String document, String expectedVersion) {
+            if (document.contains("UNWRITABLE")) {
+                throw new ProfileValidationException(new Violation("$", "could not be written as YAML that reads back the same"));
+            }
             if (!expectedVersion.equals("v" + version)) {
                 throw new VersionConflict("v" + version);
             }
@@ -91,6 +93,17 @@ class ProfileEditingServiceTest {
 
         assertThat(result).isInstanceOf(Invalid.class);
         assertThat(((Invalid) result).violations()).extracting(Violation::path).containsExactly("$.person.name");
+        assertThat(store.writes).isZero();
+    }
+
+    /** Review H9: the store can refuse a valid document at write time; the user must see why, not "internal error". */
+    @Test
+    void aDocumentTheStoreRefusesToWriteIsInvalidNotAnError() {
+        var result = service.save("{\"UNWRITABLE\":1}", "v1");
+
+        assertThat(result).isInstanceOf(Invalid.class);
+        assertThat(((Invalid) result).violations()).extracting(Violation::message)
+                .containsExactly("could not be written as YAML that reads back the same");
         assertThat(store.writes).isZero();
     }
 

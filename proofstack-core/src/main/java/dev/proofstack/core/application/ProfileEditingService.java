@@ -45,6 +45,10 @@ public final class ProfileEditingService implements EditProfileUseCase {
             return new Saved(store.replace(json, expectedVersion), PublishReadiness.check(profile));
         } catch (VersionConflict e) {
             return new Conflict(e.currentVersion());
+        } catch (ProfileValidationException e) {
+            // The store can still refuse at write time (YAML that would not read back the same, a file too large):
+            // nothing was written, and the user is told why instead of getting a generic error.
+            return new Invalid(e.violations());
         }
     }
 }
