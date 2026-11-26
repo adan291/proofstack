@@ -34,8 +34,9 @@ import picocli.CommandLine.Spec;
  * GitHub and brings its repositories, sets up LinkedIn once and imports it, then opens Studio on what is left.
  * Each step is the same code as its own command; a step that fails is reported and the rest go on.
  */
-@Command(name = "setup", description = {"Start here: create or update your profile from GitHub and LinkedIn, then edit it.",
-        "Asks only for what it cannot find. Safe to run again: existing projects and evidence are never touched."})
+@Command(name = "setup", description = {"Start here: create your profile if needed and open the step-by-step assistant in the browser.",
+        "With --yes or --no-studio it runs the same steps in the terminal (GitHub, LinkedIn, doctor), e.g. in a workflow.",
+        "Safe to run again: existing projects and evidence are never touched."})
 final class SetupCommand implements Callable<Integer> {
 
     /** Where answers come from. Package-private so tests can answer the questions. */
@@ -96,13 +97,23 @@ final class SetupCommand implements Callable<Integer> {
             return ProofstackCli.INVALID;
         }
 
-        step("1/4 Profile");
+        // With a person at the keyboard, everything after the file itself happens in the browser assistant.
+        boolean assistant = !yes && !noStudio;
+        step(assistant ? "Profile" : "1/4 Profile");
         if (Files.isRegularFile(profile)) {
             out.println("  Using " + profile);
         } else if (run("init", profile.getParent().toString(), "--name", name.strip(), "--headline",
-                headline == null || headline.isBlank() ? ask("Your role", "Backend Developer") : headline.strip(),
+                headline != null && !headline.isBlank() ? headline.strip()
+                        : assistant ? "Backend Developer" : ask("Your role", "Backend Developer"),
                 "--language", language) != ProofstackCli.OK) {
             return ProofstackCli.INVALID;
+        }
+        if (assistant) {
+            out.println();
+            out.println("Opening the assistant in your browser: you, GitHub, LinkedIn, your projects and publishing,");
+            out.println("one step at a time. Leave it whenever you want; it resumes where you stopped. Ctrl+C here to close it.");
+            out.flush();
+            return run("studio", profile.toString(), "--wizard");
         }
 
         step("2/4 GitHub");

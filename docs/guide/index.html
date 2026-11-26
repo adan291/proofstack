@@ -19,8 +19,8 @@
   <ul class="cta">
     <li><a class="btn btn--primary" href="#rapido">Empezar</a></li>
     <li><a class="btn" href="#recetas">Recetas</a></li>
-    <li><a class="btn" href="https://github.com/adan291/proofstack">Código en GitHub</a></li>
-    <li><a class="btn" href="https://adan291.github.io/proofstack/">Ejemplo real</a></li>
+    <li><a class="btn" href="../">Tu web</a></li>
+    <li><a class="btn" href="https://github.com/adan291/proofstack">Proofstack en GitHub</a></li>
   </ul>
 </header>
 
@@ -94,8 +94,8 @@ git push</code></pre>
         <p>Experiencia, formación, skills, idiomas y certificaciones desde LinkedIn, y repos públicos desde GitHub. Nunca traen email ni teléfono, y nunca tocan tus proyectos ni tus evidencias.</p>
       </article>
       <article class="card">
-        <h3>Un comando para empezar</h3>
-        <p><code>setup</code> crea el perfil, trae GitHub y LinkedIn, te dice qué falta y abre el editor. Puedes repetirlo cuando quieras.</p>
+        <h3>Un asistente para empezar</h3>
+        <p><code>setup</code> abre en el navegador cinco pasos: tú, GitHub, LinkedIn, tus proyectos uno a uno y publicar. Puedes dejarlo y retomarlo cuando quieras.</p>
       </article>
       <article class="card">
         <h3>Se mantiene solo</h3>
@@ -172,17 +172,19 @@ cd &lt;repo&gt;</code></pre>
     <h2 id="perfil">Tu perfil</h2>
     <ol class="steps">
       <li class="step">
-        <h3>Créalo con un solo comando</h3>
+        <h3>Créalo con el asistente</h3>
         <pre><code>./proofstack setup</code></pre>
-        <p>Te pregunta tu nombre y tu usuario de GitHub, y hace el resto:</p>
+        <p>Si no tienes perfil, te pregunta tu nombre y lo crea. Después abre en el navegador un asistente de cinco pasos:</p>
         <ol class="sub">
-          <li>Crea <code>profiles/tu-nombre/profile.yaml</code>, o usa el que ya tengas.</li>
-          <li>Trae tus repositorios públicos de GitHub y te deja elegir cuáles van al portfolio. Los que descartes se apuntan en <code>github-ignore.txt</code> y no vuelven a salir.</li>
-          <li>Configura LinkedIn la primera vez: te dice cómo crear tu app (5 minutos, solo una vez) y guarda sus claves en tu carpeta de usuario, nunca en el repositorio. Después abre LinkedIn para que pulses <em>Permitir</em> e importa tu trayectoria.</li>
-          <li>Te dice qué falta y abre Studio.</li>
+          <li><strong>Tú:</strong> nombre, titular, email, ciudad y resumen.</li>
+          <li><strong>GitHub:</strong> tus repositorios públicos en una lista con casillas, buscador y <em>Marcar todos</em>. Los que no marques se apuntan en <code>github-ignore.txt</code> y no vuelven a salir.</li>
+          <li><strong>LinkedIn:</strong> la primera vez, los pasos para crear tu app (5 minutos) y dos campos para sus claves, que se guardan en tu carpeta de usuario. Después, <em>Traer de LinkedIn</em>: pulsas <em>Permitir</em> y entra tu trayectoria.</li>
+          <li><strong>Proyectos:</strong> de uno en uno, <em>Proyecto 3 de 9</em>: qué es, qué problema resolvía, cómo lo resolviste y qué aprendiste. Puedes quitar los que no quieras enseñar.</li>
+          <li><strong>Publicar:</strong> lo que falta, la vista previa de la web y del CV, y enlaces directos a los ajustes de tu repositorio.</li>
         </ol>
+        <p>Cada paso guarda al terminar. Puedes cerrar y volver con <code>./proofstack setup</code>: retoma en el primer paso pendiente. Desde Studio se llega con el botón <em>Asistente</em>.</p>
         <p>Puedes repetirlo cuando quieras: tus proyectos y evidencias nunca se tocan, y si no hay nada nuevo el fichero queda igual. Si tu LinkedIn no está en el EEE o Suiza, usa el ZIP: <code>./proofstack setup --linkedin-zip Basic_LinkedInDataExport.zip</code>.</p>
-        <p class="tip">Ejemplo real: <code>profiles/adan/profile.yaml</code>.</p>
+        <p class="tip">Para ver cómo queda un perfil completo, abre <code>profiles/example/profile.yaml</code>.</p>
       </li>
       <li class="step">
         <h3>Rellénalo con Studio</h3>

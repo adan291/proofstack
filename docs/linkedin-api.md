@@ -22,7 +22,7 @@ $env:LINKEDIN_REDIRECT_URI = "http://127.0.0.1:63141/callback"
 ## Uso
 
 ```powershell
-proofstack import linkedin-api --merge-into profiles/adan/profile.yaml --out profiles/adan/profile.linkedin.yaml
+proofstack import linkedin-api --merge-into profiles/tu-nombre/profile.yaml --out profiles/tu-nombre/profile.linkedin.yaml
 ```
 
 1. Se abre el navegador y autorizas a tu app.
@@ -47,7 +47,7 @@ La primera vez que autorizas, LinkedIn puede tardar unos minutos en preparar los
 LinkedIn no guarda tus evidencias (contexto → acción → resultado). Puedes pedir un borrador a partir de los puestos que las referencian:
 
 ```powershell
-proofstack generate evidence-draft profiles/adan/profile.yaml -s team-coordination -m llama3.1
+proofstack generate evidence-draft profiles/tu-nombre/profile.yaml -s team-coordination -m llama3.1
 ```
 
 El borrador solo usa datos de tu perfil. Si falta información, deja `TODO` en lugar de inventar, y cualquier número que no esté en tu perfil sale como `WARNING`. Revísalo y pégalo tú en el YAML: no se escribe solo.

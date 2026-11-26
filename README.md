@@ -10,7 +10,7 @@ Está pensada para perfiles backend que quieren enseñar pruebas y no listas de 
 
 Nada se inventa: lo que no está en tu perfil no aparece, y lo que está a medias (`TODO`) bloquea la publicación.
 
-**Ejemplo real:** [adan291.github.io/proofstack](https://adan291.github.io/proofstack/), generado desde [`profiles/adan/profile.yaml`](profiles/adan/profile.yaml). **Guía visual:** [adan291.github.io/proofstack/guide](https://adan291.github.io/proofstack/guide/).
+Cuando lo publiques, tu web quedará en `https://<usuario>.github.io/<repo>/` y la guía visual en `https://<usuario>.github.io/<repo>/guide/` (en el repositorio: [`docs/guide/index.html`](docs/guide/index.html)). El perfil de ejemplo, ficticio, está en [`profiles/example/profile.yaml`](profiles/example/profile.yaml).
 
 ## Arranque rápido
 
@@ -21,7 +21,7 @@ Nada se inventa: lo que no está en tu perfil no aparece, y lo que está a media
 git clone https://github.com/<usuario>/<repo>.git
 cd <repo>
 
-# 2. Todo de una vez: perfil, GitHub, LinkedIn y editor
+# 2. Se abre un asistente en el navegador: tú, GitHub, LinkedIn, proyectos y publicar
 ./proofstack setup
 
 # 3. Mira el resultado en tu equipo
@@ -39,9 +39,14 @@ Antes del primer `git push`, configura GitHub Pages: son dos ajustes, explicados
 
 ### Entrada: tus datos sin teclearlos
 
-- **`setup`** crea el perfil y trae lo que ya existe sobre ti:
-  - tus repositorios públicos de GitHub (tú eliges cuáles entran);
-  - tu experiencia, formación, skills, idiomas y certificaciones de LinkedIn.
+- **`setup`** crea el perfil y abre un **asistente por pasos en el navegador**:
+  1. tus datos;
+  2. tus repositorios de GitHub, en una lista con casillas y buscador para elegir cuáles entran;
+  3. LinkedIn: crear tu app la primera vez y traer tu trayectoria;
+  4. tus proyectos, de uno en uno: qué problema resolvían, cómo y qué aprendiste;
+  5. revisar y publicar, con enlaces directos a los ajustes de tu repositorio.
+
+  Cada paso guarda al terminar, así que puedes dejarlo y volver: retoma donde lo dejaste.
 - **Studio** es un editor en el navegador, con un formulario por sección y los avisos junto a cada campo. Tiene los botones *Traer de LinkedIn* y *Traer repos de GitHub*, y una vista previa del CV y de la web.
 - Los importadores **nunca traen tu email ni tu teléfono**, y **nunca pisan** tus proyectos ni tus evidencias.
 
@@ -82,7 +87,7 @@ Antes del primer `git push`, configura GitHub Pages: son dos ajustes, explicados
 | Un CV con mi teléfono para enviarlo | `./proofstack cv profiles/<yo>/profile.yaml --out dist/cv-privado --phone "600 11 22 33"` |
 | Que un repositorio no vuelva a ofrecerse | Añadir su nombre a `profiles/<yo>/github-ignore.txt` |
 
-La [guía](https://adan291.github.io/proofstack/guide/#recetas) tiene cada receta paso a paso.
+La guía (`https://<usuario>.github.io/<repo>/guide/#recetas`) tiene cada receta paso a paso.
 
 Para abrir lo generado:
 
@@ -99,8 +104,8 @@ En los ejemplos, `proofstack` es el lanzador: escribe `./proofstack` desde la ca
 
 | Comando | Para qué |
 |---|---|
-| `setup [DIR]` | Crea o pone al día el perfil desde GitHub y LinkedIn y abre Studio |
-| `studio PROFILE` | Editor en el navegador, con importación, avisos y vista previa |
+| `setup [DIR]` | Crea el perfil si hace falta y abre el asistente por pasos (con `--yes`, lo hace todo en la terminal) |
+| `studio PROFILE [--wizard]` | Editor en el navegador, con importación, avisos y vista previa; `--wizard` abre el asistente |
 | `doctor PROFILE` | Qué falta antes de publicar: `TODO`, enlaces de ejemplo, avisos |
 | `validate PROFILE` | Solo comprueba que el fichero cumple el esquema |
 | `build PROFILE --out DIR [--with-cv]` | Genera la web, y con `--with-cv`, también el CV |
@@ -117,6 +122,8 @@ proofstack setup profiles/yo --github yo         # sin preguntas sobre GitHub
 proofstack setup --linkedin-zip Basic_LinkedInDataExport.zip   # LinkedIn con el ZIP en vez de la API
 proofstack setup profiles/yo --skip-linkedin --no-studio --yes # sin preguntas, como en un workflow
 ```
+
+Con una persona delante, `setup` solo crea el fichero si no existe (te pregunta tu nombre) y abre el **asistente** en el navegador. También se llega a él desde Studio, con el botón *Asistente*. Con `--yes` o `--no-studio` hace los mismos pasos en la terminal, como en un workflow:
 
 1. **Perfil:** usa `profiles/<tu-nombre>/profile.yaml`, o lo crea.
 2. **GitHub:** toma tu usuario del enlace de GitHub del perfil, o te lo pregunta. Trae los repositorios públicos que aún no están y te deja elegir cuáles entran. Los que descartas se apuntan en `github-ignore.txt` y no vuelven a ofrecerse.
@@ -290,7 +297,7 @@ mvn -Pe2e verify                              # además, tests en Chrome
 mvn -DskipTests package -pl proofstack-cli -am   # para que ./proofstack use tu cambio
 ```
 
-El diseño de la web está en `adapters/proofstack-out-web/src/main/resources/themes/architecture/`. El del CV, en `adapters/proofstack-out-cv/src/main/resources/cv/`. Un campo nuevo del perfil se añade en tres sitios: `schema/profile.schema.json`, el dominio de `proofstack-core` y `adapters/proofstack-yaml`; Studio lo muestra solo. Cómo publicar una versión nueva: en la [guía](https://adan291.github.io/proofstack/guide/#codigo).
+El diseño de la web está en `adapters/proofstack-out-web/src/main/resources/themes/architecture/`. El del CV, en `adapters/proofstack-out-cv/src/main/resources/cv/`. Un campo nuevo del perfil se añade en tres sitios: `schema/profile.schema.json`, el dominio de `proofstack-core` y `adapters/proofstack-yaml`; Studio lo muestra solo. Cómo publicar una versión nueva: en la guía, sección *Si cambias el código*.
 
 ## Roadmap
 

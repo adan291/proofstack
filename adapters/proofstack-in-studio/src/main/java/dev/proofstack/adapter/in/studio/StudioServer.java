@@ -50,6 +50,8 @@ public final class StudioServer implements AutoCloseable {
     private static final String UI = "/studio/";
     private static final Map<String, String> ASSETS = Map.of(
             "index.html", "text/html; charset=utf-8",
+            "wizard.html", "text/html; charset=utf-8",
+            "wizard.js", "text/javascript; charset=utf-8",
             "studio.css", "text/css; charset=utf-8",
             "studio.js", "text/javascript; charset=utf-8",
             "schema-form.js", "text/javascript; charset=utf-8");
@@ -124,6 +126,11 @@ public final class StudioServer implements AutoCloseable {
         return URI.create("http://127.0.0.1:" + port() + "/#token=" + guard.token());
     }
 
+    /** The setup assistant, with the same token. */
+    public URI wizardUrl() {
+        return URI.create("http://127.0.0.1:" + port() + "/wizard#token=" + guard.token());
+    }
+
     String token() {
         return guard.token();
     }
@@ -160,6 +167,20 @@ public final class StudioServer implements AutoCloseable {
     }
 
     private void route(HttpExchange exchange, String method, String path) throws IOException {
+        if (path.equals("/api/setup") || path.equals("/api/linkedin/app") || path.equals("/api/github/ignore")) {
+            if (imports == null) {
+                error(exchange, 404, "the assistant is not available in this Studio");
+            } else if (path.equals("/api/setup") && method.equals("GET")) {
+                setupInfo(exchange);
+            } else if (path.equals("/api/linkedin/app") && method.equals("POST")) {
+                saveLinkedInApp(exchange);
+            } else if (path.equals("/api/github/ignore") && method.equals("POST")) {
+                ignoreRepos(exchange);
+            } else {
+                error(exchange, 405, path.equals("/api/setup") ? "use GET" : "use POST");
+            }
+            return;
+        }
         if (path.equals("/api/import/linkedin") || path.equals("/api/import/github")) {
             if (!method.equals("POST")) {
                 error(exchange, 405, "use POST");
@@ -194,6 +215,8 @@ public final class StudioServer implements AutoCloseable {
             send(exchange, 200, "application/schema+json", schema.getBytes(StandardCharsets.UTF_8), UI_CSP);
         } else if (path.equals("/")) {
             asset(exchange, "index.html");
+        } else if (path.equals("/wizard")) {
+            asset(exchange, "wizard.html");
         } else if (path.startsWith("/assets/")) {
             asset(exchange, path.substring("/assets/".length()));
         } else if (path.startsWith("/preview/site/")) {
@@ -384,6 +407,83 @@ public final class StudioServer implements AutoCloseable {
         imported.leftOut().forEach(leftOut::add);
         out.put("todoCount", imported.todoCount());
         sendJson(exchange, 200, out);
+    }
+
+    /** {@code GET /api/setup}: what the assistant needs to pick its first step and to link to the repository settings. */
+    private void setupInfo(HttpExchange exchange) throws IOException {
+        StudioImports.Workspace w = imports.workspace().get();
+        ObjectNode out = json.createObjectNode();
+        out.put("linkedInConfigured", imports.linkedInConfigured().getAsBoolean());
+        if (w != null && w.owner() != null && w.repo() != null) {
+            out.put("owner", w.owner());
+            out.put("repo", w.repo());
+        }
+        if (w != null && w.profilePath() != null) {
+            out.put("profilePath", w.profilePath());
+        }
+        sendJson(exchange, 200, out);
+    }
+
+    /** {@code POST /api/linkedin/app} {@code {clientId, clientSecret}}: the secret is written to the user's home, never echoed. */
+    private void saveLinkedInApp(HttpExchange exchange) throws IOException {
+        JsonNode request = jsonBody(exchange);
+        if (request == null) {
+            return;
+        }
+        String id = request.path("clientId").asString("").strip();
+        String secret = request.path("clientSecret").asString("").strip();
+        if (id.isEmpty() || secret.isEmpty() || id.length() > 200 || secret.length() > 200) {
+            error(exchange, 400, "send {\"clientId\": \"...\", \"clientSecret\": \"...\"}");
+            return;
+        }
+        try {
+            imports.saveLinkedInApp().accept(id, secret);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            error(exchange, 400, e.getMessage());
+            return;
+        }
+        sendJson(exchange, 200, json.createObjectNode().put("linkedInConfigured", true));
+    }
+
+    /** {@code POST /api/github/ignore} {@code {names: [...]}}: repositories that GitHub imports skip from now on. */
+    private void ignoreRepos(HttpExchange exchange) throws IOException {
+        JsonNode request = jsonBody(exchange);
+        if (request == null) {
+            return;
+        }
+        List<String> names = new java.util.ArrayList<>();
+        for (JsonNode n : request.path("names")) {
+            String name = n.asString("").strip();
+            if (!name.matches("[A-Za-z0-9._-]{1,100}")) {
+                error(exchange, 400, "repository names only: letters, digits, dot, dash and underscore");
+                return;
+            }
+            names.add(name);
+        }
+        if (!request.path("names").isArray() || names.size() > 500) {
+            error(exchange, 400, "send {\"names\": [\"repo\", ...]} with at most 500 names");
+            return;
+        }
+        imports.ignoreRepos().accept(names);
+        sendJson(exchange, 200, json.createObjectNode().put("ignored", names.size()));
+    }
+
+    /** The body as a JSON object, or {@code null} after answering 400 or 413. */
+    private JsonNode jsonBody(HttpExchange exchange) throws IOException {
+        String body = body(exchange);
+        if (body == null) {
+            return null;
+        }
+        try {
+            JsonNode node = json.readTree(body);
+            if (node != null && node.isObject()) {
+                return node;
+            }
+        } catch (tools.jackson.core.JacksonException e) {
+            // answered below
+        }
+        error(exchange, 400, "body must be a JSON object");
+        return null;
     }
 
     /** The request body, or {@code null} after answering 413 when it is larger than 1 MiB. */

@@ -146,6 +146,45 @@ class StudioImportTest {
     }
 
     @Test
+    void theAssistantRoutesSaveTheLinkedInAppAndIgnoredReposWithoutEchoingTheSecret() throws Exception {
+        List<String> saved = new ArrayList<>();
+        List<String> ignored = new ArrayList<>();
+        EditProfileUseCase editor = new EditProfileUseCase() {
+            @Override
+            public Snapshot load() {
+                return new Snapshot("{}", "v1", List.of(), List.of());
+            }
+
+            @Override
+            public SaveResult save(String json, String expectedVersion) {
+                throw new AssertionError();
+            }
+        };
+        server = new StudioServer(editor, () -> DRAFT, p -> List.of(), p -> List.of(), "{}", 0,
+                new StudioImports(new DraftImportService(CODEC), () -> null, repos(), () -> !saved.isEmpty(),
+                        (id, secret) -> saved.add(id + ":" + secret), ignored::addAll,
+                        () -> new StudioImports.Workspace("jane", "site", "profiles/jane/profile.yaml")));
+        server.start();
+
+        HttpRequest get = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + server.port() + "/api/setup"))
+                .header("X-Studio-Token", server.token()).GET().build();
+        try (HttpClient client = HttpClient.newHttpClient()) {
+            assertThat(client.send(get, HttpResponse.BodyHandlers.ofString()).body())
+                    .contains("\"linkedInConfigured\":false", "\"owner\":\"jane\"", "\"profilePath\":\"profiles/jane/profile.yaml\"");
+        }
+        var app = post("/api/linkedin/app", "{\"clientId\":\"id\",\"clientSecret\":\"s3cret\"}");
+        assertThat(app.statusCode()).isEqualTo(200);
+        assertThat(app.body()).doesNotContain("s3cret");
+        assertThat(saved).containsExactly("id:s3cret");
+        assertThat(post("/api/linkedin/app", "{\"clientId\":\"id\"}").statusCode()).isEqualTo(400);
+
+        assertThat(post("/api/github/ignore", "{\"names\":[\"dotfiles\",\"old.homework\"]}").statusCode()).isEqualTo(200);
+        assertThat(ignored).containsExactly("dotfiles", "old.homework");
+        assertThat(post("/api/github/ignore", "{\"names\":[\"../etc\\npasswd\"]}").statusCode()).isEqualTo(400);
+        assertThat(ignored).hasSize(2);
+    }
+
+    @Test
     void malformedRequestsAndWrongMethodsAreRefused() throws Exception {
         start(null, repos());
         assertThat(post("/api/import/github", "{\"document\":{}}").statusCode()).isEqualTo(400);

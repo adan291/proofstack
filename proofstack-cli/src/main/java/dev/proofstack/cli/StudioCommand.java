@@ -48,6 +48,9 @@ final class StudioCommand implements Callable<Integer> {
     @Option(names = "--no-browser", description = "Do not open the browser; just print the URL")
     boolean noBrowser;
 
+    @Option(names = "--wizard", description = "Open the step-by-step assistant instead of the editor")
+    boolean wizard;
+
     @picocli.CommandLine.ParentCommand
     ProofstackCli parent;
 
@@ -79,11 +82,11 @@ final class StudioCommand implements Callable<Integer> {
             stopped.countDown();
         }));
         out.println("OK Studio is editing " + profile.toAbsolutePath().normalize());
-        out.println("  Open: " + server.url());
+        out.println("  Open: " + (wizard ? server.wizardUrl() : server.url()));
         out.println("  The link carries a token that works until you stop Studio: do not share it. Ctrl+C to stop.");
         out.flush();
         if (!noBrowser) {
-            openBrowser(server, err);
+            openBrowser(wizard ? server.wizardUrl() : server.url(), err);
         }
         stopped.await();
         return ProofstackCli.OK;
@@ -121,7 +124,46 @@ final class StudioCommand implements Callable<Integer> {
                 log.flush();
                 browse(uri);
             });
-        }, GitHubIgnore.filtered(GitHubProjectSource.fromEnvironment(env), GitHubIgnore.fileFor(profile)));
+        }, GitHubIgnore.filtered(GitHubProjectSource.fromEnvironment(env), GitHubIgnore.fileFor(profile)),
+                () -> LinkedInSettings.configured(env),
+                (id, secret) -> LinkedInSettings.save(env, id, secret, null),
+                names -> GitHubIgnore.add(GitHubIgnore.fileFor(profile), names),
+                () -> workspace(profile));
+    }
+
+    /** The GitHub repository the profile lives in (from .git/config), for the links of the publishing step. */
+    static StudioImports.Workspace workspace(Path profile) {
+        Path file = profile.toAbsolutePath().normalize();
+        for (Path dir = file.getParent(); dir != null; dir = dir.getParent()) {
+            Path config = dir.resolve(".git").resolve("config");
+            if (!Files.isRegularFile(config)) {
+                continue;
+            }
+            String relative = dir.relativize(file).toString().replace('\\', '/');
+            try {
+                return fromGitConfig(Files.readString(config, StandardCharsets.UTF_8), relative);
+            } catch (IOException e) {
+                return new StudioImports.Workspace(null, null, relative);
+            }
+        }
+        return StudioImports.Workspace.UNKNOWN;
+    }
+
+    static StudioImports.Workspace fromGitConfig(String config, String profilePath) {
+        boolean origin = false;
+        for (String raw : config.split("\\R")) {
+            String line = raw.strip();
+            if (line.startsWith("[")) {
+                origin = line.equals("[remote \"origin\"]");
+            } else if (origin && line.startsWith("url")) {
+                var m = java.util.regex.Pattern.compile("github\\.com[:/]([A-Za-z0-9-]{1,39})/([A-Za-z0-9._-]{1,100}?)(?:\\.git)?/?$")
+                        .matcher(line);
+                if (m.find()) {
+                    return new StudioImports.Workspace(m.group(1), m.group(2), profilePath);
+                }
+            }
+        }
+        return new StudioImports.Workspace(null, null, profilePath);
     }
 
     private static void browse(java.net.URI uri) {
@@ -145,10 +187,10 @@ final class StudioCommand implements Callable<Integer> {
         }
     }
 
-    private static void openBrowser(StudioServer server, PrintWriter err) {
+    private static void openBrowser(java.net.URI url, PrintWriter err) {
         try {
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-                Desktop.getDesktop().browse(server.url());
+                Desktop.getDesktop().browse(url);
                 return;
             }
         } catch (IOException | UnsupportedOperationException | SecurityException e) {

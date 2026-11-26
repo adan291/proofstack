@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <link rel="icon" href="data:,">
+  <title>Proofstack · Asistente</title>
+  <link rel="stylesheet" href="/assets/studio.css">
+  <script type="module" src="/assets/wizard.js"></script>
+</head>
+<body class="wizard-page">
+<a class="skip" href="#step">Saltar al paso actual</a>
+<header class="bar">
+  <h1 class="bar__title">Proofstack · Asistente</h1>
+  <p id="status" class="bar__status" role="status" aria-live="polite"></p>
+  <a id="to-editor" class="btn" href="/">Ir al editor completo</a>
+</header>
+
+<p id="loading" class="loading">Cargando el asistente…</p>
+
+<div id="app" class="wizard" hidden>
+  <nav class="wizard__steps" aria-label="Pasos">
+    <ol id="steps">
+      <li><button type="button" class="wizard__step" data-step="you">1. Tú</button></li>
+      <li><button type="button" class="wizard__step" data-step="github">2. GitHub</button></li>
+      <li><button type="button" class="wizard__step" data-step="linkedin">3. LinkedIn</button></li>
+      <li><button type="button" class="wizard__step" data-step="projects">4. Proyectos</button></li>
+      <li><button type="button" class="wizard__step" data-step="publish">5. Publicar</button></li>
+    </ol>
+  </nav>
+
+  <main id="step" class="wizard__panel" tabindex="-1">
+
+    <section data-panel="you" hidden aria-labelledby="you-title">
+      <h2 id="you-title">Tú</h2>
+      <p class="wizard__hint">Lo que verá quien abra tu web o tu CV. El teléfono no va aquí: el perfil es público. Se añade solo al generar el CV que envías.</p>
+      <div class="field"><label for="you-name">Nombre *</label><input id="you-name" autocomplete="name" required></div>
+      <div class="field"><label for="you-headline">Titular *</label><input id="you-headline" placeholder="Backend Developer · Java y Spring" required></div>
+      <div class="field"><label for="you-email">Email</label><input id="you-email" type="email" autocomplete="email"></div>
+      <div class="field"><label for="you-location">Ciudad</label><input id="you-location" placeholder="Madrid, España"></div>
+      <div class="field"><label for="you-summary">Resumen</label><textarea id="you-summary" rows="4" placeholder="2 o 3 frases: qué construyes, con qué y qué te diferencia."></textarea></div>
+      <div class="wizard__actions"><button type="button" class="btn btn--primary" data-save="you">Guardar y seguir</button></div>
+    </section>
+
+    <section data-panel="github" hidden aria-labelledby="github-title">
+      <h2 id="github-title">GitHub</h2>
+      <p class="wizard__hint">Tus repositorios públicos se convierten en proyectos. Marca solo los que quieres enseñar: los demás no volverán a ofrecerse.</p>
+      <div class="field field--inline">
+        <label for="github-user">Tu usuario de GitHub</label>
+        <input id="github-user" autocomplete="username" placeholder="tu-usuario">
+        <button type="button" class="btn" id="github-fetch">Buscar mis repositorios</button>
+      </div>
+      <div id="github-pick" hidden>
+        <div class="field field--inline">
+          <label for="github-filter">Filtrar</label>
+          <input id="github-filter" type="search" placeholder="nombre o lenguaje">
+          <button type="button" class="btn" id="github-all">Marcar todos</button>
+          <button type="button" class="btn" id="github-none">Ninguno</button>
+        </div>
+        <p id="github-count" class="wizard__hint"></p>
+        <ul id="github-list" class="wizard__repos"></ul>
+      </div>
+      <div class="wizard__actions">
+        <button type="button" class="btn" data-skip="github">Saltar</button>
+        <button type="button" class="btn btn--primary" id="github-save" disabled>Añadir los marcados y seguir</button>
+      </div>
+    </section>
+
+    <section data-panel="linkedin" hidden aria-labelledby="linkedin-title">
+      <h2 id="linkedin-title">LinkedIn</h2>
+      <div id="linkedin-setup" hidden>
+        <p class="wizard__hint">LinkedIn solo deja leer tus propios datos con una app tuya. Se crea una vez, en unos 5 minutos, y solo funciona con cuentas del EEE y Suiza. Si la tuya no lo es, usa el ZIP: <code>./proofstack setup --linkedin-zip Basic_LinkedInDataExport.zip</code>.</p>
+        <ol class="wizard__howto">
+          <li>Abre <a href="https://www.linkedin.com/developers/apps/new" target="_blank" rel="noopener noreferrer">linkedin.com/developers/apps/new</a>. Como página de empresa elige <em>Member Data Portability (Member) Default Company</em>.</li>
+          <li>En <em>Products</em>, añade <em>Member Data Portability API (Member)</em>.</li>
+          <li>En <em>Auth</em>, añade la redirect URL <code>http://127.0.0.1:63141/callback</code>.</li>
+          <li>Copia aquí el <em>Client ID</em> y el <em>Client Secret</em>. Se guardan en tu carpeta de usuario, fuera del repositorio, y solo tú puedes leerlos.</li>
+        </ol>
+        <div class="field"><label for="linkedin-id">Client ID</label><input id="linkedin-id" autocomplete="off" spellcheck="false"></div>
+        <div class="field"><label for="linkedin-secret">Client Secret</label><input id="linkedin-secret" type="password" autocomplete="off" spellcheck="false"></div>
+        <div class="wizard__actions"><button type="button" class="btn" id="linkedin-save-app">Guardar la app</button></div>
+      </div>
+      <div id="linkedin-ready" hidden>
+        <p class="wizard__hint">Trae tu experiencia, formación, skills, idiomas y certificaciones. Se abre LinkedIn en otra pestaña: pulsa <em>Permitir</em> y vuelve aquí. Tus proyectos y evidencias no se tocan.</p>
+        <ul id="linkedin-result" class="wizard__list" hidden></ul>
+      </div>
+      <div class="wizard__actions">
+        <button type="button" class="btn" data-skip="linkedin">Saltar</button>
+        <button type="button" class="btn btn--primary" id="linkedin-import" disabled>Traer de LinkedIn</button>
+      </div>
+    </section>
+
+    <section data-panel="projects" hidden aria-labelledby="projects-title">
+      <h2 id="projects-title">Proyectos</h2>
+      <p class="wizard__hint">Lo que convierte un repositorio en una prueba. Escribe con tus palabras y sin inventar cifras. Lo que dejes vacío queda pendiente y no se publica.</p>
+      <p id="project-counter" class="wizard__counter" aria-live="polite"></p>
+      <div id="project-form">
+        <h3 id="project-name" class="wizard__project"></h3>
+        <div class="field"><label for="project-summary">Qué es (una frase) *</label><textarea id="project-summary" rows="2"></textarea></div>
+        <div class="field"><label for="project-problem">Qué problema resolvía</label><textarea id="project-problem" rows="3"></textarea></div>
+        <div class="field"><label for="project-solution">Cómo lo resolviste</label><textarea id="project-solution" rows="4"></textarea></div>
+        <div class="field"><label for="project-learning">Qué aprendiste</label><textarea id="project-learning" rows="2"></textarea></div>
+        <div class="wizard__actions">
+          <button type="button" class="btn" id="project-prev">Anterior</button>
+          <button type="button" class="btn btn--danger" id="project-remove">Quitar este proyecto</button>
+          <button type="button" class="btn btn--primary" id="project-next">Guardar y siguiente</button>
+        </div>
+      </div>
+      <p id="projects-done" class="wizard__hint" hidden>No queda ningún proyecto a medias.</p>
+      <div class="wizard__actions"><button type="button" class="btn" data-skip="projects">Seguir sin terminar</button></div>
+    </section>
+
+    <section data-panel="publish" hidden aria-labelledby="publish-title">
+      <h2 id="publish-title">Revisar y publicar</h2>
+      <p id="publish-state" class="wizard__state"></p>
+      <ul id="publish-issues" class="wizard__list"></ul>
+      <p class="wizard__actions">
+        <a class="btn" href="/preview/site/" target="_blank" rel="noopener">Ver la web</a>
+        <a class="btn" href="/preview/cv/" target="_blank" rel="noopener">Ver el CV</a>
+        <a class="btn" href="/">Afinar en el editor completo</a>
+      </p>
+      <h3>Publicar en GitHub Pages (la primera vez)</h3>
+      <ol class="wizard__howto">
+        <li><a data-settings="pages" target="_blank" rel="noopener noreferrer">Settings → Pages</a>: en <em>Source</em> elige <em>GitHub Actions</em>.</li>
+        <li><a data-settings="variables/actions" target="_blank" rel="noopener noreferrer">Settings → Variables</a>: crea la variable de repositorio <code>PROOFSTACK_PROFILE</code> con el valor <code id="publish-profile">profiles/tu-nombre/profile.yaml</code>.</li>
+        <li><a data-settings="actions" target="_blank" rel="noopener noreferrer">Settings → Actions → General</a>: marca <em>Allow GitHub Actions to create and approve pull requests</em>, para recibir tus repos nuevos cada lunes.</li>
+        <li>En la terminal, desde la carpeta del repositorio:
+          <pre><code>git add -A
+git commit -m "Mi perfil"
+git push</code></pre>
+          Tu web quedará en <code id="publish-url">https://&lt;usuario&gt;.github.io/&lt;repo&gt;/</code> en unos 3 minutos.</li>
+      </ol>
+    </section>
+  </main>
+</div>
+</body>
+</html>

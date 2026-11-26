@@ -54,5 +54,5 @@ proofstack:
     document-prefix: "search_document: "
     query-prefix: "search_query: "
   cors:
-    # Origin of the static portfolio, e.g. https://adan.github.io (comma separated). Empty = same origin only.
+    # Origin of the static portfolio, e.g. https://<user>.github.io (comma separated). Empty = same origin only.
     allowed-origins: ${PROOFSTACK_ALLOWED_ORIGINS:}

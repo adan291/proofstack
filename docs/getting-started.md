@@ -1,6 +1,6 @@
 # Tu portfolio y tu CV en 15 minutos
 
-Versión en texto de la [guía visual](https://adan291.github.io/proofstack/guide/) (en el repositorio, [`guide/index.html`](guide/index.html)). La guía visual tiene además recetas para el día a día, las piezas opcionales y qué hacer si cambias el código.
+Versión en texto de la guía visual: [`guide/index.html`](guide/index.html) en el repositorio, y `https://<usuario>.github.io/<repo>/guide/` cuando publiques. La guía visual tiene además recetas para el día a día, las piezas opcionales y qué hacer si cambias el código.
 
 ## 1. Instala Java y Git
 
@@ -26,7 +26,7 @@ Ejecuta siempre desde la carpeta del repositorio: las rutas como `profiles/...` 
 ./proofstack setup
 ```
 
-Te pregunta tu nombre y tu usuario de GitHub. Crea el perfil, trae tus repositorios públicos (eliges cuáles), configura LinkedIn la primera vez y lo importa, te dice qué falta y abre Studio. Puedes repetirlo cuando quieras: no toca tus proyectos ni tus evidencias.
+Si no tienes perfil, te pregunta tu nombre y lo crea. Después abre un asistente en el navegador con cinco pasos: tú, GitHub (eliges tus repositorios en una lista), LinkedIn, tus proyectos de uno en uno y publicar. Cada paso guarda al terminar y puedes retomarlo cuando quieras. No toca tus proyectos ni tus evidencias.
 
 Si tu cuenta de LinkedIn no está en el EEE o Suiza, usa el ZIP (Ajustes → Privacidad de datos → Obtener una copia de tus datos): `./proofstack setup --linkedin-zip Basic_LinkedInDataExport.zip`.
 
