@@ -3,10 +3,8 @@ package dev.proofstack.adapter.yaml;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
@@ -20,9 +18,6 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.JsonNodeFactory;
-import tools.jackson.dataformat.yaml.YAMLFactory;
-import tools.jackson.dataformat.yaml.YAMLMapper;
-import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
 /**
  * Driven adapter: one {@code profile.yaml} as an editable document.
@@ -43,14 +38,6 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
 
     private final Path file;
     private final YamlProfileSource source = new YamlProfileSource();
-    private final YAMLMapper yaml = YAMLMapper.builder(YAMLFactory.builder()
-                    .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
-                    .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
-                    .enable(YAMLWriteFeature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS)
-                    .enable(YAMLWriteFeature.INDENT_ARRAYS_WITH_INDICATOR)
-                    .stringQuotingChecker(TextQuoting.INSTANCE)
-                    .build())
-            .build();
     private final JsonMapper json = JsonMapper.builder().build();
 
     public YamlProfileDocumentStore(Path file) {
@@ -66,7 +53,7 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
         byte[] bytes = bytes();
         String text = new String(bytes, StandardCharsets.UTF_8);
         try {
-            JsonNode tree = yaml.readTree(text);
+            JsonNode tree = YamlCodec.YAML.readTree(text);
             if (tree == null || tree.isMissingNode() || tree.isNull()) {
                 tree = JsonNodeFactory.instance.objectNode();
             }
@@ -91,58 +78,15 @@ public final class YamlProfileDocumentStore implements ProfileDocumentStore {
         if (!currentVersion.equals(expectedVersion)) {
             throw new VersionConflict(currentVersion);
         }
-        byte[] next;
         JsonNode tree;
-        String body;
         try {
             tree = json.readTree(document);
-            body = yaml.writeValueAsString(tree);
         } catch (JacksonException e) {
             throw new ProfileValidationException(new Violation("$", "invalid JSON: " + e.getOriginalMessage()));
         }
-        requireSameWhenReadBack(tree, body);
-        next = (header(new String(current, StandardCharsets.UTF_8)) + body).getBytes(StandardCharsets.UTF_8);
-        write(current, next);
-        return version(next);
-    }
-
-    /** Last line of defence: the YAML about to be written must read back as exactly the document that was validated. */
-    private void requireSameWhenReadBack(JsonNode expected, String yamlText) {
-        JsonNode readBack;
-        try {
-            readBack = yaml.readTree(yamlText);
-        } catch (JacksonException e) {
-            readBack = null;
-        }
-        if (!expected.equals(readBack)) {
-            throw new ProfileValidationException(new Violation("$",
-                    "the profile could not be written as YAML that reads back the same; nothing was saved"));
-        }
-    }
-
-    private void write(byte[] previous, byte[] next) {
-        Path dir = file.getParent();
-        Path temp = null;
-        try {
-            temp = Files.createTempFile(dir, ".profile-", ".yaml.tmp");
-            Files.write(temp, next);
-            Files.write(dir.resolve(file.getFileName() + ".bak"), previous);
-            try {
-                Files.move(temp, file, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (AtomicMoveNotSupportedException e) {
-                Files.move(temp, file, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException("Cannot save " + file.getFileName(), e);
-        } finally {
-            if (temp != null) {
-                try {
-                    Files.deleteIfExists(temp);
-                } catch (IOException ignored) {
-                    // the rename already consumed it, or there is nothing more to clean
-                }
-            }
-        }
+        String next = header(new String(current, StandardCharsets.UTF_8)) + YamlCodec.toYaml(tree);
+        YamlCodec.writeAtomically(file, next, file.resolveSibling(file.getFileName() + ".bak"), current);
+        return version(next.getBytes(StandardCharsets.UTF_8));
     }
 
     /** The leading comment block of the file (schema modeline, notes), kept as the user wrote it. */

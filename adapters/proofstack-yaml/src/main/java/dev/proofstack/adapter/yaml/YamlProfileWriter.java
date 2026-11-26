@@ -1,12 +1,7 @@
 package dev.proofstack.adapter.yaml;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,9 +22,6 @@ import dev.proofstack.core.domain.Profile;
 import dev.proofstack.core.domain.Project;
 import dev.proofstack.core.domain.Skill;
 import dev.proofstack.core.port.out.ProfileWriter;
-import tools.jackson.dataformat.yaml.YAMLFactory;
-import tools.jackson.dataformat.yaml.YAMLMapper;
-import tools.jackson.dataformat.yaml.YAMLWriteFeature;
 
 /**
  * Driven adapter: serialises a profile to the public {@code profile.yaml} format,
@@ -42,49 +34,13 @@ public final class YamlProfileWriter implements ProfileWriter {
             # Schema: schema/profile.schema.json
             """;
 
-    private final YAMLMapper yaml = YAMLMapper.builder(YAMLFactory.builder()
-                    .disable(YAMLWriteFeature.WRITE_DOC_START_MARKER)
-                    .enable(YAMLWriteFeature.MINIMIZE_QUOTES)
-                    .enable(YAMLWriteFeature.ALWAYS_QUOTE_NUMBERS_AS_STRINGS)
-                    .enable(YAMLWriteFeature.INDENT_ARRAYS_WITH_INDICATOR)
-                    .stringQuotingChecker(TextQuoting.INSTANCE)
-                    .build())
-            .build();
-
     @Override
     public void write(Profile profile, Path target, boolean overwrite) {
         if (Files.exists(target) && !overwrite) {
             throw new TargetExistsException(target);
         }
-        Map<String, Object> document = document(profile);
-        String body = yaml.writeValueAsString(document);
-        if (!yaml.valueToTree(document).equals(yaml.readTree(body))) {
-            throw new IllegalStateException("the profile could not be written as YAML that reads back the same");
-        }
-        Path parent = target.toAbsolutePath().getParent();
-        Path temp = null;
-        try {
-            Files.createDirectories(parent);
-            // Temporary file and rename: a failure never leaves a half-written profile, and a link to the old
-            // file is replaced rather than written through.
-            temp = Files.createTempFile(parent, ".profile-", ".yaml.tmp");
-            Files.writeString(temp, header(target) + "\n" + body, StandardCharsets.UTF_8);
-            try {
-                Files.move(temp, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (AtomicMoveNotSupportedException e) {
-                Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException("Cannot write " + target, e);
-        } finally {
-            if (temp != null) {
-                try {
-                    Files.deleteIfExists(temp);
-                } catch (IOException ignored) {
-                    // already renamed, or nothing left to clean
-                }
-            }
-        }
+        String body = YamlCodec.toYaml(YamlCodec.YAML.valueToTree(document(profile)));
+        YamlCodec.writeAtomically(target, header(target) + "\n" + body, null, null);
     }
 
     /**

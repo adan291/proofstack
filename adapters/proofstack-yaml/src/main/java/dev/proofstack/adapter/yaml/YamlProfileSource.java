@@ -23,7 +23,6 @@ import dev.proofstack.core.domain.Violation;
 import dev.proofstack.core.port.out.ProfileSource;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.TokenStreamLocation;
-import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.dataformat.yaml.YAMLMapper;
@@ -45,9 +44,7 @@ public final class YamlProfileSource implements ProfileSource {
     private final Schema schema;
 
     public YamlProfileSource() {
-        this.mapper = YAMLMapper.builder()
-                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-                .build();
+        this.mapper = YamlCodec.YAML;
         this.schema = loadSchema();
     }
 
