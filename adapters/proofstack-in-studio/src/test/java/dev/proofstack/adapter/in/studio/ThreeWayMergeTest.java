@@ -24,6 +24,27 @@ class ThreeWayMergeTest {
         return ThreeWayMerge.merge(j(base), j(mine), j(theirs), ID_LISTS, Map.of());
     }
 
+    /** Review H2: two items with the same id used to collapse into one, and the merge dropped the other silently. */
+    @Test
+    void aListWithARepeatedIdIsOneConflictNotASilentLoss() {
+        var r = merge("{'projects':[{'id':'a','name':'A'}]}",
+                "{'projects':[{'id':'a','name':'A'},{'id':'p','name':'Proofstack'},{'id':'p','name':'Pedidos'}]}",
+                "{'projects':[{'id':'a','name':'A2'}]}");
+
+        assertThat(r.conflicts()).singleElement().satisfies(c -> assertThat(c.path()).isEqualTo("$.projects"));
+        assertThat(r.merged().get("projects").size()).as("mine is kept until the user chooses").isEqualTo(3);
+    }
+
+    @Test
+    void aListWithEmptyIdsIsOneConflictToo() {
+        var r = merge("{'projects':[]}",
+                "{'projects':[{'id':'','name':'Proofstack'},{'id':'','name':'Pedidos'}]}",
+                "{'projects':[{'id':'b','name':'B'}]}");
+
+        assertThat(r.conflicts()).singleElement().satisfies(c -> assertThat(c.path()).isEqualTo("$.projects"));
+        assertThat(r.merged().get("projects").size()).isEqualTo(2);
+    }
+
     @Test
     void aChangeOnOneSideIsTaken() {
         var r = merge("{'person':{'name':'Ada','headline':'Dev'}}",

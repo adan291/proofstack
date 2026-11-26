@@ -113,7 +113,10 @@ final class ThreeWayMerge {
         return mine;
     }
 
-    /** id → item, or {@code null} if some item has no textual id. */
+    /**
+     * id → item, or {@code null} when the ids cannot match items safely: an item without a textual id, with an empty
+     * one, or with an id another item already uses. Keying those would keep one item and drop the rest silently.
+     */
     private static Map<String, JsonNode> items(JsonNode list) {
         Map<String, JsonNode> byId = new LinkedHashMap<>();
         if (list == null) {
@@ -121,10 +124,10 @@ final class ThreeWayMerge {
         }
         for (JsonNode item : list) {
             JsonNode id = item.get("id");
-            if (id == null || !id.isString()) {
+            if (id == null || !id.isString() || id.asString().isEmpty()
+                    || byId.putIfAbsent(id.asString(), item) != null) {
                 return null;
             }
-            byId.put(id.asString(), item);
         }
         return byId;
     }
