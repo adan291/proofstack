@@ -163,6 +163,46 @@ class StudioEditingE2E extends StudioE2E {
         assertThat(file()).contains("headline: Engineering Lead");
     }
 
+    /**
+     * Review H1: a new item's id follows its whole name, typed key by key, while the user does not touch the id,
+     * and it stays unique in the list. It used to freeze on the first key ("p"), so two items clashed.
+     */
+    @Test
+    void aNewItemGetsItsIdFromItsWholeNameAndIdsStayUnique() throws IOException {
+        open();
+        section("Proyectos");
+
+        for (String name : new String[]{"Proofstack", "Pedidos", "Proofstack"}) {
+            button("Añadir proyecto").click();
+            Locator item = page.locator("#editor details[open]").last();
+            item.getByLabel("Nombre *").pressSequentially(name);
+            item.getByLabel("Resumen *").fill("Un resumen.");
+        }
+        button("Guardar Ctrl+S").click();
+
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).containsPattern("(?m)id: proofstack$").containsPattern("(?m)id: pedidos$")
+                .containsPattern("(?m)id: proofstack-2$");
+    }
+
+    /** Review H1: an id the user writes is theirs; renaming the item afterwards does not change it. */
+    @Test
+    void anIdWrittenByTheUserIsKept() throws IOException {
+        open();
+        section("Proyectos");
+
+        button("Añadir proyecto").click();
+        Locator item = page.locator("#editor details[open]").last();
+        item.getByLabel("Nombre *").pressSequentially("Proofstack");
+        item.getByLabel("Identificador *").fill("portfolio-as-code");
+        item.getByLabel("Nombre *").fill("Proofstack CLI"); // renaming afterwards must not touch the id
+        item.getByLabel("Resumen *").fill("Un resumen.");
+        button("Guardar Ctrl+S").click();
+
+        assertThat(status()).hasText(Pattern.compile("^Guardado"));
+        assertThat(file()).containsPattern("(?m)id: portfolio-as-code$").contains("name: Proofstack CLI");
+    }
+
     /** R2.1: my work can always leave the browser. */
     @Test
     void myChangesCanBeDownloaded() throws IOException {

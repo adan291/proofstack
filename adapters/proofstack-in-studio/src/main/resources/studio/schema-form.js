@@ -15,7 +15,7 @@ const LABELS = {
 };
 
 const HINTS = {
-  id: 'Minúsculas, números y guiones. Se rellena solo a partir del nombre.',
+  id: 'Minúsculas, números y guiones. En un elemento nuevo sigue al nombre hasta que lo escribas tú.',
   evidence: 'Identificadores de evidencias, uno por línea.',
   projects: 'Identificadores de proyectos, uno por línea.',
   areas: 'Uno por línea: backend, architecture, messaging, data, devops, ai, hardware, leadership, communication.',
@@ -25,6 +25,16 @@ export const label = (key) => LABELS[key] ?? key.replace(/([A-Z])/g, ' $1').repl
 
 let uid = 0;
 const nextId = () => `f${++uid}`;
+
+/**
+ * Items created in this editor whose id still follows their name. An id the user types, or one already on disk,
+ * never changes by itself: other entries may point to it. settleIds() ends this once the document is saved.
+ */
+let autoIds = new WeakSet();
+
+export function settleIds() {
+  autoIds = new WeakSet();
+}
 
 export class SchemaForm {
   constructor(schema, onChange) {
@@ -170,7 +180,9 @@ export class SchemaForm {
     const add = el('button', 'btn btn--add', `Añadir ${singular(key)}`);
     add.type = 'button';
     add.addEventListener('click', () => {
-      const next = [...(holder.get() ?? []), blank(items, this)];
+      const item = blank(items, this);
+      if (items.properties?.id) autoIds.add(item);
+      const next = [...(holder.get() ?? []), item];
       holder.set(next);
       this.onChange(true, `${path}[${next.length - 1}]`);
     });
@@ -195,16 +207,16 @@ export class SchemaForm {
     const body = this.objectField(key, items, itemHolder, path, false);
     body.classList.add('item__body');
     body.querySelector('legend').classList.add('sr-only');
-    // Keep the summary title and the id in step with what the user types.
-    body.addEventListener('input', () => {
+    // Keep the summary title and, for a new item, the id in step with what the user types.
+    body.addEventListener('input', (e) => {
       const current = itemHolder.get();
-      if (items.properties?.id && !current.id) {
-        const slug = slugify(current.name ?? current.title ?? current.company ?? '');
-        if (slug) {
-          current.id = slug;
-          const idInput = body.querySelector(`[data-path="${path}.id"]`);
-          if (idInput) idInput.value = slug;
-        }
+      if (e.target.dataset?.path === `${path}.id`) {
+        autoIds.delete(current); // the user wrote the id: it is theirs from now on
+      } else if (autoIds.has(current)) {
+        const taken = new Set((holder.get() ?? []).filter((_, j) => j !== i).map((other) => other?.id));
+        current.id = uniqueId(slugify(idSource(current)), taken);
+        const idInput = body.querySelector(`[data-path="${path}.id"]`);
+        if (idInput) idInput.value = current.id;
       }
       summary.textContent = itemTitle(current) || `${singular(key)} ${i + 1}`;
     });
@@ -267,6 +279,19 @@ const SINGULAR = {
 /** Spanish plurals are irregular enough that a table beats a rule (\enlaces\ is not \enlac\). */
 function singular(key) {
   return SINGULAR[key] ?? 'elemento';
+}
+
+/** The text an id is made from: what names the item (a job is named by its company, as the importers do). */
+function idSource(item) {
+  return item.name ?? item.title ?? item.company ?? item.label ?? '';
+}
+
+/** `base`, or `base-2`, `base-3`... the first one no other item in the list uses. */
+export function uniqueId(base, taken) {
+  if (!base || !taken.has(base)) return base;
+  let n = 2;
+  while (taken.has(`${base}-${n}`)) n++;
+  return `${base}-${n}`;
 }
 
 export function slugify(text) {

@@ -1,6 +1,6 @@
 // Proofstack Studio: loads profile.yaml through the local API, edits it with forms built from the schema,
 // shows what `doctor` says next to each field and previews the saved CV and site.
-import { SchemaForm, label } from './schema-form.js';
+import { SchemaForm, label, settleIds } from './schema-form.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -248,6 +248,7 @@ async function save() {
   if (result.status === 200) {
     state.version = result.body.version;
     state.findings = result.body.findings ?? [];
+    settleIds(); // what is on disk now may be referenced: ids stop following the names
     state.violations = [];
     setDirty(false);
     renderIssues();
