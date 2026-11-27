@@ -65,7 +65,8 @@ class YamlProfileWriterTest {
         dev.proofstack.core.domain.Project first = example.projects().getFirst();
         dev.proofstack.core.domain.Project marked = new dev.proofstack.core.domain.Project(first.id(), first.name(),
                 first.summary(), first.problem(), first.solution(), first.techStack(), first.learnings(),
-                first.links(), first.areas(), first.evidenceIds(), true);
+                first.links(), first.areas(), first.evidenceIds(), true,
+                java.util.Map.of(dev.proofstack.core.domain.Area.DATA, "Stores events in PostgreSQL."));
         java.util.List<dev.proofstack.core.domain.Project> projects = new java.util.ArrayList<>(example.projects());
         projects.set(0, marked);
         Profile original = new Profile(example.language(), example.person(), example.experience(),
@@ -75,7 +76,8 @@ class YamlProfileWriterTest {
 
         writer.write(original, out, false);
 
-        assertThat(Files.readString(out)).containsOnlyOnce("featured: true");
+        assertThat(Files.readString(out)).containsOnlyOnce("featured: true").containsOnlyOnce("areaNotes:")
+                .contains("data: Stores events in PostgreSQL.");
         assertThat(reader.load(out)).isEqualTo(original);
         assertThat(reader.load(out).projects().getFirst().featured()).isTrue();
     }

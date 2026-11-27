@@ -197,6 +197,9 @@ projects:
       - devops
     evidence:
       - proofstack-quality
+    areaNotes:
+      architecture: "Hexagonal core with no framework dependencies: every output is an adapter, and ArchUnit enforces the layer rules on every build."
+      devops: "Every push builds, runs more than 300 tests (browser and accessibility tests included) and publishes the site and the CV to GitHub Pages with GitHub Actions."
   - id: event-platform
     name: Internal event management platform
     summary: "Backend of an internal events platform at Serbatic: users, events, locations, files and email. Company project, no public repository."
@@ -224,6 +227,8 @@ projects:
     links:
       - label: Serbatic (company project)
         url: https://www.serbatic.es/
+    areaNotes:
+      architecture: "App, domain and infra layers with separate commands and queries: the mapping and the storage changed without touching the domain."
   - id: agent-life
     name: Agent Life
     summary: "Isometric hotel where AI agents (Architect, Developer and QA) do real work on a git repository and deliver the result as a branch. Entered in Kiroween 2026."
@@ -254,6 +259,9 @@ projects:
     evidence:
       - agentlife-safety
     featured: true
+    areaNotes:
+      architecture: "Each job is a state machine and AI providers sit behind an interface: the world server never calls a model directly."
+      devops: "The agents' code is tested in Docker with no network and with CPU, memory and time limits, and a pre-push hook blocks publishing with security findings."
   - id: ges
     name: "GES: migration from Swing to Spring Boot"
     summary: "Event management application (waiters, halls and assignments) migrated from a Java Swing desktop app to a REST API with Spring Boot and a JavaFX client."
@@ -278,6 +286,8 @@ projects:
     evidence:
       - ges-migration
     featured: true
+    areaNotes:
+      architecture: "From a desktop app that mixed interface and data to a layered API with a client that only consumes it, defined phase by phase as a specification."
   - id: backend-factory
     name: Backend factory
     summary: "Web wizard that generates a complete Spring Boot backend (entities, relationships, DTOs, services, tests and Docker) and delivers it as a ZIP."
@@ -306,6 +316,9 @@ projects:
       - backend-factory-tests
       - technical-content
     featured: true
+    areaNotes:
+      backend: "The Java 25 generator creates JPA entities, MapStruct DTOs, services, REST controllers, tests and Docker for a Spring Boot project."
+      ai: "The RelacionarClases API suggests the relationships between entities, and an AI review checks the generated project."
   - id: relacionar-clases
     name: RelacionarClases
     summary: "JavaFX application that reads Java classes and suggests the relationships between entities (OneToOne, OneToMany…), and learns from what the user accepts or rejects."
@@ -330,6 +343,8 @@ projects:
     evidence:
       - relacionar-clases-performance
     featured: true
+    areaNotes:
+      backend: "It serves the analysis as an HTTP API with Javalin, and I made it 22 times faster by measuring with JMH before optimizing."
   - id: ai-devos
     name: AI DevOS (Discord)
     summary: "AI agent orchestrator on Discord: each thread is a task, and several agents with different roles (architect, developer, reviewer, QA…) work on it."
@@ -352,6 +367,8 @@ projects:
       - ai
       - architecture
     featured: true
+    areaNotes:
+      architecture: "A gateway with no business logic and an event-driven orchestrator: adding Slack, Telegram or webhooks does not touch the agents."
   - id: pedidos-api
     name: Orders API
     summary: "Orders REST API with Spring Boot, PostgreSQL and JWT security, built to practice the Spring ecosystem."
@@ -392,7 +409,7 @@ projects:
         url: https://www.serbatic.es/
   - id: streamcrowd
     name: StreamCrowd
-    summary: "Web app for Twitch, YouTube and Kick streamers: live polls, giveaways, predictions, more than 13 mini-games and OBS overlays."
+    summary: "Web app for Twitch streamers, with YouTube and Kick on the way: live polls, giveaways, predictions, more than 13 mini-games and OBS overlays."
     problem: "Streamers depend on many chat commands and several separate tools to interact with their audience."
     solution: "A single React 19 and TypeScript app that turns those commands into buttons and panels. It reads the chat in real time, shows the results as OBS overlays, uses Firebase for sign-in and installs as an app (PWA) on desktop and mobile. It has 147 test files with Vitest and Playwright."
     techStack:
@@ -410,6 +427,9 @@ projects:
     areas:
       - ai
       - data
+    areaNotes:
+      ai: "Real-time sentiment analysis of the chat, with optional OpenAI or Gemini integration."
+      data: "Stream metrics (messages per minute, engagement, retention and an activity heat map) with CSV and Excel export."
   - id: semantic-search
     name: Semantic search with a local LLM (RAG)
     summary: "Spring Boot prototype that searches documents by meaning and answers with a local LLM, with no external services."
@@ -429,6 +449,8 @@ projects:
     areas:
       - ai
       - backend
+    areaNotes:
+      backend: "Spring Boot API with a GET /search endpoint that calls Ollama over HTTP, all running locally."
   - id: waves
     name: Whispers of the Wave
     summary: "Interactive experience for Game Off 2025, with the theme \"waves\": you talk to the sea and it answers with AI to help you sort out your thoughts."

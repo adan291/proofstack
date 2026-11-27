@@ -29,6 +29,7 @@ import dev.proofstack.adapter.out.web.PortfolioView.NodeView;
 import dev.proofstack.adapter.out.web.PortfolioView.PersonView;
 import dev.proofstack.adapter.out.web.PortfolioView.ProjectView;
 import dev.proofstack.core.domain.ArchitectureMap;
+import dev.proofstack.core.domain.Area;
 import dev.proofstack.core.domain.AreaNode;
 import dev.proofstack.core.domain.Evidence;
 import dev.proofstack.core.domain.Experience;
@@ -115,8 +116,9 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
                 p.email(), links(p.links()), cv, p.phone(), p.phone() == null ? null : "tel:" + p.phone().replaceAll("[^+0-9]", ""),
                 p.contactMessage());
 
-        List<NodeView> nodes = ArchitectureMap.from(profile).nodes().stream()
-                .map(node -> node(node, profile, t))
+        List<AreaNode> areaNodes = ArchitectureMap.from(profile).nodes();
+        List<NodeView> nodes = areaNodes.stream()
+                .map(node -> node(node, areaNodes, profile, t))
                 .toList();
 
         List<ExperienceView> experience = profile.experience().stream()
@@ -213,7 +215,23 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
         return uri.getScheme() + "://" + uri.getRawAuthority();
     }
 
-    private static NodeView node(AreaNode node, Profile profile, UiText t) {
+    /**
+     * The area that holds a project's full card: the first of its own areas that is on the map, or, for a project
+     * that only reaches the map through a lab, the first area it appears in. Every other area shows a short card.
+     */
+    static Area mainArea(Project p, List<AreaNode> nodes) {
+        return p.areas().stream()
+                .filter(a -> nodes.stream().anyMatch(n -> n.area() == a && n.projects().contains(p)))
+                .findFirst()
+                .orElseGet(() -> nodes.stream().filter(n -> n.projects().contains(p)).map(AreaNode::area)
+                        .findFirst().orElse(null));
+    }
+
+    static String projectAnchor(Area area, Project p) {
+        return "project-" + area.name().toLowerCase(Locale.ROOT) + "-" + p.id();
+    }
+
+    private static NodeView node(AreaNode node, List<AreaNode> nodes, Profile profile, UiText t) {
         List<String> stats = new ArrayList<>();
         count(stats, node.projects().size(), t.projectNoun());
         count(stats, node.evidence().size(), t.evidenceNoun());
@@ -225,14 +243,21 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
                 t.area(node.area()),
                 String.join(" · ", stats),
                 node.skills().stream().map(Skill::name).toList(),
-                node.projects().stream().map(project -> project(project, node, profile, t)).toList(),
+                node.projects().stream().filter(p -> mainArea(p, nodes) == node.area())
+                        .map(project -> project(project, node, profile, t)).toList(),
+                node.projects().stream().filter(p -> mainArea(p, nodes) != node.area())
+                        .map(p -> new PortfolioView.RelatedView(p.name(),
+                                p.areaNotes().getOrDefault(node.area(), p.summary()),
+                                p.areaNotes().containsKey(node.area()),
+                                "#" + projectAnchor(mainArea(p, nodes), p), t.area(mainArea(p, nodes))))
+                        .toList(),
                 node.evidence().stream().map(e -> evidence(e, t)).toList(),
                 node.labs().stream().map(l -> new LabView(l.name(), t.labType(l.type()), l.description())).toList());
     }
 
-    /** Id of a project's card inside one area panel; a project listed in several areas has one card per area. */
+    /** Id of a project's full card, inside the panel of its main area. */
     static String projectAnchor(AreaNode node, Project p) {
-        return "project-" + node.area().name().toLowerCase(Locale.ROOT) + "-" + p.id();
+        return projectAnchor(node.area(), p);
     }
 
     private static ProjectView project(Project p, AreaNode node, Profile profile, UiText t) {
@@ -241,7 +266,8 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
                 .flatMap(Optional::stream)
                 .map(e -> evidence(e, t))
                 .toList();
-        return new ProjectView(projectAnchor(node, p), p.name(), p.summary(), result(p, profile), p.problem(),
+        return new ProjectView(projectAnchor(node, p), p.name(), p.summary(), p.areaNotes().get(node.area()),
+                result(p, profile), p.problem(),
                 p.solution(), p.techStack(), p.learnings(), links(p.links()), evidence);
     }
 
@@ -263,8 +289,8 @@ public final class ArchitectureThemeRenderer implements PortfolioRenderer {
         List<AreaNode> nodes = ArchitectureMap.from(profile).nodes();
         return chosen.stream()
                 .map(p -> new PortfolioView.FeaturedView(p.name(), p.summary(), links(p.links()),
-                        nodes.stream().filter(n -> n.projects().contains(p)).findFirst()
-                                .map(n -> "#" + projectAnchor(n, p)).orElse(null)))
+                        java.util.Optional.ofNullable(mainArea(p, nodes))
+                                .map(a -> "#" + projectAnchor(a, p)).orElse(null)))
                 .toList();
     }
 

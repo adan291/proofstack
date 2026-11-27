@@ -147,6 +147,22 @@
         "featured": {
           "type": "boolean",
           "description": "Show this project in Featured projects. When no project is marked, the site picks the best documented ones."
+        },
+        "areaNotes": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "What this project proves in each of its other areas, one sentence each. The full card is shown in the first area; the others show a short card with this sentence.",
+          "properties": {
+            "backend": { "$ref": "#/$defs/shortText" },
+            "architecture": { "$ref": "#/$defs/shortText" },
+            "messaging": { "$ref": "#/$defs/shortText" },
+            "data": { "$ref": "#/$defs/shortText" },
+            "devops": { "$ref": "#/$defs/shortText" },
+            "ai": { "$ref": "#/$defs/shortText" },
+            "hardware": { "$ref": "#/$defs/shortText" },
+            "leadership": { "$ref": "#/$defs/shortText" },
+            "communication": { "$ref": "#/$defs/shortText" }
+          }
         }
       }
     },

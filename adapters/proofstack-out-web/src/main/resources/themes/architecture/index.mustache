@@ -136,6 +136,7 @@
           <article class="card" id="{{anchor}}" tabindex="-1">
             <h5 class="card__title">{{name}}</h5>
             <p class="card__summary">{{summary}}</p>
+            {{#note}}<p class="card__note"><strong>{{t.inThisArea}}:</strong> {{.}}</p>{{/note}}
             {{#hasResult}}<p class="card__result"><strong>{{t.result}}.</strong> {{result}}</p>{{/hasResult}}
             {{#hasDetails}}
             <details class="card__more">
@@ -161,6 +162,18 @@
           {{/projects}}
         </div>
         {{/hasProjects}}
+        {{#hasRelated}}
+        <h4 class="panel__subtitle">{{t.alsoHere}}</h4>
+        <ul class="related">
+          {{#related}}
+          <li class="related__item">
+            <h5 class="related__name">{{name}}</h5>
+            <p class="related__note{{^ownNote}} related__note--summary{{/ownNote}}">{{note}}</p>
+            <a class="card__detail" href="{{href}}" data-goto>{{t.fullCardIn}} {{mainAreaLabel}}</a>
+          </li>
+          {{/related}}
+        </ul>
+        {{/hasRelated}}
 
         {{#hasEvidence}}
         <h4 class="panel__subtitle">{{t.evidence}}</h4>

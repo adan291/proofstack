@@ -471,3 +471,13 @@ button.btn { background: none; cursor: pointer; }
 @media print {
   .cert__link::after { content: " (" attr(href) ")"; font-weight: 400; }
 }
+/* ---------- Projects whose full card is in another area ---------- */
+.related { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: .75rem; }
+.related__item { padding: .8rem 1rem; border: 1px dashed var(--border); border-radius: var(--radius); background: var(--surface); }
+.related__name { margin: 0 0 .35rem; font-size: 1rem; }
+.related__note { margin: 0 0 .5rem; }
+.related__note--summary { color: var(--muted); }
+.card__note { padding: .4rem .7rem; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; background: rgba(124, 196, 255, .07); font-size: .95rem; }
+@media print {
+  .related__item .card__detail { display: none; }
+}

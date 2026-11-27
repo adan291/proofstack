@@ -95,6 +95,21 @@ public record UiText(
         return es() ? "Copiado" : "Copied";
     }
 
+    /** Subtitle of the short cards of projects whose full card is in another area. */
+    public String alsoHere() {
+        return es() ? "También lo demuestran" : "Also shown by";
+    }
+
+    /** Label before the area-specific sentence on a project's full card. */
+    public String inThisArea() {
+        return es() ? "En esta área" : "In this area";
+    }
+
+    /** "Full card in Backend". */
+    public String fullCardIn() {
+        return es() ? "Ficha completa en" : "Full card in";
+    }
+
     /** Link from a featured card to the full card in its area. */
     public String seeDetails() {
         return es() ? "Ver detalles" : "See details";

@@ -234,6 +234,29 @@ class ArchitectureThemeRendererTest {
                 .doesNotContain("Let's talk").contains("<a href=\"tel:+34600112233\">+34 600 11 22 33</a>");
     }
 
+    /** One full card per project, in its first area; the other areas get a short card with what it proves there. */
+    @Test
+    void aProjectInSeveralAreasHasOneFullCardAndShortCardsElsewhere() {
+        Project api = new Project("api", "Orders API", "REST API for orders", "Why", "How", List.of("Java"),
+                List.of(), List.of(), List.of(Area.BACKEND, Area.ARCHITECTURE, Area.DATA), List.of(), false,
+                java.util.Map.of(Area.ARCHITECTURE, "Hexagonal layers keep the domain free of Spring."));
+        Profile base = profile("Ada");
+        Profile profile = new Profile(base.person(), base.experience(), base.education(), List.of(api),
+                base.skills(), base.evidence(), base.labs());
+
+        String html = html(profile);
+
+        assertThat(html).containsOnlyOnce("<article class=\"card\" id=\"project-");
+        assertThat(html).contains("<article class=\"card\" id=\"project-backend-api\" tabindex=\"-1\">");
+        String architecture = html.substring(html.indexOf("id=\"panel-architecture\""), html.indexOf("id=\"panel-data\""));
+        assertThat(architecture).contains("<p class=\"related__note\">Hexagonal layers keep the domain free of Spring.</p>")
+                .contains("<a class=\"card__detail\" href=\"#project-backend-api\" data-goto>Full card in Backend</a>");
+        String data = html.substring(html.indexOf("id=\"panel-data\""));
+        assertThat(data).contains("<p class=\"related__note related__note--summary\">REST API for orders</p>");
+        assertThat(html).contains("<button type=\"button\" class=\"node\" id=\"node-data\"");
+        assertThat(ArchitectureThemeRenderer.featured(profile).getFirst().detailHref()).isEqualTo("#project-backend-api");
+    }
+
     @Test
     void markedProjectsAreTheFeaturedOnesInProfileOrder() {
         Project documented = new Project("b", "Documented", "With problem and solution", "Why", "How",

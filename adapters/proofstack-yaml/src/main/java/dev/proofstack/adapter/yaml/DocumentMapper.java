@@ -82,7 +82,8 @@ final class DocumentMapper {
 
     private Project project(ProjectDoc d) {
         return new Project(d.id(), d.name(), d.summary(), d.problem(), d.solution(), d.techStack(), d.learnings(),
-                links(d.links()), areas(d.areas()), d.evidence(), Boolean.TRUE.equals(d.featured()));
+                links(d.links()), areas(d.areas()), d.evidence(), Boolean.TRUE.equals(d.featured()),
+                areaNotes(d.areaNotes()));
     }
 
     private Evidence evidence(EvidenceDoc d) {
@@ -117,6 +118,14 @@ final class DocumentMapper {
 
     private static List<Area> areas(List<String> values) {
         return values == null ? List.of() : values.stream().map(DocumentMapper::area).toList();
+    }
+
+    private static java.util.Map<Area, String> areaNotes(java.util.Map<String, String> values) {
+        java.util.Map<Area, String> notes = new java.util.EnumMap<>(Area.class);
+        if (values != null) {
+            values.forEach((area, note) -> notes.put(area(area), note));
+        }
+        return notes;
     }
 
     private static Area area(String value) {

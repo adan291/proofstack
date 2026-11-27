@@ -30,7 +30,7 @@ record ProfileDocument(
 
     record ExperienceDoc(String id, String role, String company, String location, String startDate,
                          String endDate, Boolean current, List<String> highlights, List<String> technologies,
-                         List<String> evidence, Boolean featured) {
+                         List<String> evidence, Boolean featured, java.util.Map<String, String> areaNotes) {
     }
 
     record EducationDoc(String id, String title, String institution, String startDate, String endDate,
@@ -39,7 +39,7 @@ record ProfileDocument(
 
     record ProjectDoc(String id, String name, String summary, String problem, String solution,
                       List<String> techStack, List<String> learnings, List<LinkDoc> links, List<String> areas,
-                      List<String> evidence, Boolean featured) {
+                      List<String> evidence, Boolean featured, java.util.Map<String, String> areaNotes) {
     }
 
     record EvidenceDoc(String id, String category, String title, String context, String action, String result,

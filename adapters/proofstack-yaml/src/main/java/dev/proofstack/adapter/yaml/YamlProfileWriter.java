@@ -147,6 +147,11 @@ public final class YamlProfileWriter implements ProfileWriter {
         if (p.featured()) {
             m.put("featured", true);
         }
+        if (!p.areaNotes().isEmpty()) {
+            Map<String, Object> notes = new LinkedHashMap<>();
+            p.areaNotes().forEach((area, note) -> notes.put(lower(area), note));
+            m.put("areaNotes", notes);
+        }
         return m;
     }
 

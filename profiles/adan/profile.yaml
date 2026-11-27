@@ -209,6 +209,9 @@ projects:
       - devops
     evidence:
       - proofstack-quality
+    areaNotes:
+      architecture: "Núcleo hexagonal sin dependencias de frameworks: cada salida es un adaptador y ArchUnit hace cumplir las reglas de capas en cada build."
+      devops: "Cada push compila, pasa más de 300 tests (con navegador y accesibilidad incluidos) y publica la web y el CV en GitHub Pages con GitHub Actions."
   - id: event-platform
     name: Plataforma interna de gestión de eventos
     summary: "Backend de una plataforma interna de eventos en Serbatic: usuarios, eventos, ubicaciones, archivos y envío de correo. Proyecto de empresa, sin repositorio público."
@@ -236,6 +239,8 @@ projects:
     links:
       - label: Serbatic (proyecto de empresa)
         url: https://www.serbatic.es/
+    areaNotes:
+      architecture: "Capas app, domain e infra con comandos y consultas separados: el mapeo y el almacenamiento cambiaron sin tocar el dominio."
   - id: agent-life
     name: Agent Life
     summary: "Hotel isométrico en el que agentes de IA (Arquitecto, Desarrollador y QA) hacen trabajo real sobre un repositorio git y entregan el resultado como una rama. Presentado a Kiroween 2026."
@@ -266,6 +271,9 @@ projects:
     evidence:
       - agentlife-safety
     featured: true
+    areaNotes:
+      architecture: "Cada trabajo es una máquina de estados y los proveedores de IA están detrás de una interfaz: el servidor del mundo nunca llama a un modelo directamente."
+      devops: "Las pruebas del código de los agentes se ejecutan en Docker sin red, con límites de CPU, memoria y tiempo, y un pre-push hook bloquea publicar con hallazgos de seguridad."
   - id: ges
     name: "GES: migración de Swing a Spring Boot"
     summary: "Aplicación de gestión de eventos (camareros, salones y asignaciones) migrada de una app de escritorio Java Swing a una API REST con Spring Boot y un cliente JavaFX."
@@ -290,6 +298,8 @@ projects:
     evidence:
       - ges-migration
     featured: true
+    areaNotes:
+      architecture: "De una app de escritorio que mezclaba interfaz y datos a una API en capas con un cliente que solo la consume, definida fase a fase como especificación."
   - id: backend-factory
     name: Fábrica de backends
     summary: "Asistente web que genera un backend Spring Boot completo (entidades, relaciones, DTOs, servicios, tests y Docker) y lo entrega en un ZIP."
@@ -318,6 +328,9 @@ projects:
       - backend-factory-tests
       - technical-content
     featured: true
+    areaNotes:
+      backend: "El generador en Java 25 crea entidades JPA, DTOs con MapStruct, servicios, controladores REST, tests y Docker para un proyecto Spring Boot."
+      ai: "La API de RelacionarClases sugiere las relaciones entre entidades y una revisión con IA comprueba el proyecto generado."
   - id: relacionar-clases
     name: RelacionarClases
     summary: "Aplicación JavaFX que lee clases Java y propone las relaciones entre entidades (OneToOne, OneToMany…), y que aprende de lo que el usuario acepta o rechaza."
@@ -342,6 +355,8 @@ projects:
     evidence:
       - relacionar-clases-performance
     featured: true
+    areaNotes:
+      backend: "Ofrece el análisis como API HTTP con Javalin, y lo hice 22 veces más rápido midiendo con JMH antes de optimizar."
   - id: ai-devos
     name: AI DevOS (Discord)
     summary: "Orquestador de agentes de IA sobre Discord: cada hilo es una tarea y varios agentes con roles distintos (arquitecto, desarrollador, revisor, QA…) trabajan sobre ella."
@@ -364,6 +379,8 @@ projects:
       - ai
       - architecture
     featured: true
+    areaNotes:
+      architecture: "Un gateway sin lógica de negocio y un orquestador basado en eventos: añadir Slack, Telegram o webhooks no toca a los agentes."
   - id: pedidos-api
     name: API de pedidos
     summary: "API REST de pedidos con Spring Boot, PostgreSQL y seguridad JWT, hecha para practicar el ecosistema Spring."
@@ -404,7 +421,7 @@ projects:
         url: https://www.serbatic.es/
   - id: streamcrowd
     name: StreamCrowd
-    summary: "Aplicación web para streamers de Twitch, YouTube y Kick: encuestas en directo, sorteos, predicciones, más de 13 minijuegos y overlays para OBS."
+    summary: "Aplicación web para streamers de Twitch, con YouTube y Kick en camino: encuestas en directo, sorteos, predicciones, más de 13 minijuegos y overlays para OBS."
     problem: "Los streamers dependen de muchos comandos de chat y de varias herramientas sueltas para interactuar con su público."
     solution: "Una sola aplicación en React 19 y TypeScript que convierte esos comandos en botones y paneles. Lee el chat en tiempo real, muestra los resultados como overlays para OBS, usa Firebase para el inicio de sesión y se instala como app (PWA) en escritorio y móvil. Tiene 147 ficheros de test con Vitest y Playwright."
     techStack:
@@ -422,6 +439,9 @@ projects:
     areas:
       - ai
       - data
+    areaNotes:
+      ai: "Análisis de sentimiento del chat en tiempo real, con integración opcional con OpenAI o Gemini."
+      data: "Métricas del directo (mensajes por minuto, engagement, retención y mapa de calor de actividad) con exportación a CSV y Excel."
   - id: semantic-search
     name: Búsqueda semántica con LLM local (RAG)
     summary: "Prototipo en Spring Boot que busca documentos por su significado y responde con un LLM local, sin servicios externos."
@@ -441,6 +461,8 @@ projects:
     areas:
       - ai
       - backend
+    areaNotes:
+      backend: "API en Spring Boot con un endpoint GET /search que llama a Ollama por HTTP, todo en local."
   - id: waves
     name: Whispers of the Wave
     summary: "Experiencia interactiva para la Game Off 2025, con la temática «waves»: hablas con el mar y este te responde con IA para ayudarte a ordenar tus pensamientos."

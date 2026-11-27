@@ -14,6 +14,9 @@ const LABELS = {
   languages: 'Idiomas', level: 'Nivel', certifications: 'Certificaciones', issuer: 'Emisor', date: 'Fecha',
   featured: 'Destacado en la web',
   phone: 'Teléfono (público)', contactMessage: 'Mensaje de contacto',
+  areaNotes: 'Qué demuestra en cada área', backend: 'Backend', architecture: 'Arquitectura', messaging: 'Mensajería',
+  data: 'Datos', devops: 'DevOps y observabilidad', ai: 'IA', hardware: 'Hardware y automatización', leadership: 'Liderazgo',
+  communication: 'Comunicación',
 };
 
 const HINTS = {
@@ -22,6 +25,7 @@ const HINTS = {
   projects: 'Identificadores de proyectos, uno por línea.',
   phone: 'Sale en Contacto y en el CV publicado. Déjalo vacío para mantenerlo privado.',
   contactMessage: 'Tu texto para la sección Contacto: disponibilidad, modalidad, cómo prefieres que te contacten…',
+  areaNotes: 'Una frase por área: qué demuestra este proyecto en ella. La ficha completa sale en la primera área de la lista; en las demás sale esta frase.',
   areas: 'Uno por línea: backend, architecture, messaging, data, devops, ai, hardware, leadership, communication.',
 };
 
@@ -159,6 +163,7 @@ export class SchemaForm {
     const box = el('fieldset', top ? 'group group--top' : 'group');
     box.dataset.path = path;
     box.append(el('legend', null, label(key)));
+    if (HINTS[key]) box.append(el('p', 'hint', HINTS[key]));
     const required = node.required ?? [];
     const obj = () => holder.get() ?? {};
     for (const [prop, sub] of Object.entries(node.properties ?? {})) {

@@ -109,8 +109,20 @@ public record PortfolioView(
         }
     }
 
+    /**
+     * A project whose full card lives in another area: what it proves here ({@code note}, or its summary when the
+     * author wrote none) and a link to the full card in {@code mainAreaLabel}.
+     */
+    public record RelatedView(String name, String note, boolean ownNote, String href, String mainAreaLabel) {
+    }
+
     public record NodeView(String key, String label, String stats, List<String> skills,
-                           List<ProjectView> projects, List<EvidenceView> evidence, List<LabView> labs) {
+                           List<ProjectView> projects, List<RelatedView> related, List<EvidenceView> evidence,
+                           List<LabView> labs) {
+        public boolean hasRelated() {
+            return !related.isEmpty();
+        }
+
         public String buttonId() {
             return "node-" + key;
         }
@@ -136,7 +148,7 @@ public record PortfolioView(
         }
     }
 
-    public record ProjectView(String anchor, String name, String summary, String result, String problem,
+    public record ProjectView(String anchor, String name, String summary, String note, String result, String problem,
                               String solution, List<String> techStack, List<String> learnings, List<LinkView> links,
                               List<EvidenceView> evidence) {
         public boolean hasResult() {
