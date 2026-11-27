@@ -34,8 +34,6 @@ mi-clock-display
 MiHasMap
 MiHasSet
 Mi-mail-system
-Mplux
-mprof
 musicOrganaizerv5
 My-mail-system
 peuba
@@ -51,7 +49,8 @@ StreamForge-AI
 Supermarket-Comparing
 Tech-supported-v1
 ticketmachine
-waves
 webLogRegister
 WoW-Class-Helper
 zuuul-bad
+mprof
+Mplux
