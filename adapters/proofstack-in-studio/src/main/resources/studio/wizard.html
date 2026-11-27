@@ -40,34 +40,39 @@
       <div class="field"><label for="you-email">Email</label><input id="you-email" type="email" autocomplete="email"></div>
       <div class="field"><label for="you-location">Ciudad</label><input id="you-location" placeholder="Madrid, España"></div>
       <div class="field"><label for="you-summary">Resumen</label><textarea id="you-summary" rows="4" placeholder="2 o 3 frases: qué construyes, con qué y qué te diferencia."></textarea></div>
+      <p class="wizard__msg" role="alert"></p>
       <div class="wizard__actions"><button type="button" class="btn btn--primary" data-save="you">Guardar y seguir</button></div>
     </section>
 
     <section data-panel="github" hidden aria-labelledby="github-title">
       <h2 id="github-title">GitHub</h2>
-      <p class="wizard__hint">Tus repositorios públicos se convierten en proyectos. Marca solo los que quieres enseñar: los demás no volverán a ofrecerse.</p>
+      <p class="wizard__hint">Todos tus repositorios públicos. Deja marcados los que quieres enseñar: los que ya están en tu perfil salen marcados, y si desmarcas uno sale del portfolio. Los desmarcados no se vuelven a ofrecer cada semana.</p>
       <div class="field field--inline">
         <label for="github-user">Tu usuario de GitHub</label>
         <input id="github-user" autocomplete="username" placeholder="tu-usuario">
         <button type="button" class="btn" id="github-fetch">Buscar mis repositorios</button>
       </div>
-      <div id="github-empty" class="wizard__empty" hidden>
-        <p id="github-empty-text"></p>
-        <button type="button" class="btn" id="github-show-ignored" hidden>Mostrar también los descartados</button>
-      </div>
+      <p id="github-empty" class="wizard__empty" hidden></p>
       <div id="github-pick" hidden>
         <div class="field field--inline">
           <label for="github-filter">Filtrar</label>
           <input id="github-filter" type="search" placeholder="nombre o lenguaje">
-          <button type="button" class="btn" id="github-all">Marcar todos</button>
-          <button type="button" class="btn" id="github-none">Ninguno</button>
+          <select id="github-show" aria-label="Qué repositorios mostrar">
+            <option value="all">Todos</option>
+            <option value="profile">En tu perfil</option>
+            <option value="new">Nuevos</option>
+            <option value="ignored">Descartados</option>
+          </select>
+          <button type="button" class="btn" id="github-all">Marcar los visibles</button>
+          <button type="button" class="btn" id="github-none">Desmarcar los visibles</button>
         </div>
-        <p id="github-count" class="wizard__hint"></p>
+        <p id="github-count" class="wizard__hint" aria-live="polite"></p>
         <ul id="github-list" class="wizard__repos"></ul>
       </div>
+      <p class="wizard__msg" role="alert"></p>
       <div class="wizard__actions">
         <button type="button" class="btn" data-skip="github">Saltar</button>
-        <button type="button" class="btn btn--primary" id="github-save" disabled>Añadir los marcados y seguir</button>
+        <button type="button" class="btn btn--primary" id="github-save" disabled>Guardar y seguir</button>
       </div>
     </section>
 
@@ -89,6 +94,7 @@
         <p class="wizard__hint">Trae tu experiencia, formación, skills, idiomas y certificaciones. Se abre LinkedIn en otra pestaña: pulsa <em>Permitir</em> y vuelve aquí. Tus proyectos y evidencias no se tocan.</p>
         <ul id="linkedin-result" class="wizard__list" hidden></ul>
       </div>
+      <p class="wizard__msg" role="alert"></p>
       <div class="wizard__actions">
         <button type="button" class="btn" data-skip="linkedin">Saltar</button>
         <button type="button" class="btn btn--primary" id="linkedin-import" disabled>Traer de LinkedIn</button>
@@ -112,6 +118,7 @@
         </div>
       </div>
       <p id="projects-done" class="wizard__hint" hidden>No queda ningún proyecto a medias.</p>
+      <p class="wizard__msg" role="alert"></p>
       <div class="wizard__actions"><button type="button" class="btn" data-skip="projects">Seguir sin terminar</button></div>
     </section>
 

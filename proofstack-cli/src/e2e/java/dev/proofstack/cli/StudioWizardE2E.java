@@ -39,7 +39,8 @@ class StudioWizardE2E extends StudioE2E {
             byte[] body = ("[{\"name\":\"coffee-bot\",\"description\":\"Coffee through MQTT\",\"language\":\"Java\","
                     + "\"html_url\":\"https://github.com/example/coffee-bot\"},"
                     + "{\"name\":\"old-homework\",\"language\":\"C\",\"html_url\":\"https://github.com/example/old-homework\"},"
-                    + "{\"name\":\"dotfiles\",\"html_url\":\"https://github.com/example/dotfiles\"}]")
+                    + "{\"name\":\"dotfiles\",\"html_url\":\"https://github.com/example/dotfiles\"},"
+                    + "{\"name\":\"billing-events\",\"html_url\":\"https://github.com/example/billing-events\"}]")
                     .getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json");
             exchange.sendResponseHeaders(200, body.length);
@@ -78,12 +79,12 @@ class StudioWizardE2E extends StudioE2E {
         button("2. GitHub").click();
         assertThat(page.getByLabel("Tu usuario de GitHub")).hasValue("example");
         button("Buscar mis repositorios").click();
-        assertThat(page.locator("#github-list li")).hasCount(3);
+        assertThat(page.locator("#github-list li")).hasCount(4);
         page.getByLabel("Filtrar").fill("coffee");
         assertThat(page.locator("#github-list li:not([hidden])")).hasCount(1);
         page.locator("#github-list input[value='coffee-bot']").check();
-        assertThat(page.locator("#github-count")).hasText("1 de 3 marcados.");
-        button("Añadir los marcados y seguir").click();
+        assertThat(page.locator("#github-count")).hasText("1 de 4 marcados.");
+        button("Guardar y seguir").click();
 
         assertThat(page.locator("#linkedin-title")).isVisible();
         assertThat(file()).contains("id: coffee-bot").doesNotContain("old-homework");
@@ -97,16 +98,16 @@ class StudioWizardE2E extends StudioE2E {
         assertThat(page.getByLabel("Client Secret")).hasValue("");
 
         button("4. Proyectos").click();
-        assertThat(page.locator("#project-counter")).hasText("Proyecto 1 de 1 por completar");
+        assertThat(page.locator("#project-counter")).hasText(Pattern.compile("1 por completar · este tiene campos pendientes"));
         assertThat(page.locator("#project-name")).hasText("coffee-bot");
         assertThat(page.getByLabel("Qué es (una frase) *")).hasValue("Coffee through MQTT");
         page.getByLabel("Qué problema resolvía").fill("Making coffee needed someone in the kitchen.");
         page.getByLabel("Cómo lo resolviste").fill("An ESP32 listens on MQTT and switches the machine on.");
         page.getByLabel("Qué aprendiste").fill("Retained MQTT messages need a clear owner.");
-        button("Guardar y siguiente").click();
+        page.locator("#project-next").click();
 
         assertThat(page.locator("#publish-title")).isVisible();
-        assertThat(status()).hasText(Pattern.compile("Proyecto completo"));
+        assertThat(status()).hasText(Pattern.compile("Proyecto guardado"));
         String yaml = file();
         assertThat(yaml).contains("Making coffee needed someone in the kitchen.").doesNotContain("TODO");
         assertThat(new dev.proofstack.adapter.yaml.YamlProfileSource().load(profile).projects())
@@ -118,37 +119,70 @@ class StudioWizardE2E extends StudioE2E {
         openWizard();
         button("2. GitHub").click();
         button("Buscar mis repositorios").click();
-        button("Marcar todos").click();
-        button("Añadir los marcados y seguir").click();
+        button("Marcar los visibles").click();
+        button("Guardar y seguir").click();
         assertThat(page.locator("#linkedin-title")).isVisible();
         button("4. Proyectos").click();
-        assertThat(page.locator("#project-counter")).hasText("Proyecto 1 de 3 por completar");
+        assertThat(page.locator("#project-counter")).hasText(Pattern.compile("3 por completar · este tiene"));
         page.onDialog(d -> d.accept());
         button("Quitar este proyecto").click();
-        assertThat(page.locator("#project-counter")).hasText(Pattern.compile("de 2 por completar"));
+        assertThat(page.locator("#project-counter")).hasText(Pattern.compile("2 por completar"));
         assertThat(Files.readString(profile.resolveSibling(GitHubIgnore.FILE))).contains("coffee-bot");
         assertThat(file()).doesNotContain("id: coffee-bot").contains("TODO");
     }
 
     @Test
-    void withNothingNewItSaysWhyAndOffersTheTurnedDownOnesAgain() throws IOException {
-        Files.writeString(profile.resolveSibling(GitHubIgnore.FILE), "# mine\ncoffee-bot\nold-homework\ndotfiles\n");
+    void everyRepositoryIsListedAndTheUserDecidesAboutAllOfThem() throws IOException {
+        // billing-events is in the profile (linked to its repository); old-homework and dotfiles were turned down.
+        Files.writeString(profile, file().replace("  - id: billing-events\n",
+                "  - id: billing-events\n    links:\n      - { label: GitHub, url: \"https://github.com/example/billing-events\" }\n"));
+        Files.writeString(profile.resolveSibling(GitHubIgnore.FILE), "# mine\nold-homework\ndotfiles\n");
         openWizard();
         button("2. GitHub").click();
         button("Buscar mis repositorios").click();
-        assertThat(page.locator("#github-empty-text")).containsText("3 repositorios están descartados");
-        assertThat(page.locator("#github-pick")).isHidden();
 
-        button("Mostrar también los descartados").click();
-        assertThat(page.locator("#github-list li")).hasCount(3);
+        assertThat(page.locator("#github-list li")).hasCount(4);
+        Locator billing = page.locator("#github-list input[value='billing-events']");
+        assertThat(billing).isChecked();
+        assertThat(page.locator("#github-list li").first()).containsText("en tu perfil");
         assertThat(page.locator("#github-list")).containsText("descartado");
-        page.locator("#github-list input[value='coffee-bot']").check();
-        button("Añadir los marcados y seguir").click();
+        page.locator("#github-show").selectOption("ignored");
+        assertThat(page.locator("#github-list li:not([hidden])")).hasCount(2);
+        page.locator("#github-list input[value='dotfiles']").check();
+        page.locator("#github-show").selectOption("all");
+        billing.uncheck();
+        assertThat(page.locator("#github-count")).containsText("1 proyecto saldrá de tu perfil");
 
+        page.onDialog(d -> d.accept());
+        button("Guardar y seguir").click();
         assertThat(page.locator("#linkedin-title")).isVisible();
-        assertThat(file()).contains("id: coffee-bot");
+        assertThat(file()).contains("id: dotfiles").doesNotContain("id: billing-events");
         assertThat(Files.readString(profile.resolveSibling(GitHubIgnore.FILE)))
-                .startsWith("# mine\n").doesNotContain("coffee-bot").contains("old-homework", "dotfiles");
+                .startsWith("# mine\n").contains("old-homework", "billing-events").doesNotContain("dotfiles");
+    }
+
+    @Test
+    void finishedProjectsCanBeReviewedToo() throws IOException {
+        openWizard();
+        button("4. Proyectos").click();
+        assertThat(page.locator("#project-counter")).hasText(Pattern.compile("^Proyecto 1 de \\d+ · todos completos"));
+        assertThat(page.getByLabel("Qué es (una frase) *")).not().hasValue("");
+        page.getByLabel("Qué aprendiste").fill("Idempotent consumers make retries boring.");
+        page.locator("#project-next").click();
+        assertThat(page.locator("#publish-title")).isVisible(); // the example profile has a single project
+        assertThat(file()).contains("Idempotent consumers make retries boring.");
+    }
+
+    @Test
+    void aFailedSaveIsShownNextToTheButton() {
+        expectedFailures.add(400);
+        openWizard();
+        button("3. LinkedIn").click();
+        page.getByLabel("Client ID").fill("my-app");
+        page.getByLabel("Client Secret").fill("x".repeat(300));
+        button("Guardar la app").click();
+        assertThat(page.locator("[data-panel='linkedin'] .wizard__msg")).hasText(Pattern.compile("^No se guardó la app"));
+        assertThat(button("Traer de LinkedIn")).isDisabled();
     }
 
     @Test

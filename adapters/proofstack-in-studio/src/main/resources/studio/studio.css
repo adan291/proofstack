@@ -154,3 +154,10 @@ kbd { font: .75rem var(--mono); opacity: .75; }
 a { color: var(--accent); }
 .wizard__empty { margin: .5rem 0; padding: .75rem 1rem; border: 1px dashed var(--border); border-radius: 8px; color: var(--muted); }
 .wizard__tag { margin-left: .35rem; color: var(--warn); font: 400 .8rem var(--mono); }
+.wizard__msg:empty { display: none; }
+.wizard__msg { margin: .75rem 0 0; padding: .5rem .75rem; border-left: 3px solid var(--accent); border-radius: 4px; background: var(--bg); }
+.wizard__msg[data-kind="error"] { border-color: var(--error); color: var(--error); }
+.wizard__msg[data-kind="ok"] { border-color: var(--ok); color: var(--ok); }
+.wizard__tag--profile { color: var(--ok); }
+.wizard__tag--new { color: var(--accent); }
+#github-show { width: auto; }

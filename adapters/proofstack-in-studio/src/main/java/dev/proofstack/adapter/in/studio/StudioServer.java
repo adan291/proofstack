@@ -376,11 +376,18 @@ public final class StudioServer implements AutoCloseable {
             return;
         }
         ImportIntoDraftUseCase.Imported imported;
+        List<dev.proofstack.core.domain.Project> repos = List.of();
         try {
-            imported = linkedIn ? imports.drafts().career(draft, imports.linkedIn().get())
-                    : imports.drafts().projects(draft,
-                            request.path("includeIgnored").asBoolean(false) ? imports.gitHubAll() : imports.gitHub(),
-                            request.path("account").asString().strip());
+            if (linkedIn) {
+                imported = imports.drafts().career(draft, imports.linkedIn().get());
+            } else {
+                // One call to GitHub: every repository, so the assistant can show the ones already in the profile and
+                // the turned-down ones next to the new ones, and let the user decide about all of them.
+                String account = request.path("account").asString().strip();
+                List<dev.proofstack.core.domain.Project> all = imports.gitHubAll().fetchProjects(account, false);
+                repos = all;
+                imported = imports.drafts().projects(draft, (a, forks) -> all, account);
+            }
         } catch (ProfileValidationException e) {
             ObjectNode out = json.createObjectNode();
             out.put("error", "the profile has errors; fix them before importing");
@@ -414,6 +421,16 @@ public final class StudioServer implements AutoCloseable {
         if (!linkedIn) {
             ArrayNode ignoredNames = out.putArray("ignored");
             imports.ignored().get().stream().sorted().forEach(ignoredNames::add);
+            ArrayNode list = out.putArray("repos");
+            for (dev.proofstack.core.domain.Project p : repos) {
+                ObjectNode repo = list.addObject();
+                repo.put("id", p.id());
+                repo.put("name", p.name());
+                repo.put("summary", p.summary());
+                repo.put("url", p.links().isEmpty() ? "" : p.links().getFirst().url());
+                ArrayNode stack = repo.putArray("techStack");
+                p.techStack().forEach(stack::add);
+            }
         }
         sendJson(exchange, 200, out);
     }

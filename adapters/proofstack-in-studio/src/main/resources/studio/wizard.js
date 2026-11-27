@@ -3,7 +3,7 @@
 const $ = (sel) => document.querySelector(sel);
 const STEPS = ['you', 'github', 'linkedin', 'projects', 'publish'];
 const SKIPPED = 'wizard-skipped';
-const state = { doc: null, version: null, findings: [], setup: {}, step: null, candidates: [], projectIndex: 0 };
+const state = { doc: null, version: null, findings: [], setup: {}, step: null, repos: null, imported: null, projectIndex: null };
 
 const token = (() => {
   const fromHash = new URLSearchParams(location.hash.slice(1)).get('token');
@@ -14,14 +14,23 @@ const token = (() => {
   return sessionStorage.getItem('studio-token');
 })();
 
+/** Never rejects: a Studio that is not running any more answers with status 0, and every caller shows a message. */
 async function api(path, options = {}) {
-  const response = await fetch(path, {
-    ...options,
-    headers: { 'X-Studio-Token': token ?? '', ...(options.headers ?? {}) },
-    cache: 'no-store',
-  });
+  let response;
+  try {
+    response = await fetch(path, {
+      ...options,
+      headers: { 'X-Studio-Token': token ?? '', ...(options.headers ?? {}) },
+      cache: 'no-store',
+    });
+  } catch {
+    return { status: 0, body: { error: 'Studio no responde. ¿Sigue abierta la terminal? Si la cerraste, vuelve a ejecutar ./proofstack setup y abre la URL nueva' } };
+  }
   let body = null;
   try { body = await response.json(); } catch { /* empty or not JSON */ }
+  if (response.status === 401) {
+    body = { error: 'Esta pestaña es de un Studio anterior. Abre la URL que muestra ahora la terminal' };
+  }
   return { status: response.status, body };
 }
 
@@ -29,12 +38,17 @@ const post = (path, body) => api(path, {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
 
+/** In the bar at the top and next to the buttons of the step on screen, where the user is looking. */
 function announce(text, kind = 'info') {
   const status = $('#status');
   status.textContent = text;
   status.dataset.kind = kind;
+  const msg = document.querySelector('[data-panel]:not([hidden]) .wizard__msg');
+  if (msg) {
+    msg.textContent = kind === 'info' ? '' : text;
+    msg.dataset.kind = kind;
+  }
 }
-
 // ------------------------------------------------------------------ placeholders
 // A TODO is shown as an empty field with the hint as placeholder; an empty field keeps its TODO on save.
 const isTodo = (v) => typeof v === 'string' && /^\s*TODO\b/.test(v);
@@ -109,7 +123,8 @@ function gitHubUser() {
   }
   return null;
 }
-const pendingProjects = () => (state.doc.projects ?? []).filter((p) => JSON.stringify(p).includes('"TODO'));
+const isPending = (p) => JSON.stringify(p).includes('"TODO');
+const pendingProjects = () => (state.doc.projects ?? []).filter(isPending);
 
 /** Where to resume: the first step that still has something to do and was not skipped in this tab. */
 function firstStep() {
@@ -161,11 +176,20 @@ async function saveYou() {
 }
 
 // ------------------------------------------------------------------ 2. github
+const norm = (url) => String(url ?? '').toLowerCase().replace(/^http:\/\//, 'https://').replace(/(\.git)?\/*$/, '');
+
 function showGitHub() {
   const user = gitHubUser();
   if (user && !$('#github-user').value) $('#github-user').value = user;
-  $('#github-pick').hidden = state.candidates.length === 0;
+  $('#github-pick').hidden = !state.repos?.length;
 }
+
+/** The profile project that shows this repository, by any of its links. */
+function projectOf(repo) {
+  const url = norm(repo.url);
+  return (state.doc.projects ?? []).find((p) => (p.links ?? []).some((l) => norm(l.url) === url));
+}
+
 async function fetchRepos() {
   const account = $('#github-user').value.trim();
   if (!/^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/.test(account)) {
@@ -175,54 +199,52 @@ async function fetchRepos() {
   }
   $('#github-fetch').disabled = true;
   announce(`Buscando los repositorios públicos de ${account}…`);
-  const includeIgnored = state.showIgnored === true;
-  const result = await post('/api/import/github', { document: state.doc, account, includeIgnored });
+  const result = await post('/api/import/github', { document: state.doc, account });
   $('#github-fetch').disabled = false;
   if (result.status !== 200) {
     announce(result.status === 404 ? `GitHub no conoce al usuario «${account}».`
       : `No se pudo consultar GitHub: ${result.body?.error ?? result.status}.`, 'error');
     return;
   }
-  const added = new Set(result.body.added);
   const ignored = new Set((result.body.ignored ?? []).map((n) => n.toLowerCase()));
-  state.imported = { document: result.body.document, account };
-  state.candidates = (result.body.document.projects ?? []).filter((p) => added.has(p.id));
-  state.ignoredNames = ignored;
-  const inProfile = (state.doc.projects ?? []).length;
-  const empty = state.candidates.length === 0;
-  $('#github-pick').hidden = empty;
-  $('#github-empty').hidden = !empty;
-  $('#github-show-ignored').hidden = !empty || includeIgnored || ignored.size === 0;
-  $('#github-empty-text').textContent = empty
-    ? `No hay repositorios nuevos de ${account}. Tu perfil ya tiene ${inProfile} proyectos`
-      + (ignored.size && !includeIgnored ? `, y ${ignored.size} repositorios están descartados (github-ignore.txt).` : '.')
-    : '';
-  if (!empty) renderRepos();
+  const added = new Map((result.body.document.projects ?? []).map((p) => [p.id, p]));
+  state.imported = { account, candidates: added };
+  const order = { profile: 0, new: 1, ignored: 2 };
+  state.repos = (result.body.repos ?? []).map((repo) => {
+    const project = projectOf(repo);
+    const kind = project ? 'profile' : ignored.has(repo.name.toLowerCase()) ? 'ignored' : 'new';
+    return { ...repo, kind, project, checked: kind === 'profile' };
+  }).sort((a, b) => order[a.kind] - order[b.kind]);
+  $('#github-empty').hidden = state.repos.length > 0;
+  $('#github-empty').textContent = `${account} no tiene repositorios públicos propios (los forks y los archivados no cuentan).`;
+  $('#github-pick').hidden = state.repos.length === 0;
   $('#github-save').disabled = false;
-  $('#github-save').textContent = empty ? 'Seguir' : 'Añadir los marcados y seguir';
-  announce(empty ? 'Nada nuevo en GitHub.'
-    : `${state.candidates.length} repositorios que aún no están en tu perfil. Marca los que quieres enseñar.`, 'info');
+  renderRepos();
+  const n = (k) => state.repos.filter((r) => r.kind === k).length;
+  announce(`${state.repos.length} repositorios: ${n('profile')} en tu perfil, ${n('new')} nuevos y ${n('ignored')} descartados.`);
 }
+
 function renderRepos() {
   const filter = $('#github-filter').value.trim().toLowerCase();
+  const show = $('#github-show').value;
   const list = $('#github-list');
-  const checked = new Set([...list.querySelectorAll('input:checked')].map((i) => i.value));
   list.replaceChildren();
-  for (const p of state.candidates) {
-    const text = `${p.name} ${(p.techStack ?? []).join(' ')} ${shown(p.summary)}`.toLowerCase();
+  const tags = { profile: 'en tu perfil', new: 'nuevo', ignored: 'descartado' };
+  for (const repo of state.repos ?? []) {
+    const text = `${repo.name} ${(repo.techStack ?? []).join(' ')} ${shown(repo.summary)}`.toLowerCase();
     const li = document.createElement('li');
-    li.hidden = filter !== '' && !text.includes(filter);
+    li.hidden = (filter !== '' && !text.includes(filter)) || (show !== 'all' && show !== repo.kind);
     const label = document.createElement('label');
     label.className = 'wizard__repo';
-    const box = Object.assign(document.createElement('input'), { type: 'checkbox', value: p.id, checked: checked.has(p.id) });
-    box.addEventListener('change', countRepos);
-    const name = Object.assign(document.createElement('strong'), { textContent: p.name });
-    if (state.ignoredNames?.has(p.name.toLowerCase())) {
-      name.append(Object.assign(document.createElement('span'), { className: 'wizard__tag', textContent: ' descartado' }));
-    }
+    const box = Object.assign(document.createElement('input'), { type: 'checkbox', value: repo.id, checked: repo.checked });
+    box.addEventListener('change', () => { repo.checked = box.checked; countRepos(); });
+    const name = Object.assign(document.createElement('strong'), { textContent: repo.name });
+    name.append(Object.assign(document.createElement('span'), {
+      className: `wizard__tag wizard__tag--${repo.kind}`, textContent: ` ${tags[repo.kind]}`,
+    }));
     const about = Object.assign(document.createElement('span'), {
       className: 'wizard__repo-about',
-      textContent: [shown(p.summary), (p.techStack ?? []).join(', ')].filter(Boolean).join(' · '),
+      textContent: [shown(repo.project?.summary ?? repo.summary), (repo.techStack ?? []).join(', ')].filter(Boolean).join(' · '),
     });
     label.append(box, name, about);
     li.append(label);
@@ -230,43 +252,65 @@ function renderRepos() {
   }
   countRepos();
 }
+
 function countRepos() {
-  const n = $('#github-list').querySelectorAll('input:checked').length;
-  $('#github-count').textContent = `${n} de ${state.candidates.length} marcados.`;
+  const repos = state.repos ?? [];
+  const checked = repos.filter((r) => r.checked).length;
+  const removing = repos.filter((r) => r.kind === 'profile' && !r.checked).length;
+  $('#github-count').textContent = `${checked} de ${repos.length} marcados.`
+    + (removing ? ` Al guardar, ${removing} ${removing === 1 ? 'proyecto saldrá' : 'proyectos saldrán'} de tu perfil.` : '');
 }
-function markAll(value) {
-  $('#github-list').querySelectorAll('li:not([hidden]) input').forEach((i) => { i.checked = value; });
-  countRepos();
+
+function markVisible(value) {
+  const visible = new Set([...$('#github-list').querySelectorAll('li:not([hidden]) input')].map((i) => i.value));
+  (state.repos ?? []).forEach((r) => { if (visible.has(r.id)) r.checked = value; });
+  renderRepos();
 }
+
 async function saveRepos() {
-  if (!state.imported) {
+  if (!state.repos) {
     go('linkedin');
     return;
   }
-  const keep = new Set([...$('#github-list').querySelectorAll('input:checked')].map((i) => i.value));
-  const dropped = state.candidates.filter((p) => !keep.has(p.id));
-  const doc = state.imported.document;
-  doc.projects = (doc.projects ?? []).filter((p) => !dropped.some((d) => d.id === p.id));
+  const leaving = state.repos.filter((r) => r.kind === 'profile' && !r.checked);
+  if (leaving.length && !confirm(`Saldrán de tu perfil, con lo que hayas escrito en ellos: ${leaving.map((r) => r.name).join(', ')}. ¿Seguir?`)) {
+    return;
+  }
+  const doc = structuredClone(state.doc);
+  const leavingIds = new Set(leaving.map((r) => r.project.id));
+  doc.projects = (doc.projects ?? []).filter((p) => !leavingIds.has(p.id));
+  for (const lab of doc.labs ?? []) {
+    if (Array.isArray(lab.projects)) lab.projects = lab.projects.filter((id) => !leavingIds.has(id));
+  }
+  const entering = state.repos.filter((r) => r.kind !== 'profile' && r.checked);
+  for (const repo of entering) {
+    const draft = state.imported.candidates.get(repo.id);
+    if (draft && !doc.projects.some((p) => p.id === draft.id)) doc.projects.push(draft);
+  }
   doc.person ??= {};
   doc.person.links ??= [];
   if (!doc.person.links.some((l) => /github\.com\/[A-Za-z0-9-]+\/?$/i.test(l.url ?? ''))) {
     doc.person.links.push({ label: 'GitHub', url: `https://github.com/${state.imported.account}` });
   }
+  const previous = state.doc;
   state.doc = doc;
-  if (!(await save())) return;
-  const restored = state.candidates.filter((p) => keep.has(p.id) && state.ignoredNames?.has(p.name.toLowerCase()));
-  if (restored.length) await post('/api/github/unignore', { names: restored.map((p) => p.name) });
-  const newlyDropped = dropped.filter((p) => !state.ignoredNames?.has(p.name.toLowerCase()));
-  if (newlyDropped.length) await post('/api/github/ignore', { names: newlyDropped.map((p) => p.name) });
-  state.showIgnored = false;
-  state.candidates = [];
+  if (!(await save())) {
+    state.doc = previous;
+    return;
+  }
+  const toIgnore = state.repos.filter((r) => !r.checked && r.kind !== 'ignored').map((r) => r.name);
+  const toRestore = state.repos.filter((r) => r.checked && r.kind === 'ignored').map((r) => r.name);
+  if (toIgnore.length) await post('/api/github/ignore', { names: toIgnore });
+  if (toRestore.length) await post('/api/github/unignore', { names: toRestore });
+  state.repos = null;
   state.imported = null;
-  announce(keep.size || dropped.length
-    ? `${keep.size} proyectos añadidos.${newlyDropped.length ? ` Los otros ${newlyDropped.length} no volverán a ofrecerse.` : ''}`
-    : 'Sin cambios en GitHub.', 'ok');
+  $('#github-pick').hidden = true;
+  const parts = [];
+  if (entering.length) parts.push(`${entering.length} ${entering.length === 1 ? 'añadido' : 'añadidos'}`);
+  if (leaving.length) parts.push(`${leaving.length} ${leaving.length === 1 ? 'quitado' : 'quitados'}`);
+  announce(parts.length ? `Proyectos guardados: ${parts.join(', ')}.` : 'Sin cambios en tus proyectos.', 'ok');
   go('linkedin');
 }
-
 // ------------------------------------------------------------------ 3. linkedin
 function showLinkedIn() {
   const ready = Boolean(state.setup.linkedInConfigured);
@@ -281,15 +325,18 @@ async function saveLinkedInApp() {
     announce('Faltan el Client ID o el Client Secret.', 'error');
     return;
   }
+  $('#linkedin-save-app').disabled = true;
+  announce('Guardando la app…');
   const result = await post('/api/linkedin/app', { clientId, clientSecret });
-  $('#linkedin-secret').value = '';
+  $('#linkedin-save-app').disabled = false;
   if (result.status !== 200) {
-    announce(`No se pudo guardar la app: ${result.body?.error ?? result.status}.`, 'error');
+    announce(`No se guardó la app: ${result.body?.error ?? `error ${result.status}`}.`, 'error');
     return;
   }
+  $('#linkedin-secret').value = '';
   state.setup.linkedInConfigured = true;
-  announce('App de LinkedIn guardada. Ahora pulsa «Traer de LinkedIn».', 'ok');
   showLinkedIn();
+  announce('App de LinkedIn guardada en tu carpeta de usuario. Ahora pulsa «Traer de LinkedIn».', 'ok');
   $('#linkedin-import').focus();
 }
 async function importLinkedIn() {
@@ -313,27 +360,38 @@ async function importLinkedIn() {
 }
 
 // ------------------------------------------------------------------ 4. projects
+const allProjects = () => state.doc.projects ?? [];
+
 function showProjects() {
-  const pending = pendingProjects();
-  $('#project-form').hidden = pending.length === 0;
-  $('#projects-done').hidden = pending.length !== 0;
-  if (!pending.length) {
+  const projects = allProjects();
+  $('#project-form').hidden = projects.length === 0;
+  $('#projects-done').hidden = projects.length !== 0;
+  $('#projects-done').textContent = 'Tu perfil aún no tiene proyectos. Añade tus repositorios en el paso 2.';
+  if (!projects.length) {
     $('#project-counter').textContent = '';
     return;
   }
-  state.projectIndex = Math.min(state.projectIndex, pending.length - 1);
-  const p = pending[state.projectIndex];
-  $('#project-counter').textContent = `Proyecto ${state.projectIndex + 1} de ${pending.length} por completar`;
+  if (state.projectIndex == null) {
+    const first = projects.findIndex(isPending);
+    state.projectIndex = first < 0 ? 0 : first;
+  }
+  state.projectIndex = Math.max(0, Math.min(state.projectIndex, projects.length - 1));
+  const p = projects[state.projectIndex];
+  const pending = pendingProjects().length;
+  $('#project-counter').textContent = `Proyecto ${state.projectIndex + 1} de ${projects.length}`
+    + (pending ? ` · ${pending} por completar` : ' · todos completos')
+    + (isPending(p) ? ' · este tiene campos pendientes' : '');
   $('#project-name').textContent = shown(p.name) || p.id;
   bind($('#project-summary'), p.summary);
   bind($('#project-problem'), p.problem);
   bind($('#project-solution'), p.solution);
   bind($('#project-learning'), (p.learnings ?? [])[0]);
   $('#project-prev').disabled = state.projectIndex === 0;
+  $('#project-next').textContent = state.projectIndex === projects.length - 1 ? 'Guardar y terminar' : 'Guardar y siguiente';
 }
-function current() {
-  return pendingProjects()[state.projectIndex];
-}
+
+const current = () => allProjects()[state.projectIndex];
+
 async function saveProject() {
   const p = current();
   if (!p) return;
@@ -343,6 +401,7 @@ async function saveProject() {
     $('#project-summary').focus();
     return;
   }
+  const before = JSON.stringify(p);
   p.summary = summary;
   setOrDelete(p, 'problem', merged($('#project-problem').value, p.problem));
   setOrDelete(p, 'solution', merged($('#project-solution').value, p.solution));
@@ -353,19 +412,20 @@ async function saveProject() {
   } else {
     p.learnings = [learning, ...(p.learnings ?? []).slice(1)];
   }
-  const stillPending = JSON.stringify(p).includes('"TODO');
-  if (!(await save(stillPending ? 'Guardado. Este proyecto aún tiene campos pendientes.' : 'Proyecto completo.'))) return;
-  if (stillPending) state.projectIndex += 1; // a finished one leaves the list by itself
-  if (!pendingProjects().length || state.projectIndex >= pendingProjects().length) {
-    state.projectIndex = 0;
-    if (!pendingProjects().length) {
-      go('publish');
-      return;
-    }
+  if (JSON.stringify(p) !== before
+      && !(await save(isPending(p) ? 'Guardado. Este proyecto aún tiene campos pendientes.' : 'Proyecto guardado.'))) {
+    return;
   }
+  if (state.projectIndex >= allProjects().length - 1) {
+    state.projectIndex = null;
+    go('publish');
+    return;
+  }
+  state.projectIndex += 1;
   showProjects();
   $('#project-summary').focus();
 }
+
 async function removeProject() {
   const p = current();
   if (!p || !confirm(`¿Quitar «${shown(p.name) || p.id}» del portfolio?`)) return;
@@ -378,7 +438,6 @@ async function removeProject() {
   if (repo) await post('/api/github/ignore', { names: [repo] });
   showProjects();
 }
-
 // ------------------------------------------------------------------ 5. publish
 function showPublish() {
   const errors = state.findings.filter((f) => f.severity === 'error');
@@ -413,10 +472,10 @@ $('[data-save="you"]').addEventListener('click', saveYou);
 $('#github-fetch').addEventListener('click', fetchRepos);
 $('#github-user').addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchRepos(); });
 $('#github-filter').addEventListener('input', renderRepos);
-$('#github-all').addEventListener('click', () => markAll(true));
-$('#github-none').addEventListener('click', () => markAll(false));
+$('#github-all').addEventListener('click', () => markVisible(true));
+$('#github-none').addEventListener('click', () => markVisible(false));
+$('#github-show').addEventListener('change', renderRepos);
 $('#github-save').addEventListener('click', saveRepos);
-$('#github-show-ignored').addEventListener('click', () => { state.showIgnored = true; fetchRepos(); });
 $('#linkedin-save-app').addEventListener('click', saveLinkedInApp);
 $('#linkedin-import').addEventListener('click', importLinkedIn);
 $('#project-next').addEventListener('click', saveProject);
