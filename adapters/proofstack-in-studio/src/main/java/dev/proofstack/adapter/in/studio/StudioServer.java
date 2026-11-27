@@ -167,7 +167,8 @@ public final class StudioServer implements AutoCloseable {
     }
 
     private void route(HttpExchange exchange, String method, String path) throws IOException {
-        if (path.equals("/api/setup") || path.equals("/api/linkedin/app") || path.equals("/api/github/ignore")) {
+        if (path.equals("/api/setup") || path.equals("/api/linkedin/app") || path.equals("/api/github/ignore")
+                || path.equals("/api/github/unignore")) {
             if (imports == null) {
                 error(exchange, 404, "the assistant is not available in this Studio");
             } else if (path.equals("/api/setup") && method.equals("GET")) {
@@ -175,7 +176,9 @@ public final class StudioServer implements AutoCloseable {
             } else if (path.equals("/api/linkedin/app") && method.equals("POST")) {
                 saveLinkedInApp(exchange);
             } else if (path.equals("/api/github/ignore") && method.equals("POST")) {
-                ignoreRepos(exchange);
+                ignoreRepos(exchange, false);
+            } else if (path.equals("/api/github/unignore") && method.equals("POST")) {
+                ignoreRepos(exchange, true);
             } else {
                 error(exchange, 405, path.equals("/api/setup") ? "use GET" : "use POST");
             }
@@ -375,7 +378,9 @@ public final class StudioServer implements AutoCloseable {
         ImportIntoDraftUseCase.Imported imported;
         try {
             imported = linkedIn ? imports.drafts().career(draft, imports.linkedIn().get())
-                    : imports.drafts().projects(draft, imports.gitHub(), request.path("account").asString().strip());
+                    : imports.drafts().projects(draft,
+                            request.path("includeIgnored").asBoolean(false) ? imports.gitHubAll() : imports.gitHub(),
+                            request.path("account").asString().strip());
         } catch (ProfileValidationException e) {
             ObjectNode out = json.createObjectNode();
             out.put("error", "the profile has errors; fix them before importing");
@@ -406,6 +411,10 @@ public final class StudioServer implements AutoCloseable {
         ArrayNode leftOut = out.putArray("leftOut");
         imported.leftOut().forEach(leftOut::add);
         out.put("todoCount", imported.todoCount());
+        if (!linkedIn) {
+            ArrayNode ignoredNames = out.putArray("ignored");
+            imports.ignored().get().stream().sorted().forEach(ignoredNames::add);
+        }
         sendJson(exchange, 200, out);
     }
 
@@ -446,7 +455,7 @@ public final class StudioServer implements AutoCloseable {
     }
 
     /** {@code POST /api/github/ignore} {@code {names: [...]}}: repositories that GitHub imports skip from now on. */
-    private void ignoreRepos(HttpExchange exchange) throws IOException {
+    private void ignoreRepos(HttpExchange exchange, boolean undo) throws IOException {
         JsonNode request = jsonBody(exchange);
         if (request == null) {
             return;
@@ -464,8 +473,8 @@ public final class StudioServer implements AutoCloseable {
             error(exchange, 400, "send {\"names\": [\"repo\", ...]} with at most 500 names");
             return;
         }
-        imports.ignoreRepos().accept(names);
-        sendJson(exchange, 200, json.createObjectNode().put("ignored", names.size()));
+        (undo ? imports.unignoreRepos() : imports.ignoreRepos()).accept(names);
+        sendJson(exchange, 200, json.createObjectNode().put(undo ? "restored" : "ignored", names.size()));
     }
 
     /** The body as a JSON object, or {@code null} after answering 400 or 413. */

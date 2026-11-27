@@ -131,6 +131,27 @@ class StudioWizardE2E extends StudioE2E {
     }
 
     @Test
+    void withNothingNewItSaysWhyAndOffersTheTurnedDownOnesAgain() throws IOException {
+        Files.writeString(profile.resolveSibling(GitHubIgnore.FILE), "# mine\ncoffee-bot\nold-homework\ndotfiles\n");
+        openWizard();
+        button("2. GitHub").click();
+        button("Buscar mis repositorios").click();
+        assertThat(page.locator("#github-empty-text")).containsText("3 repositorios están descartados");
+        assertThat(page.locator("#github-pick")).isHidden();
+
+        button("Mostrar también los descartados").click();
+        assertThat(page.locator("#github-list li")).hasCount(3);
+        assertThat(page.locator("#github-list")).containsText("descartado");
+        page.locator("#github-list input[value='coffee-bot']").check();
+        button("Añadir los marcados y seguir").click();
+
+        assertThat(page.locator("#linkedin-title")).isVisible();
+        assertThat(file()).contains("id: coffee-bot");
+        assertThat(Files.readString(profile.resolveSibling(GitHubIgnore.FILE)))
+                .startsWith("# mine\n").doesNotContain("coffee-bot").contains("old-homework", "dotfiles");
+    }
+
+    @Test
     void axeFindsNothingSeriousInAnyStep() throws IOException {
         openWizard();
         String axe;

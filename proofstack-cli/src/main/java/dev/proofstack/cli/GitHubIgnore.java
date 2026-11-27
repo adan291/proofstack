@@ -64,6 +64,21 @@ final class GitHubIgnore {
         }
     }
 
+    /** Takes names off the list (case-insensitive), keeping the comments and every other line as they were. */
+    static void remove(Path file, Collection<String> names) {
+        if (!Files.isRegularFile(file) || names.isEmpty()) {
+            return;
+        }
+        Set<String> drop = names.stream().map(n -> n.strip().toLowerCase(Locale.ROOT)).collect(Collectors.toSet());
+        try {
+            var kept = Files.readAllLines(file, StandardCharsets.UTF_8).stream()
+                    .filter(l -> !drop.contains(l.strip().toLowerCase(Locale.ROOT))).toList();
+            Files.writeString(file, String.join("\n", kept) + "\n", StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException("cannot write " + file, e);
+        }
+    }
+
     /** The source without the ignored repositories (matched by repository name, case-insensitive). */
     static ProjectSource filtered(ProjectSource source, Path file) {
         return (account, includeForks) -> {

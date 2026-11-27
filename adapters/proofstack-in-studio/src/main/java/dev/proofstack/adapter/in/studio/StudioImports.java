@@ -19,11 +19,16 @@ import dev.proofstack.core.port.out.ProjectSource;
  * @param linkedInConfigured whether a LinkedIn app (or token) is available, so the assistant knows which step to show
  * @param saveLinkedInApp    saves the user's LinkedIn app (client id, client secret) outside the repository
  * @param ignoreRepos        appends repository names to the list that GitHub imports skip from now on
+ * @param gitHubAll          the same GitHub source without that list, to offer turned-down repositories again
+ * @param ignored            the names on that list now
+ * @param unignoreRepos      takes names off that list
  * @param workspace          where the profile lives, for the publishing step; may return {@code null} fields
  */
 public record StudioImports(ImportIntoDraftUseCase drafts, Supplier<MemberProfileSource> linkedIn, ProjectSource gitHub,
                             BooleanSupplier linkedInConfigured, BiConsumer<String, String> saveLinkedInApp,
-                            Consumer<List<String>> ignoreRepos, Supplier<Workspace> workspace) {
+                            Consumer<List<String>> ignoreRepos, Supplier<Workspace> workspace,
+                            ProjectSource gitHubAll, Supplier<java.util.Set<String>> ignored,
+                            Consumer<List<String>> unignoreRepos) {
 
     /**
      * @param owner       GitHub owner of the repository (from {@code remote.origin.url}), or {@code null}
@@ -42,6 +47,17 @@ public record StudioImports(ImportIntoDraftUseCase drafts, Supplier<MemberProfil
         Objects.requireNonNull(saveLinkedInApp, "saveLinkedInApp");
         Objects.requireNonNull(ignoreRepos, "ignoreRepos");
         Objects.requireNonNull(workspace, "workspace");
+        Objects.requireNonNull(gitHubAll, "gitHubAll");
+        Objects.requireNonNull(ignored, "ignored");
+        Objects.requireNonNull(unignoreRepos, "unignoreRepos");
+    }
+
+    /** Without the list of turned-down repositories: everything is offered. */
+    public StudioImports(ImportIntoDraftUseCase drafts, Supplier<MemberProfileSource> linkedIn, ProjectSource gitHub,
+                         BooleanSupplier linkedInConfigured, BiConsumer<String, String> saveLinkedInApp,
+                         Consumer<List<String>> ignoreRepos, Supplier<Workspace> workspace) {
+        this(drafts, linkedIn, gitHub, linkedInConfigured, saveLinkedInApp, ignoreRepos, workspace, gitHub,
+                java.util.Set::of, names -> { });
     }
 
     /** Only the import buttons: no LinkedIn app to save, nothing ignored, no workspace. */

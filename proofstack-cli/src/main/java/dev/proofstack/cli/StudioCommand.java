@@ -128,7 +128,10 @@ final class StudioCommand implements Callable<Integer> {
                 () -> LinkedInSettings.configured(env),
                 (id, secret) -> LinkedInSettings.save(env, id, secret, null),
                 names -> GitHubIgnore.add(GitHubIgnore.fileFor(profile), names),
-                () -> workspace(profile));
+                () -> workspace(profile),
+                GitHubProjectSource.fromEnvironment(env),
+                () -> GitHubIgnore.read(GitHubIgnore.fileFor(profile)),
+                names -> GitHubIgnore.remove(GitHubIgnore.fileFor(profile), names));
     }
 
     /** The GitHub repository the profile lives in (from .git/config), for the links of the publishing step. */

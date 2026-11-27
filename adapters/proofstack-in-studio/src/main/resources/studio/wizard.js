@@ -175,7 +175,8 @@ async function fetchRepos() {
   }
   $('#github-fetch').disabled = true;
   announce(`Buscando los repositorios públicos de ${account}…`);
-  const result = await post('/api/import/github', { document: state.doc, account });
+  const includeIgnored = state.showIgnored === true;
+  const result = await post('/api/import/github', { document: state.doc, account, includeIgnored });
   $('#github-fetch').disabled = false;
   if (result.status !== 200) {
     announce(result.status === 404 ? `GitHub no conoce al usuario «${account}».`
@@ -183,14 +184,24 @@ async function fetchRepos() {
     return;
   }
   const added = new Set(result.body.added);
+  const ignored = new Set((result.body.ignored ?? []).map((n) => n.toLowerCase()));
   state.imported = { document: result.body.document, account };
   state.candidates = (result.body.document.projects ?? []).filter((p) => added.has(p.id));
-  renderRepos();
-  $('#github-pick').hidden = false;
+  state.ignoredNames = ignored;
+  const inProfile = (state.doc.projects ?? []).length;
+  const empty = state.candidates.length === 0;
+  $('#github-pick').hidden = empty;
+  $('#github-empty').hidden = !empty;
+  $('#github-show-ignored').hidden = !empty || includeIgnored || ignored.size === 0;
+  $('#github-empty-text').textContent = empty
+    ? `No hay repositorios nuevos de ${account}. Tu perfil ya tiene ${inProfile} proyectos`
+      + (ignored.size && !includeIgnored ? `, y ${ignored.size} repositorios están descartados (github-ignore.txt).` : '.')
+    : '';
+  if (!empty) renderRepos();
   $('#github-save').disabled = false;
-  announce(state.candidates.length
-    ? `${state.candidates.length} repositorios que aún no están en tu perfil. Marca los que quieres enseñar.`
-    : 'No hay repositorios nuevos: tu perfil ya los tiene todos.', 'info');
+  $('#github-save').textContent = empty ? 'Seguir' : 'Añadir los marcados y seguir';
+  announce(empty ? 'Nada nuevo en GitHub.'
+    : `${state.candidates.length} repositorios que aún no están en tu perfil. Marca los que quieres enseñar.`, 'info');
 }
 function renderRepos() {
   const filter = $('#github-filter').value.trim().toLowerCase();
@@ -206,6 +217,9 @@ function renderRepos() {
     const box = Object.assign(document.createElement('input'), { type: 'checkbox', value: p.id, checked: checked.has(p.id) });
     box.addEventListener('change', countRepos);
     const name = Object.assign(document.createElement('strong'), { textContent: p.name });
+    if (state.ignoredNames?.has(p.name.toLowerCase())) {
+      name.append(Object.assign(document.createElement('span'), { className: 'wizard__tag', textContent: ' descartado' }));
+    }
     const about = Object.assign(document.createElement('span'), {
       className: 'wizard__repo-about',
       textContent: [shown(p.summary), (p.techStack ?? []).join(', ')].filter(Boolean).join(' · '),
@@ -240,10 +254,16 @@ async function saveRepos() {
   }
   state.doc = doc;
   if (!(await save())) return;
-  if (dropped.length) await post('/api/github/ignore', { names: dropped.map((p) => p.name) });
+  const restored = state.candidates.filter((p) => keep.has(p.id) && state.ignoredNames?.has(p.name.toLowerCase()));
+  if (restored.length) await post('/api/github/unignore', { names: restored.map((p) => p.name) });
+  const newlyDropped = dropped.filter((p) => !state.ignoredNames?.has(p.name.toLowerCase()));
+  if (newlyDropped.length) await post('/api/github/ignore', { names: newlyDropped.map((p) => p.name) });
+  state.showIgnored = false;
   state.candidates = [];
   state.imported = null;
-  announce(`${keep.size} proyectos añadidos.${dropped.length ? ` Los otros ${dropped.length} no volverán a ofrecerse.` : ''}`, 'ok');
+  announce(keep.size || dropped.length
+    ? `${keep.size} proyectos añadidos.${newlyDropped.length ? ` Los otros ${newlyDropped.length} no volverán a ofrecerse.` : ''}`
+    : 'Sin cambios en GitHub.', 'ok');
   go('linkedin');
 }
 
@@ -396,6 +416,7 @@ $('#github-filter').addEventListener('input', renderRepos);
 $('#github-all').addEventListener('click', () => markAll(true));
 $('#github-none').addEventListener('click', () => markAll(false));
 $('#github-save').addEventListener('click', saveRepos);
+$('#github-show-ignored').addEventListener('click', () => { state.showIgnored = true; fetchRepos(); });
 $('#linkedin-save-app').addEventListener('click', saveLinkedInApp);
 $('#linkedin-import').addEventListener('click', importLinkedIn);
 $('#project-next').addEventListener('click', saveProject);
