@@ -525,6 +525,8 @@ projects:
         url: https://github.com/adan291/waves
     learnings:
       - Aprendi a como funcionaba la semantica de la IA y el tts.
+    areas:
+      - ai
   - id: mhub
     name: mhub
     summary: "Bot de Discord modular + plataforma web para gestionar , personas, eventos,\
@@ -541,6 +543,8 @@ projects:
     learnings:
       - Que algo que quizas es especifico se le puede dar una vista dinamica que aporte
         mucho mas.
+    areas:
+      - backend
 evidence:
   - id: proofstack-quality
     category: technical
