@@ -17,22 +17,52 @@
 
 <header class="hero">
   <div class="hero__avatar" aria-hidden="true">{{person.initials}}</div>
-  <div>
+  <div class="hero__id">
     <h1 class="hero__name">{{person.name}}</h1>
     <p class="hero__headline">{{person.headline}}</p>
+    {{#currentRole}}<p class="hero__current"><span>{{t.currently}}:</span> {{.}}</p>{{/currentRole}}
     {{#person.location}}<p class="hero__meta">{{.}}</p>{{/person.location}}
+  </div>
+  <div class="hero__pitch">
     {{#person.summary}}<p class="hero__summary">{{.}}</p>{{/person.summary}}
     {{#person.hasLinks}}
     <ul class="hero__links" aria-label="{{t.links}}">
       {{#person.links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/person.links}}
       {{#person.email}}<li><a href="mailto:{{.}}">{{.}}</a></li>{{/person.email}}
-      {{#person.cv}}<li><a class="hero__cv" href="{{url}}">{{label}}</a></li>{{/person.cv}}
+      {{#person.cv}}<li><a class="hero__cv" href="{{url}}" target="_blank" rel="noopener">{{label}}</a></li>{{/person.cv}}
     </ul>
     {{/person.hasLinks}}
   </div>
 </header>
+<nav class="toc" aria-label="{{t.sections}}">
+  <ul>
+    {{#hasFeatured}}<li><a href="#featured">{{t.featured}}</a></li>{{/hasFeatured}}
+    {{#hasNodes}}<li><a href="#system">{{t.navSystem}}</a></li>{{/hasNodes}}
+    {{#hasExperience}}<li><a href="#experience">{{t.experience}}</a></li>{{/hasExperience}}
+    {{#hasEducationSection}}<li><a href="#education">{{t.education}}</a></li>{{/hasEducationSection}}
+    {{#person.hasLinks}}<li><a href="#contact">{{t.contact}}</a></li>{{/person.hasLinks}}
+    {{#alternates}}<li class="toc__lang"><a href="{{href}}" hreflang="{{lang}}" lang="{{lang}}">{{name}}</a></li>{{/alternates}}
+  </ul>
+</nav>
 
 <main id="main">
+ {{#hasFeatured}}
+  <section class="featured" id="featured" aria-labelledby="featured-title">
+    <h2 id="featured-title" class="section-title">{{t.featured}}</h2>
+    <div class="cards cards--featured">
+      {{#featured}}
+      <article class="card card--featured">
+        <h3 class="card__title">{{name}}</h3>
+        <p class="card__summary">{{summary}}</p>
+        <ul class="card__links">
+          {{#detailHref}}<li><a class="card__detail" href="{{.}}" data-goto>{{t.seeDetails}}</a></li>{{/detailHref}}
+          {{#links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/links}}
+        </ul>
+      </article>
+      {{/featured}}
+    </div>
+  </section>
+  {{/hasFeatured}}
   {{#assistant}}
   <section class="ask" id="ask" aria-labelledby="ask-title" hidden data-ask
            data-endpoint="{{endpoint}}"
@@ -54,25 +84,9 @@
     </div>
   </section>
   {{/assistant}}
-  {{#hasFeatured}}
-  <section class="featured" aria-labelledby="featured-title">
-    <h2 id="featured-title" class="section-title">{{t.featured}}</h2>
-    <div class="cards cards--featured">
-      {{#featured}}
-      <article class="card card--featured">
-        <h3 class="card__title">{{name}}</h3>
-        <p class="card__summary">{{summary}}</p>
-        {{#result}}<p class="card__result"><strong>{{t.result}}.</strong> {{.}}</p>{{/result}}
-        {{#hasTechStack}}<ul class="chips chips--small" aria-label="{{t.techStack}}">{{#techStack}}<li class="chip">{{.}}</li>{{/techStack}}</ul>{{/hasTechStack}}
-        {{#hasLinks}}<ul class="card__links">{{#links}}<li><a href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/links}}</ul>{{/hasLinks}}
-      </article>
-      {{/featured}}
-    </div>
-  </section>
-  {{/hasFeatured}}
-
+ 
   {{#hasNodes}}
-  <section class="system" aria-labelledby="system-title">
+  <section class="system" id="system" aria-labelledby="system-title">
     <h2 id="system-title" class="section-title">{{t.systemTitle}}</h2>
     <p class="system__hint">{{t.systemHint}}</p>
 
@@ -119,15 +133,21 @@
         <h4 class="panel__subtitle">{{t.projects}}</h4>
         <div class="cards">
           {{#projects}}
-          <article class="card">
+          <article class="card" id="{{anchor}}" tabindex="-1">
             <h5 class="card__title">{{name}}</h5>
             <p class="card__summary">{{summary}}</p>
-            {{#problem}}<p><strong>{{t.problem}}</strong> {{.}}</p>{{/problem}}
-            {{#solution}}<p><strong>{{t.solution}}</strong> {{.}}</p>{{/solution}}
-            {{#hasLearnings}}
-            <p><strong>{{t.learnings}}</strong></p>
-            <ul>{{#learnings}}<li>{{.}}</li>{{/learnings}}</ul>
-            {{/hasLearnings}}
+            {{#hasResult}}<p class="card__result"><strong>{{t.result}}.</strong> {{result}}</p>{{/hasResult}}
+            {{#hasDetails}}
+            <details class="card__more">
+              <summary>{{t.howItWasBuilt}}</summary>
+              {{#problem}}<p><strong>{{t.problem}}</strong> {{.}}</p>{{/problem}}
+              {{#solution}}<p><strong>{{t.solution}}</strong> {{.}}</p>{{/solution}}
+              {{#hasLearnings}}
+              <p><strong>{{t.learnings}}</strong></p>
+              <ul>{{#learnings}}<li>{{.}}</li>{{/learnings}}</ul>
+              {{/hasLearnings}}
+            </details>
+            {{/hasDetails}}
             {{#hasTechStack}}
             <ul class="chips chips--small" aria-label="{{t.techStack}}">{{#techStack}}<li class="chip">{{.}}</li>{{/techStack}}</ul>
             {{/hasTechStack}}
@@ -165,24 +185,33 @@
   {{/hasNodes}}
 
   {{#hasExperience}}
-  <section class="timeline" aria-labelledby="experience-title">
+  <section class="timeline" id="experience" aria-labelledby="experience-title">
     <h2 id="experience-title" class="section-title">{{t.experience}}</h2>
     <ol class="timeline__list">
-      {{#experience}}
+      {{#mainExperience}}
       <li class="timeline__item">
         <h3 class="timeline__role">{{role}} · <span>{{company}}</span></h3>
         <p class="timeline__meta">{{period}}{{#location}} · {{.}}{{/location}}</p>
         {{#hasHighlights}}<ul>{{#highlights}}<li>{{.}}</li>{{/highlights}}</ul>{{/hasHighlights}}
         {{#hasTechnologies}}<ul class="chips chips--small" aria-label="{{t.technologies}}">{{#technologies}}<li class="chip">{{.}}</li>{{/technologies}}</ul>{{/hasTechnologies}}
       </li>
-      {{/experience}}
+      {{/mainExperience}}
     </ol>
+    {{#hasOtherExperience}}
+    <h3 class="timeline__other-title">{{t.otherExperience}}</h3>
+    <ul class="other-jobs">
+      {{#otherExperience}}
+      <li><strong>{{role}}</strong> · {{company}} <span class="other-jobs__meta">({{period}})</span>{{#hasHighlights}}: {{#highlights}}{{.}} {{/highlights}}{{/hasHighlights}}</li>
+      {{/otherExperience}}
+    </ul>
+    {{/hasOtherExperience}}
   </section>
   {{/hasExperience}}
 
-  {{#hasEducation}}
-  <section class="timeline" aria-labelledby="education-title">
+  {{#hasEducationSection}}
+  <section class="timeline" id="education" aria-labelledby="education-title">
     <h2 id="education-title" class="section-title">{{t.education}}</h2>
+    {{#hasEducation}}
     <ol class="timeline__list">
       {{#education}}
       <li class="timeline__item">
@@ -192,8 +221,46 @@
       </li>
       {{/education}}
     </ol>
+    {{/hasEducation}}
+    {{#hasCertifications}}
+    <h3 class="timeline__other-title">{{t.certifications}}</h3>
+    <ul class="certs">
+      {{#certifications}}
+      <li class="cert">
+        <span class="cert__title">{{title}}</span>
+        {{#hasDetail}}<span class="cert__detail">{{detail}}</span>{{/hasDetail}}
+        {{#hasUrl}}<a class="cert__link" href="{{url}}" target="_blank" rel="noopener noreferrer">{{t.viewCredential}}</a>{{/hasUrl}}
+      </li>
+      {{/certifications}}
+    </ul>
+    {{/hasCertifications}}
   </section>
-  {{/hasEducation}}
+  {{/hasEducationSection}}
+  {{#person.hasLinks}}
+  <section class="contact" id="contact" aria-labelledby="contact-title">
+    <h2 id="contact-title" class="section-title">{{t.contact}}</h2>
+    {{#person.contactMessage}}<p class="contact__text contact__text--own">{{.}}</p>{{/person.contactMessage}}
+    {{^person.contactMessage}}<p class="contact__text">{{#person.cv}}{{t.contactText}}{{/person.cv}}{{^person.cv}}{{t.contactTextNoCv}}{{/person.cv}}</p>{{/person.contactMessage}}
+    {{#person.email}}
+    <p class="contact__email">
+      <a href="mailto:{{.}}">{{.}}</a>
+      <button type="button" class="btn btn--small" data-copy="{{.}}" data-copied="{{t.copied}}" hidden>{{t.copy}}</button>
+    </p>
+    {{/person.email}}
+    {{#person.phone}}
+    <p class="contact__email">
+      <a href="{{person.phoneHref}}">{{.}}</a>
+      <button type="button" class="btn btn--small" data-copy="{{.}}" data-copied="{{t.copied}}" hidden>{{t.copy}}</button>
+    </p>
+    {{/person.phone}}
+    {{#person.location}}<p class="contact__meta">{{.}}</p>{{/person.location}}
+    <ul class="contact__actions">
+      {{#person.email}}<li><a class="btn btn--primary" href="mailto:{{.}}">{{t.writeMe}}</a></li>{{/person.email}}
+      {{#person.cv}}<li><a class="btn" href="{{url}}" target="_blank" rel="noopener">{{label}}</a></li>{{/person.cv}}
+      {{#person.links}}<li><a class="btn btn--ghost" href="{{url}}" rel="noopener noreferrer">{{label}}</a></li>{{/person.links}}
+    </ul>
+  </section>
+  {{/person.hasLinks}}
 </main>
 
 <footer class="footer">

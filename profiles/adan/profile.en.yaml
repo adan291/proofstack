@@ -1,0 +1,568 @@
+# yaml-language-server: $schema=../../schema/profile.schema.json
+# Adán's real profile (English version). The portfolio and the CV are generated from this file.
+# Every figure comes from git or from the project code. No metrics that cannot be checked are added.
+
+language: en
+person:
+  name: Adán Sánchez Manzano
+  headline: "Backend developer · Java and Spring Boot"
+  summary: |-
+    Backend developer working with Java and Spring Boot since 2021, at Indra and Serbatic, who came to software from hospitality. I don't know everything, but I quickly learn what each project needs and get it done.
+  location: "León, Spain"
+  email: adansanchezmanzano@gmail.com
+  links:
+    - label: LinkedIn
+      url: https://www.linkedin.com/in/asanchezmanzano/
+    - label: GitHub
+      url: https://github.com/adan291
+skills:
+  - name: Java
+    area: backend
+  - name: Spring Boot
+    area: backend
+  - name: Spring Security & JWT
+    area: backend
+  - name: Jakarta EE / Tomcat
+    area: backend
+  - name: JUnit & Mockito
+    area: backend
+  - name: TypeScript & Node.js
+    area: backend
+  - name: React (frontend)
+    area: backend
+  - name: Hexagonal architecture
+    area: architecture
+  - name: REST API & OpenAPI
+    area: architecture
+  - name: Spec-driven development
+    area: architecture
+  - name: PostgreSQL
+    area: data
+  - name: MySQL
+    area: data
+  - name: MongoDB
+    area: data
+  - name: Hibernate / JPA
+    area: data
+  - name: Docker
+    area: devops
+  - name: Maven & Git
+    area: devops
+  - name: "CI/CD (Jenkins, GitLab CI, GitHub Actions)"
+    area: devops
+  - name: Linux
+    area: devops
+  - name: AI agents & multi-agent orchestration
+    area: ai
+  - name: Local LLMs (Ollama)
+    area: ai
+  - name: RAG & embeddings
+    area: ai
+  - name: Spring Framework
+    area: backend
+  - name: SQL
+    area: data
+  - name: Java Database Connectivity (JDBC)
+    area: data
+  - name: Spring MVC
+    area: backend
+  - name: Java Swing
+    area: backend
+  - name: JavaFX
+    area: backend
+  - name: Python
+    area: backend
+  - name: Ada
+    area: backend
+  - name: JavaScript
+    area: backend
+  - name: HTML
+    area: backend
+  - name: PHP
+    area: backend
+  - name: Server administration
+    area: devops
+experience:
+  - id: serbatic
+    role: Software developer
+    company: Serbatic
+    location: "Valladolid, Castile and León, Spain"
+    startDate: 2022-11
+    current: true
+    highlights:
+      - "Feature development and bug fixing in Java (backend) and React (frontend), with customer support and incident handling."
+      - "Microservices with Spring Boot and REST APIs with Spring MVC, on MongoDB and MySQL."
+      - Testing with JUnit and Mockito.
+      - "Backend of an internal event management platform (REST API with Spring Boot, MongoDB and object storage)."
+      - Migration of applications from Tomcat 9 to Tomcat 10 (javax to jakarta).
+    technologies:
+      - Java
+      - Spring Boot
+      - React
+      - MongoDB
+      - MySQL
+      - JUnit
+      - Mockito
+      - Jenkins
+      - Tomcat
+      - Jakarta EE
+      - Docker
+    evidence:
+      - event-platform-backend
+  - id: indra
+    role: Software developer
+    company: Indra
+    location: "León, Castile and León, Spain"
+    startDate: 2021-09
+    endDate: 2022-11
+    highlights:
+      - Development of monitoring software for air traffic management (ATM) and incident resolution.
+      - Backend and frontend in Ada and Bash, plus database design and management.
+      - Shortly after joining, I was asked to mentor an intern, whom I trained and supported.
+    technologies:
+      - Ada
+      - Bash
+      - SQL
+  - id: transcom
+    role: Call center agent
+    company: Transcom
+    location: "Castile and León, Spain"
+    startDate: 2020-05
+    endDate: 2021-08
+    highlights:
+      - Customer service and marketing.
+  - id: cex-webuy-com
+    role: Sales assistant
+    company: CeX Webuy.com
+    startDate: 2018-09
+    endDate: 2020-01
+    highlights:
+      - Customer service, marketing, stock control and store management.
+  - id: hotusa
+    role: Head of hospitality
+    company: Hotusa
+    startDate: 2016-06
+    endDate: 2018-10
+    highlights:
+      - "Head of hospitality at the Riosol hotel, with a team of 5 to 7 people. Team management and organization, stock control and customer service."
+    evidence:
+      - team-coordination
+  - id: merion-s-a
+    role: Intern
+    company: Merion.S.A
+    startDate: "2014"
+    endDate: "2014"
+    highlights:
+      - Linux system administration and equipment checks.
+education:
+  - id: instituto-foc-fp-informatica-online
+    title: Higher Vocational Diploma in Multiplatform Application Development (DAM)
+    institution: FOC - Fomento Ocupacional
+    startDate: 2021-06
+    endDate: 2022-06
+    highlights:
+      - Java, Python, the MVC pattern and web development with PHP and HTML.
+  - id: e-f-p-virgen-del-buen-suceso
+    title: Vocational Diploma in Microcomputer Systems and Networks
+    institution: E.F.P. Virgen del Buen Suceso
+    startDate: 2012-10
+    endDate: 2014-06
+    highlights:
+      - Linux and Windows environments and servers.
+projects:
+  - id: proofstack
+    name: Proofstack
+    summary: "Open source generator that builds a web portfolio and a CV from a single file, profile.yaml. This portfolio and this CV are made with it."
+    problem: "A portfolio and a CV kept by hand drift apart, and they tend to be lists of technologies with no proof of what was done."
+    solution: "Java 25 core with hexagonal architecture: it depends on no framework, and every output (website, CV in Markdown, HTML, DOCX and PDF, MCP server, AI question service) is an adapter. It includes LinkedIn and GitHub importers and a local editor in the browser. ArchUnit checks the layer rules, every decision is written down in an ADR, and GitHub Actions builds, tests and publishes the site."
+    techStack:
+      - Java 25
+      - Maven
+      - ArchUnit
+      - JUnit 5
+      - Playwright
+      - Mustache
+      - JSON Schema
+      - GitHub Actions
+      - Docker
+    learnings:
+      - "Architecture tests turn decisions into rules that cannot be skipped."
+      - "The CV is generated without AI on purpose: a model that rewrites the text ends up making up metrics."
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/proofstack
+    areas:
+      - backend
+      - architecture
+      - devops
+    evidence:
+      - proofstack-quality
+  - id: event-platform
+    name: Internal event management platform
+    summary: "Backend of an internal events platform at Serbatic: users, events, locations, files and email. Company project, no public repository."
+    problem: "The company needed to manage its events, locations and files from its own secure backend."
+    solution: "REST API with Spring Boot 3, Java 21 and MongoDB, in app, domain and infra layers with separate commands and queries. JWT authentication with refresh tokens, files on S3-compatible storage, file validation and global error handling. A scheduler updates the status of events, OpenAPI documents the API, and it is deployed with Docker Compose and a CI pipeline."
+    techStack:
+      - Java 21
+      - Spring Boot 3
+      - MongoDB
+      - JWT
+      - MapStruct
+      - MinIO (S3)
+      - OpenAPI
+      - Docker
+      - GitLab CI
+      - JUnit
+      - Mockito
+    learnings:
+      - "Separating app, domain and infra made it possible to change the mapping and the storage without touching the domain rules."
+    areas:
+      - backend
+      - architecture
+    evidence:
+      - event-platform-backend
+    links:
+      - label: Serbatic (company project)
+        url: https://www.serbatic.es/
+  - id: agent-life
+    name: Agent Life
+    summary: "Isometric hotel where AI agents (Architect, Developer and QA) do real work on a git repository and deliver the result as a branch. Entered in Kiroween 2026."
+    problem: "An agent that writes code with no limits is a risk: it can touch the repository, the network or the secrets, and nobody reviews its work before accepting it."
+    solution: "Each job is a state machine. The Architect proposes a plan and nothing is written until the user approves it. The Developer works in an isolated git worktree, with no shell and no network. The engine validates the diff and runs the tests in Docker with no network, CPU, memory and time limits, and an unprivileged user. QA reviews the diff and the log, and the result is delivered as a branch without touching the working copy."
+    techStack:
+      - TypeScript
+      - pnpm monorepo
+      - PixiJS
+      - Vite
+      - zod
+      - SQLite
+      - Docker
+      - kiro-cli
+      - Vitest
+    learnings:
+      - "The client only talks to the world server, which never calls a model. AI providers sit behind an interface (AgentRuntime), so switching from one to another does not touch the rest."
+      - "A pre-push hook runs a security scanner and blocks publishing when there are high or medium findings."
+    links:
+      - label: Live demo
+        url: https://adan291.github.io/agentlife-/
+      - label: GitHub
+        url: https://github.com/adan291/agentlife-
+    areas:
+      - ai
+      - architecture
+      - devops
+    evidence:
+      - agentlife-safety
+    featured: true
+  - id: ges
+    name: "GES: migration from Swing to Spring Boot"
+    summary: "Event management application (waiters, halls and assignments) migrated from a Java Swing desktop app to a REST API with Spring Boot and a JavaFX client."
+    problem: "The original application mixed interface and data in a desktop program with an unusual object database (NeoDatis), hard to maintain and to use from other clients."
+    solution: "Layered architecture with Spring Boot 3.2 and Java 21, Spring Data JPA on H2, CRUD endpoints for waiters, halls and events, and JWT authentication with roles. The JavaFX client only consumes the API. Each phase (layers, REST API, roles, billing) was defined as a specification before writing code."
+    techStack:
+      - Java 21
+      - Spring Boot 3.2
+      - Spring Data JPA
+      - H2
+      - JWT
+      - JavaFX
+      - Maven
+    learnings:
+      - "Separating the client from the API makes it possible to change the interface without touching the business logic."
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/GestionDeEventos2
+    areas:
+      - backend
+      - architecture
+    evidence:
+      - ges-migration
+    featured: true
+  - id: backend-factory
+    name: Backend factory
+    summary: "Web wizard that generates a complete Spring Boot backend (entities, relationships, DTOs, services, tests and Docker) and delivers it as a ZIP."
+    problem: "Setting up the skeleton of every new backend is repetitive and done by hand."
+    solution: "Four pieces that talk over HTTP, each in its own repository: a React wizard where you define the project, the entities and the relationships; an Express BFF that orchestrates the rest; a Java 25 generator split into 9 Maven modules; and the RelacionarClases API, which suggests relationships. An AI review checks the result. The contracts between pieces live in a decisions document that is changed before the code."
+    techStack:
+      - Java 25
+      - Javalin
+      - React 19
+      - Vite
+      - Tailwind
+      - Express
+      - TypeScript
+      - Spring Boot
+    learnings:
+      - "The BFF exists because the browser cannot call some services directly (they have no CORS) and API keys have to stay on the server."
+      - "I measured before optimizing: the cost was in the algorithm, not in memory, so the Valhalla (JEP 401) experiment stayed in RelacionarClases only."
+    links:
+      - label: GitHub (Backend-Skeleton)
+        url: https://github.com/adan291/Backend-Skeleton
+    areas:
+      - architecture
+      - backend
+      - ai
+    evidence:
+      - backend-factory-tests
+      - technical-content
+    featured: true
+  - id: relacionar-clases
+    name: RelacionarClases
+    summary: "JavaFX application that reads Java classes and suggests the relationships between entities (OneToOne, OneToMany…), and learns from what the user accepts or rejects."
+    problem: "Working out the relationships between dozens of entities by hand is slow and easy to get wrong."
+    solution: "It combines two analyses. The structural one reads fields, collections and types from the source code with JavaParser. The semantic one suggests relationships from name similarity and from the user's past decisions, saved in a JSON file. It also offers an HTTP API with Javalin, which is the one the backend factory uses."
+    techStack:
+      - Java 25
+      - JavaFX
+      - JavaParser
+      - Javalin
+      - Gson
+      - JMH
+      - jqwik
+    learnings:
+      - "Measuring with JMH before changing anything showed that the problem was repeated calculations, not the language: Valhalla value records (JDK 28) gave no measurable gain."
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/RelacionarClases
+    areas:
+      - ai
+      - backend
+    evidence:
+      - relacionar-clases-performance
+    featured: true
+  - id: ai-devos
+    name: AI DevOS (Discord)
+    summary: "AI agent orchestrator on Discord: each thread is a task, and several agents with different roles (architect, developer, reviewer, QA…) work on it."
+    problem: "Chat bots do not remember the project context and do not coordinate several roles on the same task."
+    solution: "A Discord gateway with no business logic forwards events to an orchestrator, which loads the context of the organization, the project and the thread and decides which agents act and in what order. A memory agent stores decisions and mistakes in PostgreSQL for later tasks, a router picks the model by task complexity, and a REST API lets you request code reviews over HTTP."
+    techStack:
+      - TypeScript
+      - Node.js
+      - discord.js
+      - PostgreSQL
+      - Drizzle
+      - Redis
+      - Vitest
+    learnings:
+      - "Separating the gateway from the orchestrator makes it possible to add Slack, Telegram or webhooks without touching the agents."
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/AI-DevOS
+    areas:
+      - ai
+      - architecture
+    featured: true
+  - id: pedidos-api
+    name: Orders API
+    summary: "Orders REST API with Spring Boot, PostgreSQL and JWT security, built to practice the Spring ecosystem."
+    problem: "I wanted to practice a complete API with Spring: persistence, security and messaging."
+    solution: "Controllers, services and repositories with Spring Data JPA on PostgreSQL, JWT authentication and mapping with MapStruct. The local environment starts with Docker Compose (PostgreSQL, RabbitMQ and SonarQube), and it has three test classes."
+    techStack:
+      - Java
+      - Spring Boot
+      - Spring Data JPA
+      - PostgreSQL
+      - JWT
+      - MapStruct
+      - Docker Compose
+      - SonarQube
+    learnings:
+      - "RabbitMQ and WebSocket are configured (queue, sender, receiver and status change notifications), but the order flow does not use them yet. Connecting them is the next step."
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/Pedidos
+    areas:
+      - backend
+  - id: tomcat-jakarta-migration
+    name: Migration from Tomcat 9 to Tomcat 10
+    summary: "Migration of a Java application from javax to Jakarta EE so it can be deployed on Tomcat 10, with the help of AI agents. Company project at Serbatic."
+    problem: "The application used javax.* APIs, which Tomcat 10 no longer supports: it only works with jakarta.*."
+    solution: "Phased migration of dependencies, imports and configuration to jakarta.*, validating each module before moving on to the next."
+    techStack:
+      - Java
+      - Tomcat 10
+      - Jakarta EE
+      - Maven
+    learnings:
+      - "Start with an inventory of the transitive dependencies that still use javax."
+    areas:
+      - backend
+    links:
+      - label: Serbatic (company project)
+        url: https://www.serbatic.es/
+  - id: streamcrowd
+    name: StreamCrowd
+    summary: "Web app for Twitch, YouTube and Kick streamers: live polls, giveaways, predictions, more than 13 mini-games and OBS overlays."
+    problem: "Streamers depend on many chat commands and several separate tools to interact with their audience."
+    solution: "A single React 19 and TypeScript app that turns those commands into buttons and panels. It reads the chat in real time, shows the results as OBS overlays, uses Firebase for sign-in and installs as an app (PWA) on desktop and mobile. It has 147 test files with Vitest and Playwright."
+    techStack:
+      - React 19
+      - TypeScript
+      - Vite
+      - Tailwind
+      - Firebase
+      - tmi.js
+      - Vitest
+      - Playwright
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/StreamCrowd
+    areas:
+      - ai
+      - data
+  - id: semantic-search
+    name: Semantic search with a local LLM (RAG)
+    summary: "Spring Boot prototype that searches documents by meaning and answers with a local LLM, with no external services."
+    problem: "Keyword search does not find a document if the question uses other words (\"request vacation\" versus \"ask for days off\")."
+    solution: "Each document and each question is turned into a vector (embedding) with nomic-embed-text on Ollama. Documents are ranked by cosine similarity with the question, and the closest ones are passed as context to a local LLM, which writes the answer. Everything is served from a GET /search endpoint."
+    techStack:
+      - Java 21
+      - Spring Boot 3.3
+      - Ollama
+      - nomic-embed-text
+      - cosine similarity
+    learnings:
+      - "It is a prototype to understand the RAG flow end to end. The next steps would be storing the vectors in a database and adding tests."
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/Busqueda-semantica
+    areas:
+      - ai
+      - backend
+  - id: waves
+    name: Whispers of the Wave
+    summary: "Interactive experience for Game Off 2025, with the theme \"waves\": you talk to the sea and it answers with AI to help you sort out your thoughts."
+    problem: "I wanted a game that helps calm the mind and see your own thoughts more clearly."
+    solution: "You choose one of four waves (calm, deep, energetic or healing), each with its own AI character, visual atmosphere and way of talking. Answers come from Google Gemini, or from predefined responses when offline, and are read aloud with text-to-speech. It can be installed as an app (PWA)."
+    techStack:
+      - JavaScript
+      - Google Gemini API
+      - PWA
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/waves
+    learnings:
+      - "I learned how semantic analysis with AI and text-to-speech (TTS) work."
+    areas:
+      - ai
+    featured: true
+  - id: mhub
+    name: mhub
+    summary: "Discord bot with its own website for a community: event sign-ups with roles and slots, and a member directory by category."
+    problem: "The community used two bots I made for World of Warcraft, one to sign up for Mythic+ dungeons and one for professions, each with its own commands and data."
+    solution: "A single process with a shared core and modules: sign-ups (the first bot), directory (the second) and a bridge that links event roles to directory skills. The same application serves a web API with FastAPI, sign-in with Discord (OAuth2) and real-time updates (SSE)."
+    techStack:
+      - Python
+      - discord.py
+      - FastAPI
+      - pytest
+      - Hypothesis
+    links:
+      - label: GitHub
+        url: https://github.com/adan291/mhub
+    learnings:
+      - "Something built for one case can be generalized: with a shared core, each new feature is just another module."
+    areas:
+      - backend
+evidence:
+  - id: proofstack-quality
+    category: technical
+    title: "Proofstack, a project with product quality"
+    context: "I wanted my portfolio to show how I work, not just which technologies I know."
+    action: "I separated the domain from the outputs with hexagonal architecture in 11 Maven modules, wrote the tests before each change, documented each decision in an ADR, and automated integration, the website and the releases with GitHub Actions."
+    result: "More than 300 tests, including browser tests with Playwright, an accessibility audit with axe-core and 4 architecture tests with ArchUnit. 16 ADRs. Every push builds, tests and publishes the website and the CV."
+    areas:
+      - backend
+      - architecture
+      - devops
+  - id: agentlife-safety
+    category: technical
+    title: AI agents with verifiable limits in Agent Life
+    context: "The agents write code on real repositories, and a failure or a malicious instruction in the repository could touch the working copy, the network or the secrets."
+    action: "I separated permissions by role (Architect and QA only read, the Developer only writes in its worktree), validated every diff before using it, ran the tests in Docker with no network, and treated the repository content and the model output as data, never as instructions."
+    result: "No agent can push, merge or touch .git or CI, and the agent's code is only accepted if the tests pass in a container with no network. About 200 test files, and a pre-push hook blocks publishing with high or medium security findings."
+    areas:
+      - ai
+      - devops
+  - category: technical
+    title: Migration of a legacy system to a REST API and a separate client (GES)
+    context: "Gestión de Eventos was a Java Swing desktop application with NeoDatis ODB, hard to evolve."
+    action: "I defined each phase as a spec before coding it (layered architecture, REST API, roles, invoicing) and migrated to Spring Boot 3.2 with Java 21, JPA and JWT, with a JavaFX client that consumes the API."
+    result: Any client can consume the API and the interface can be replaced without touching the domain. 51 test files.
+    areas:
+      - backend
+      - architecture
+    id: ges-migration
+  - id: event-platform-backend
+    category: technical
+    title: Backend of an internal events platform at Serbatic
+    context: "A team of 4 developers built an internal events platform between April and July 2025, and I was in charge of the backend."
+    action: "I designed the layered REST API (app, domain, infra) with Spring Boot and MongoDB, the security with JWT and refresh tokens, file management on S3 storage, and the deployment with Docker Compose and CI."
+    result: "The API exposes 7 controllers and 32 endpoints, with JWT authentication and files on S3 storage. The backend was my work: 32 of the 38 commits in the repository."
+    areas:
+      - backend
+      - architecture
+  - id: backend-factory-tests
+    category: technical
+    title: Backend factory tested piece by piece
+    context: "The factory is made of independent pieces (TypeScript wizard and BFF, Java generator, relationship API) integrated over HTTP, and a change in one could break another without being noticed."
+    action: "I first wrote the contracts of each piece in a decision document, split the generator into 9 Maven modules and covered each piece with its own tests."
+    result: "More than 350 tests across the three pieces with my own code: about 200 in the generator, about 120 in RelacionarClases and 41 in the wizard and the BFF."
+    areas:
+      - backend
+      - architecture
+  - id: relacionar-clases-performance
+    category: technical
+    title: "Relationship analysis 22 times faster in RelacionarClases"
+    context: "Analyzing a model of 500 classes took about 23 seconds."
+    action: "I measured with JMH before changing anything. I found repeated calculations (similarity and the feature vector were computed 4 times per pair, and there were regular expressions and String.format inside the loops), removed them and checked with an equivalence test that the results did not change. Then I tried Valhalla value records on JDK 28."
+    result: "Analyzing 500 classes went from 23 s to 1.05 s, about 22 times faster, and adjusting against 1,000 decisions from 1.85 s to 0.15 s. Valhalla gave no measurable gain, so the project stays on Java 25."
+    areas:
+      - backend
+  - id: team-coordination
+    category: leadership
+    title: Coordinating a team of 5 to 7 people in hospitality
+    context: "As head of hospitality at Hotusa I ran the hospitality area of the Riosol hotel, with a team of 5 to 7 people under me."
+    action: "I organized and managed the team, controlled the stock and served customers."
+    result: During my time the hotel reached the highest share of groups from outside Spain it had ever had.
+  - id: technical-content
+    category: communication
+    title: Technical content on LinkedIn and YouTube
+    context: I wanted to explain migrations and applied AI to technical and non-technical audiences.
+    action: "I publish posts and short videos using NotebookLM, Google AI Studio and OBS, based on real projects."
+    result: "I estimate a reach of 50 to 200 people per post on LinkedIn and YouTube, with one video reaching about 1,000."
+    link:
+      label: CLARITY
+      url: https://lnkd.in/p/eDAHqFGQ
+labs:
+  - id: ai-lab
+    name: AI Lab
+    type: ai
+    description: "AI experiments applied to the backend. Agents, multi-agent orchestration, local LLM and MCP."
+    projects:
+      - agent-life
+      - ai-devos
+      - relacionar-clases
+      - semantic-search
+languages:
+  - name: Spanish
+    level: Native
+  - name: English
+    level: B1
+  - name: Romanian
+    level: Learning
+  - name: French
+    level: Basic vocabulary
+certifications:
+  - link:
+      url: https://github.com/adan291/certificados/blob/main/AD_Diploma%20Fundamentos%20de%20programaci%C3%B3n%20en%20Java.pdf
+      label: AD_Diploma Java Programming Fundamentals
+    title: Programming fundamentals
+  - title: Diploma in Report Generation Application Development with Jasper Report
+    link:
+      label: DI_Diploma Report Generation Application Development with Jasper Report.pdf
+      url: https://github.com/adan291/certificados/blob/main/DI_Diploma%20Desarrollo%20Aplicaciones%20Generaci%C3%B3n%20Informes%20Jasper%20Report.pdf
+  - title: Diploma in Graphical Interface Application Development
+    link:
+      url: https://github.com/adan291/certificados/blob/main/DI_Diploma%20Desarrollo%20Aplicaciones%20Interfaz%20Gr%C3%A1fica%20Java%20FX.pdf
+      label: DI_Diploma Graphical Interface Application Development Java FX.pdf

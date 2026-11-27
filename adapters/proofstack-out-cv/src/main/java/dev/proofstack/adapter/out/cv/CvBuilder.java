@@ -52,8 +52,10 @@ final class CvBuilder {
         if (!clean(person.email()).isEmpty()) {
             contact.add(new Contact(person.email().strip(), "mailto:" + person.email().strip()));
         }
-        if (options.phone() != null) {
-            contact.add(new Contact(options.phone(), "tel:" + options.phone().replaceAll("[^+0-9]", "")));
+        // A phone given at build time (private CV) wins over the public one in the profile.
+        String phone = options.phone() != null ? options.phone() : person.phone();
+        if (phone != null) {
+            contact.add(new Contact(phone, "tel:" + phone.replaceAll("[^+0-9]", "")));
         }
         person.links().forEach(link -> {
             if (!clean(link.label()).isEmpty()) {

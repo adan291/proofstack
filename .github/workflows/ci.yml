@@ -28,7 +28,8 @@ jobs:
 
       - name: Validate bundled profiles
         run: |
-          for profile in profiles/*/profile.yaml; do
+          for profile in profiles/*/profile.yaml profiles/*/profile.??.yaml; do
+            [ -f "$profile" ] || continue
             java -jar proofstack-cli/target/proofstack.jar validate "$profile"
           done
 

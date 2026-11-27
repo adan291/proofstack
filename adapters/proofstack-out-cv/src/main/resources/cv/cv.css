@@ -111,6 +111,8 @@ h3 .org { font-weight: 600; color: var(--accent); }
   .entry { margin-top: 6pt; }
   .cv { max-width: none; margin: 0; padding: 0; border-top: 0; box-shadow: none; }
   .contact a { color: inherit; }
+  /* On paper a link labelled "GitHub" cannot be followed: print the address next to it. */
+  .contact a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 8.5pt; color: var(--muted); }
 }
 
 /* Other experience: one line per job */

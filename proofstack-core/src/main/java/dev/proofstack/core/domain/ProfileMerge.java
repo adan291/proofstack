@@ -64,7 +64,9 @@ public final class ProfileMerge {
                 fill(mine.summary(), theirs.summary()),
                 mine.location() != null ? mine.location() : theirs.location(),
                 mine.email(),
-                links);
+                links,
+                mine.phone(),
+                mine.contactMessage());
     }
 
     private static List<Experience> experience(List<Experience> mine, List<Experience> theirs,

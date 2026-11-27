@@ -12,12 +12,16 @@ const LABELS = {
   learnings: 'Aprendizajes', areas: 'Áreas', category: 'Categoría', context: 'Contexto', action: 'Acción',
   result: 'Resultado', link: 'Enlace', labs: 'Labs', type: 'Tipo', description: 'Descripción',
   languages: 'Idiomas', level: 'Nivel', certifications: 'Certificaciones', issuer: 'Emisor', date: 'Fecha',
+  featured: 'Destacado en la web',
+  phone: 'Teléfono (público)', contactMessage: 'Mensaje de contacto',
 };
 
 const HINTS = {
   id: 'Minúsculas, números y guiones. En un elemento nuevo sigue al nombre hasta que lo escribas tú.',
   evidence: 'Identificadores de evidencias, uno por línea.',
   projects: 'Identificadores de proyectos, uno por línea.',
+  phone: 'Sale en Contacto y en el CV publicado. Déjalo vacío para mantenerlo privado.',
+  contactMessage: 'Tu texto para la sección Contacto: disponibilidad, modalidad, cómo prefieres que te contacten…',
   areas: 'Uno por línea: backend, architecture, messaging, data, devops, ai, hardware, leadership, communication.',
 };
 

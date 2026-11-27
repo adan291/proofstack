@@ -16,6 +16,10 @@
   <h1 class="bar__title">Proofstack Studio</h1>
   <p id="status" class="bar__status" role="status" aria-live="polite"></p>
   <a class="btn" href="/wizard">Asistente</a>
+  <div class="bar__views" role="group" aria-label="Ver lo guardado a pantalla completa">
+    <a class="btn" href="/preview/site/" target="_blank" rel="noopener">Ver la web</a>
+    <a class="btn" href="/preview/cv/" target="_blank" rel="noopener">Ver el CV</a>
+  </div>
   <div class="bar__imports" role="group" aria-label="Traer datos">
     <button id="import-linkedin" class="btn" type="button" disabled>Traer de LinkedIn</button>
     <button id="import-github" class="btn" type="button" disabled>Traer repos de GitHub</button>
@@ -41,10 +45,12 @@
       <ul id="issues" class="issues__list"></ul>
     </section>
     <section class="preview" aria-labelledby="preview-title">
-      <h2 id="preview-title" class="side__title">Vista previa (lo guardado)</h2>
-      <div class="preview__tabs" role="tablist" aria-label="Qué previsualizar">
-        <button class="preview__tab" type="button" role="tab" aria-selected="true" data-preview="cv">CV</button>
-        <button class="preview__tab" type="button" role="tab" aria-selected="false" data-preview="site">Web</button>
+      <div class="preview__head">
+        <h2 id="preview-title" class="side__title">Vista previa: <span id="preview-kind">CV</span></h2>
+        <div class="preview__tabs" role="tablist" aria-label="Qué previsualizar">
+          <button class="preview__tab" type="button" role="tab" aria-selected="true" aria-label="CV" title="CV" data-preview="cv"></button>
+          <button class="preview__tab" type="button" role="tab" aria-selected="false" aria-label="Web" title="Web" tabindex="-1" data-preview="site"></button>
+        </div>
       </div>
       <iframe id="preview-frame" class="preview__frame" sandbox="allow-scripts" title="Vista previa"></iframe>
     </section>

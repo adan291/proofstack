@@ -109,6 +109,7 @@ En los ejemplos, `proofstack` es el lanzador: escribe `./proofstack` desde la ca
 | `doctor PROFILE` | Qué falta antes de publicar: `TODO`, enlaces de ejemplo, avisos |
 | `validate PROFILE` | Solo comprueba que el fichero cumple el esquema |
 | `build PROFILE --out DIR [--with-cv]` | Genera la web, y con `--with-cv`, también el CV |
+| `build … --alternate en=en/` | Enlaza la misma web en otro idioma. Si existe `profile.en.yaml` junto al perfil, el despliegue la publica en `/en/` |
 | `cv PROFILE --out DIR` | Genera el CV (`--job`, `--focus`, `-p`, `--phone`) |
 | `import linkedin ZIP` · `import linkedin-api` · `import github USER` | Importadores sueltos, siempre a un fichero nuevo |
 | `init DIR --name … --headline …` | Un perfil vacío para rellenar a mano |

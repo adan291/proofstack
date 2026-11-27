@@ -58,7 +58,16 @@
         "summary": { "$ref": "#/$defs/text" },
         "location": { "$ref": "#/$defs/shortText" },
         "email": { "type": "string", "format": "email" },
-        "links": { "type": "array", "items": { "$ref": "#/$defs/link" } }
+        "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
+        "phone": {
+          "type": "string",
+          "pattern": "^\\+?[0-9][0-9 ().-]{5,19}$",
+          "description": "Public phone, shown in Contact and on the CV. Leave it empty to keep it private (use cv --phone instead)."
+        },
+        "contactMessage": {
+          "$ref": "#/$defs/text",
+          "description": "Your own text for the Contact section, e.g. availability or how you prefer to be contacted."
+        }
       }
     },
     "language": {
@@ -134,7 +143,11 @@
         "learnings": { "$ref": "#/$defs/textList" },
         "links": { "type": "array", "items": { "$ref": "#/$defs/link" } },
         "areas": { "type": "array", "items": { "$ref": "#/$defs/area" }, "uniqueItems": true },
-        "evidence": { "$ref": "#/$defs/idList" }
+        "evidence": { "$ref": "#/$defs/idList" },
+        "featured": {
+          "type": "boolean",
+          "description": "Show this project in Featured projects. When no project is marked, the site picks the best documented ones."
+        }
       }
     },
     "evidence": {

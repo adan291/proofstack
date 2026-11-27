@@ -29,7 +29,7 @@ class ArchitectureThemeRendererTest {
         String html = new ArchitectureThemeRenderer(null, "cv/cv.pdf").render(profile("Ada Lovelace")).stream()
                 .filter(a -> a.relativePath().equals("index.html")).findFirst().orElseThrow().content();
 
-        assertThat(html).contains("<a class=\"hero__cv\" href=\"cv/cv.pdf\">Download CV</a>");
+        assertThat(html).contains("<a class=\"hero__cv\" href=\"cv/cv.pdf\" target=\"_blank\" rel=\"noopener\">Download CV</a>");
     }
 
     @Test
@@ -173,6 +173,140 @@ class ArchitectureThemeRendererTest {
     void unknownLanguageFallsBackToEnglishUi() {
         assertThat(UiText.forLanguage("de")).isSameAs(UiText.ENGLISH);
         assertThat(UiText.forLanguage("es-MX")).isSameAs(UiText.SPANISH);
+    }
+
+    /** The featured card is short and points to the full card; the result is shown once, in the area panel. */
+    @Test
+    void featuredCardLinksToTheFullCardInsteadOfRepeatingIt() {
+        String html = html(profile("Ada"));
+        String featured = html.substring(html.indexOf("id=\"featured\""), html.indexOf("id=\"system\""));
+
+        assertThat(featured).contains("<a class=\"card__detail\" href=\"#project-backend-tomcat\" data-goto>See details</a>")
+                .doesNotContain("card__result").doesNotContain("class=\"chip\"");
+        assertThat(html).contains("<article class=\"card\" id=\"project-backend-tomcat\" tabindex=\"-1\">");
+    }
+
+    @Test
+    void certificationsAreListedUnderEducationWithTheirLink() {
+        Profile base = profile("Ada");
+        Profile profile = new Profile("en", base.person(), base.experience(), List.of(), base.projects(),
+                base.skills(), base.evidence(), base.labs(), List.of(),
+                List.of(new dev.proofstack.core.domain.Certification("Java fundamentals", "FOC", ProfileDate.of(2022, 3),
+                                new Link("PDF", "https://example.org/java.pdf")),
+                        new dev.proofstack.core.domain.Certification("No link", null, null, null)));
+
+        String html = html(profile);
+
+        assertThat(html).contains("<a href=\"#education\">Education</a>").contains("<h3 class=\"timeline__other-title\">Certifications</h3>")
+                .contains("<span class=\"cert__title\">Java fundamentals</span>")
+                .contains("<span class=\"cert__detail\">FOC · Mar 2022</span>")
+                .contains("<a class=\"cert__link\" href=\"https://example.org/java.pdf\" target=\"_blank\" rel=\"noopener noreferrer\">View certificate</a>");
+        assertThat(html.substring(html.indexOf("No link"))).startsWith("No link</span>\n        \n        \n      </li>");
+        assertThat(html(base)).doesNotContain("class=\"certs\"");
+    }
+
+    @Test
+    void contactShowsTheEmailAddressItself() {
+        Profile base = profile("Ada");
+        PersonalInfo p = base.person();
+        Profile profile = new Profile(new PersonalInfo(p.name(), p.headline(), p.summary(), p.location(),
+                "ada@example.org", p.links()), base.experience(), base.education(), base.projects(), base.skills(),
+                base.evidence(), base.labs());
+
+        String contact = html(profile).substring(html(profile).indexOf("id=\"contact\""));
+
+        assertThat(contact).contains("<a href=\"mailto:ada@example.org\">ada@example.org</a>")
+                .contains("data-copy=\"ada@example.org\"").contains("<p class=\"contact__meta\">Spain</p>")
+                .doesNotContain("tel:");
+    }
+
+    @Test
+    void contactUsesTheOwnMessageAndThePublicPhone() {
+        Profile base = profile("Ada");
+        PersonalInfo p = base.person();
+        Profile profile = new Profile(new PersonalInfo(p.name(), p.headline(), p.summary(), p.location(), null,
+                p.links(), "+34 600 11 22 33", "Available from June.\nRemote or hybrid."), base.experience(),
+                base.education(), base.projects(), base.skills(), base.evidence(), base.labs());
+
+        String contact = html(profile).substring(html(profile).indexOf("id=\"contact\""));
+
+        assertThat(contact).contains("<p class=\"contact__text contact__text--own\">Available from June.\nRemote or hybrid.</p>")
+                .doesNotContain("Let's talk").contains("<a href=\"tel:+34600112233\">+34 600 11 22 33</a>");
+    }
+
+    @Test
+    void markedProjectsAreTheFeaturedOnesInProfileOrder() {
+        Project documented = new Project("b", "Documented", "With problem and solution", "Why", "How",
+                List.of("Java"), List.of(), List.of(), List.of(Area.BACKEND), List.of());
+        Project second = new Project("c", "Second pick", "Marked", null, null, List.of(), List.of(), List.of(),
+                List.of(Area.BACKEND), List.of(), true);
+        Project first = new Project("a", "First pick", "Marked", null, null, List.of(), List.of(), List.of(),
+                List.of(Area.BACKEND), List.of(), true);
+        Profile base = profile("Ada");
+        Profile profile = new Profile(base.person(), base.experience(), base.education(),
+                List.of(documented, first, second), base.skills(), base.evidence(), base.labs());
+
+        assertThat(ArchitectureThemeRenderer.featured(profile))
+                .extracting(PortfolioView.FeaturedView::name).containsExactly("First pick", "Second pick");
+    }
+
+    @Test
+    void alternateLanguagesAddASwitchAndHreflangLinks() {
+        String html = new ArchitectureThemeRenderer(null, null, java.util.Map.of("es", "../"))
+                .render(profile("Ada")).getFirst().content();
+
+        assertThat(html).contains("<a href=\"../\" hreflang=\"es\" lang=\"es\">Español</a>");
+        assertThat(html(profile("Ada"))).doesNotContain("hreflang");
+    }
+
+    @Test
+    void alternateLinksMustBeRelative() {
+        for (String bad : new String[]{"https://evil.example/", "javascript:alert(1)", "/en/", "en/../../x", "en/..", "en\"x", "//evil.example/", "en?x=1"}) {
+            org.assertj.core.api.Assertions.assertThatThrownBy(
+                            () -> new ArchitectureThemeRenderer(null, null, java.util.Map.of("en", bad)))
+                    .as(bad).isInstanceOf(IllegalArgumentException.class);
+        }
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> new ArchitectureThemeRenderer(null, null, java.util.Map.of("<x>", "en/")))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void jobsWithoutTechnologiesGoToACompactOtherExperienceList() {
+        Profile base = profile("Ada");
+        Experience other = new Experience("shop", "Shop assistant", "Store", null,
+                Period.ongoingSince(ProfileDate.of(2018, 1)), List.of("Customer service"), List.of(), List.of());
+        Profile profile = new Profile(base.person(), List.of(base.experience().getFirst(), other), base.education(),
+                base.projects(), base.skills(), base.evidence(), base.labs());
+
+        String html = html(profile);
+
+        assertThat(html).contains("class=\"other-jobs\"").contains("<strong>Shop assistant</strong> · Store");
+        assertThat(html.indexOf("Backend Developer")).isLessThan(html.indexOf("Other experience"));
+        assertThat(html(base)).doesNotContain("other-jobs");
+    }
+
+    @Test
+    void heroShowsTheCurrentJobAndPrefersATechnicalOne() {
+        Profile base = profile("Ada");
+        Experience sideJob = new Experience("bar", "Waiter", "Bar", null,
+                Period.ongoingSince(ProfileDate.of(2023, 1)), List.of(), List.of(), List.of());
+        Profile profile = new Profile(base.person(), List.of(sideJob, base.experience().getFirst()), base.education(),
+                base.projects(), base.skills(), base.evidence(), base.labs());
+
+        assertThat(html(profile)).contains("<p class=\"hero__current\"><span>Currently:</span> Backend Developer · ACME</p>");
+        Experience past = new Experience("old", "Dev", "Old", null,
+                new Period(ProfileDate.of(2019, 1), ProfileDate.of(2020, 1)), List.of(), List.of("Java"), List.of());
+        Profile noCurrent = new Profile(base.person(), List.of(past), base.education(), base.projects(),
+                base.skills(), base.evidence(), base.labs());
+        assertThat(html(noCurrent)).doesNotContain("hero__current");
+    }
+
+    @Test
+    void contactTextOnlyMentionsTheCvWhenThereIsOne() {
+        assertThat(html(profile("Ada"))).contains("Write to me or find me online.").doesNotContain("download my CV");
+        String withCv = new ArchitectureThemeRenderer(null, "cv/cv.pdf").render(profile("Ada")).getFirst().content();
+        assertThat(withCv).contains("Write to me or download my CV.");
     }
 
     private String html(Profile profile) {

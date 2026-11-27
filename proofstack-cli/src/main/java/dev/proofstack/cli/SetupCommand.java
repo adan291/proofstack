@@ -204,7 +204,7 @@ final class SetupCommand implements Callable<Integer> {
         List<Link> links = new ArrayList<>(person.links());
         links.add(new Link("GitHub", "https://github.com/" + user));
         Profile updated = new Profile(p.language(), new PersonalInfo(person.name(), person.headline(), person.summary(),
-                person.location(), person.email(), links), p.experience(), p.education(), p.projects(), p.skills(),
+                person.location(), person.email(), links, person.phone(), person.contactMessage()), p.experience(), p.education(), p.projects(), p.skills(),
                 p.evidence(), p.labs(), p.languages(), p.certifications());
         try {
             String before = Files.readString(profile, StandardCharsets.UTF_8);

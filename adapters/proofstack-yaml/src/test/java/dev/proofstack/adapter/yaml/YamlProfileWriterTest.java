@@ -58,6 +58,28 @@ class YamlProfileWriterTest {
         assertThat(reader.load(out)).isEqualTo(original);
     }
 
+    /** Only marked projects carry the key, so unmarked profiles are written exactly as before. */
+    @Test
+    void featuredIsWrittenOnlyWhenMarkedAndSurvivesTheRoundTrip() throws IOException {
+        Profile example = reader.load(REPO.resolve("profiles/example/profile.yaml"));
+        dev.proofstack.core.domain.Project first = example.projects().getFirst();
+        dev.proofstack.core.domain.Project marked = new dev.proofstack.core.domain.Project(first.id(), first.name(),
+                first.summary(), first.problem(), first.solution(), first.techStack(), first.learnings(),
+                first.links(), first.areas(), first.evidenceIds(), true);
+        java.util.List<dev.proofstack.core.domain.Project> projects = new java.util.ArrayList<>(example.projects());
+        projects.set(0, marked);
+        Profile original = new Profile(example.language(), example.person(), example.experience(),
+                example.education(), projects, example.skills(), example.evidence(), example.labs(),
+                example.languages(), example.certifications());
+        Path out = tmp.resolve("profile.yaml");
+
+        writer.write(original, out, false);
+
+        assertThat(Files.readString(out)).containsOnlyOnce("featured: true");
+        assertThat(reader.load(out)).isEqualTo(original);
+        assertThat(reader.load(out).projects().getFirst().featured()).isTrue();
+    }
+
     /** A year stays a year: written as "2018", read back as a year (year-dates R2.3). */
     @Test
     void aYearWithoutMonthSurvivesTheRoundTrip() throws IOException {

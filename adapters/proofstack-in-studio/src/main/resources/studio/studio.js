@@ -462,14 +462,30 @@ function refreshPreview() {
   const kind = document.querySelector('.preview__tab[aria-selected="true"]')?.dataset.preview ?? 'cv';
   frame.src = `/preview/${kind}/?v=${encodeURIComponent(state.version ?? '')}`;
   frame.title = kind === 'cv' ? 'Vista previa del CV guardado' : 'Vista previa de la web guardada';
+  $('#preview-kind').textContent = kind === 'cv' ? 'CV' : 'Web';
 }
 
-for (const tab of document.querySelectorAll('.preview__tab')) {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.preview__tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-    refreshPreview();
+// The two dots behave as a tablist: click, or arrow keys to move between them.
+const previewTabs = [...document.querySelectorAll('.preview__tab')];
+
+function selectPreview(tab) {
+  previewTabs.forEach((t) => {
+    t.setAttribute('aria-selected', String(t === tab));
+    t.tabIndex = t === tab ? 0 : -1;
   });
+  refreshPreview();
 }
+
+previewTabs.forEach((tab, i) => {
+  tab.addEventListener('click', () => selectPreview(tab));
+  tab.addEventListener('keydown', (event) => {
+    if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+    event.preventDefault();
+    const next = previewTabs[(i + (event.key === 'ArrowRight' ? 1 : previewTabs.length - 1)) % previewTabs.length];
+    next.focus();
+    selectPreview(next);
+  });
+});
 
 $('#save').addEventListener('click', save);
 $('#reload').addEventListener('click', reload);

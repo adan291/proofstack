@@ -94,6 +94,8 @@ public final class YamlProfileWriter implements ProfileWriter {
         put(m, "location", p.location());
         put(m, "email", p.email());
         put(m, "links", links(p.links()));
+        put(m, "phone", p.phone());
+        put(m, "contactMessage", p.contactMessage());
         return m;
     }
 
@@ -142,6 +144,9 @@ public final class YamlProfileWriter implements ProfileWriter {
         put(m, "links", links(p.links()));
         put(m, "areas", p.areas().stream().map(YamlProfileWriter::lower).toList());
         put(m, "evidence", p.evidenceIds());
+        if (p.featured()) {
+            m.put("featured", true);
+        }
         return m;
     }
 

@@ -44,7 +44,8 @@ final class DocumentMapper {
     Profile map(ProfileDocument doc) {
         PersonalInfo person = attempt("$.person", () -> new PersonalInfo(
                 doc.person().name(), doc.person().headline(), doc.person().summary(),
-                doc.person().location(), doc.person().email(), links(doc.person().links())));
+                doc.person().location(), doc.person().email(), links(doc.person().links()),
+                doc.person().phone(), doc.person().contactMessage()));
 
         List<Skill> skills = each("$.skills", doc.skills(), this::skill);
         List<Experience> experience = each("$.experience", doc.experience(), this::experience);
@@ -81,7 +82,7 @@ final class DocumentMapper {
 
     private Project project(ProjectDoc d) {
         return new Project(d.id(), d.name(), d.summary(), d.problem(), d.solution(), d.techStack(), d.learnings(),
-                links(d.links()), areas(d.areas()), d.evidence());
+                links(d.links()), areas(d.areas()), d.evidence(), Boolean.TRUE.equals(d.featured()));
     }
 
     private Evidence evidence(EvidenceDoc d) {

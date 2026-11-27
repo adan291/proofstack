@@ -50,6 +50,75 @@ public record UiText(
         return "es".equals(locale.getLanguage()) ? "Proyectos destacados" : "Featured projects";
     }
 
+    private boolean es() {
+        return "es".equals(locale.getLanguage());
+    }
+
+    /** Accessible name of the section navigation. */
+    public String sections() {
+        return es() ? "Secciones" : "Sections";
+    }
+
+    /** Short label of the system diagram in the navigation. */
+    public String navSystem() {
+        return es() ? "Sistema" : "System";
+    }
+
+    public String contact() {
+        return es() ? "Contacto" : "Contact";
+    }
+
+    public String contactText() {
+        return es() ? "¿Hablamos? Escríbeme o descarga mi CV." : "Let's talk. Write to me or download my CV.";
+    }
+
+    /** Same invitation when the site is published without a CV. */
+    public String contactTextNoCv() {
+        return es() ? "¿Hablamos? Escríbeme o encuéntrame en mis redes." : "Let's talk. Write to me or find me online.";
+    }
+
+    public String certifications() {
+        return es() ? "Certificaciones" : "Certifications";
+    }
+
+    /** Link to the document that proves a certification. */
+    public String viewCredential() {
+        return es() ? "Ver certificado" : "View certificate";
+    }
+
+    /** Button next to the email address in Contact. */
+    public String copy() {
+        return es() ? "Copiar" : "Copy";
+    }
+
+    public String copied() {
+        return es() ? "Copiado" : "Copied";
+    }
+
+    /** Link from a featured card to the full card in its area. */
+    public String seeDetails() {
+        return es() ? "Ver detalles" : "See details";
+    }
+
+    /** Disclosure with the problem, solution and learnings of a project. */
+    public String howItWasBuilt() {
+        return es() ? "Problema, solución y aprendizajes" : "Problem, solution and learnings";
+    }
+
+    /** Label before the job held now, in the hero. */
+    public String currently() {
+        return es() ? "Actualmente" : "Currently";
+    }
+
+    public String writeMe() {
+        return es() ? "Escríbeme" : "Write to me";
+    }
+
+    /** Heading for jobs without listed technologies (often outside software). */
+    public String otherExperience() {
+        return es() ? "Otra experiencia" : "Other experience";
+    }
+
     String area(Area area) {
         return areas.get(area);
     }

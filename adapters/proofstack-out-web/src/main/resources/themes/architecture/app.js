@@ -79,7 +79,7 @@
       canvas.width = width * ratio;
       canvas.height = height * ratio;
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      var wanted = Math.min(90, Math.round(width * height / 16000));
+      var wanted = Math.min(60, Math.round(width * height / 20000));
       while (points.length < wanted) {
         points.push({ x: Math.random() * width, y: Math.random() * height,
                       vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3 });
@@ -165,8 +165,27 @@
       observer.observe(el);
     });
   }
+  // Printing shows every project detail, not only the ones the reader opened.
+  window.addEventListener('beforeprint', function () {
+    Array.prototype.forEach.call(document.querySelectorAll('details'), function (d) { d.open = true; });
+  });
+  // "Copy" next to the email: a mailto link does nothing on a computer without a mail app, copying always works.
+  function setUpCopy() {
+    if (!navigator.clipboard || !window.isSecureContext) return;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function (button) {
+      var label = button.textContent;
+      button.hidden = false;
+      button.addEventListener('click', function () {
+        navigator.clipboard.writeText(button.getAttribute('data-copy')).then(function () {
+          button.textContent = button.getAttribute('data-copied');
+          setTimeout(function () { button.textContent = label; }, 2000);
+        });
+      });
+    });
+  }
   document.addEventListener('DOMContentLoaded', function () {
     setUpAsk();
+    setUpCopy();
     setUpBackground();
     setUpTilt();
     setUpReveal();
@@ -223,8 +242,29 @@
       });
     });
 
-    // Deep link support: /#panel-ai opens the AI node.
+    // A featured card links to the full card of the project inside its area: open that area, then go to the card.
+    function goTo(id) {
+      var card = document.getElementById(id);
+      var panel = card && card.closest('[data-panel]');
+      var node = panel && nodes.filter(function (n) { return n.getAttribute('aria-controls') === panel.id; })[0];
+      if (!node) return false;
+      open(node, false);
+      if (history.replaceState) history.replaceState(null, '', '#' + id);
+      card.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' });
+      card.focus({ preventScroll: true });
+      card.classList.remove('is-target');
+      void card.offsetWidth; // restart the highlight when the same card is chosen twice
+      card.classList.add('is-target');
+      return true;
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-goto]'), function (link) {
+      link.addEventListener('click', function (event) {
+        if (goTo(link.getAttribute('href').slice(1))) event.preventDefault();
+      });
+    });
+    // Deep link support: /#panel-ai opens the AI node, /#project-ai-agent-life opens it on that project.
     var initial = nodes.filter(function (n) { return '#' + n.getAttribute('aria-controls') === location.hash; })[0];
     open(initial || nodes[0], false);
+    if (!initial && location.hash.indexOf('#project-') === 0) goTo(location.hash.slice(1));
   });
 })();

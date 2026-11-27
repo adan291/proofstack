@@ -163,12 +163,21 @@ public final class ProofstackCli implements Runnable {
     }
 
     static PortfolioService portfolio(java.net.URI assistantUrl) {
-        return new PortfolioService(new YamlProfileSource(), new ArchitectureThemeRenderer(assistantUrl),
+        return portfolio(assistantUrl, java.util.Map.of());
+    }
+
+    static PortfolioService portfolio(java.net.URI assistantUrl, java.util.Map<String, String> alternates) {
+        return new PortfolioService(new YamlProfileSource(), new ArchitectureThemeRenderer(assistantUrl, null, alternates),
                 new FileSystemArtifactSink());
     }
 
     static PortfolioService portfolioWithCv(java.net.URI assistantUrl, String cvLink) {
-        var renderer = new SiteWithCvRenderer(new ArchitectureThemeRenderer(assistantUrl, cvLink),
+        return portfolioWithCv(assistantUrl, cvLink, java.util.Map.of());
+    }
+
+    static PortfolioService portfolioWithCv(java.net.URI assistantUrl, String cvLink,
+                                            java.util.Map<String, String> alternates) {
+        var renderer = new SiteWithCvRenderer(new ArchitectureThemeRenderer(assistantUrl, cvLink, alternates),
                 new dev.proofstack.adapter.out.cv.CvRenderer());
         return new PortfolioService(new YamlProfileSource(), renderer, new FileSystemArtifactSink());
     }
@@ -250,6 +259,10 @@ public final class ProofstackCli implements Runnable {
                 description = "Relative target of the CV link (default: ${DEFAULT-VALUE}; e.g. cv/cv.pdf when a PDF is added later)")
         String cvLink;
 
+        @Option(names = "--alternate", paramLabel = "LANG=PATH",
+                description = "Same portfolio in another language, linked from the page (repeatable), e.g. --alternate en=en/ or --alternate es=../")
+        java.util.Map<String, String> alternates = new java.util.LinkedHashMap<>();
+
         @Spec
         CommandLine.Model.CommandSpec spec;
 
@@ -262,7 +275,7 @@ public final class ProofstackCli implements Runnable {
             }
             PortfolioService service;
             try {
-                service = withCv ? portfolioWithCv(assistantUrl, cvLink) : portfolio(assistantUrl);
+                service = withCv ? portfolioWithCv(assistantUrl, cvLink, alternates) : portfolio(assistantUrl, alternates);
             } catch (IllegalArgumentException e) {
                 err.println(e.getMessage());
                 return INVALID;

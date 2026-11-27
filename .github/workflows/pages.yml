@@ -41,20 +41,38 @@ jobs:
           cache: maven
       - run: mvn -B -ntp -DskipTests package -pl proofstack-cli -am
 
+      # Optional English version: a profile.en.yaml next to the profile is published under /en/.
+      - name: Find the English version
+        run: |
+          EN="${PROFILE%.yaml}.en.yaml"
+          if [ -f "$EN" ]; then echo "PROFILE_EN=$EN" >> "$GITHUB_ENV"; fi
+
       - name: Ready to publish?
-        run: java -jar proofstack-cli/target/proofstack.jar doctor "$PROFILE"
+        run: |
+          java -jar proofstack-cli/target/proofstack.jar doctor "$PROFILE"
+          if [ -n "$PROFILE_EN" ]; then java -jar proofstack-cli/target/proofstack.jar doctor "$PROFILE_EN"; fi
 
       - name: Build site and CV
         run: |
           ARGS=(build "$PROFILE" --out dist --with-cv --cv-link cv/cv.pdf)
           if [ -n "$ASSISTANT_URL" ]; then ARGS+=(--assistant-url "$ASSISTANT_URL"); fi
-          java -jar proofstack-cli/target/proofstack.jar "${ARGS[@]}"
+          if [ -n "$PROFILE_EN" ]; then
+            java -jar proofstack-cli/target/proofstack.jar "${ARGS[@]}" --alternate en=en/
+            EN_ARGS=(build "$PROFILE_EN" --out dist/en --with-cv --cv-link cv/cv.pdf --alternate es=../)
+            if [ -n "$ASSISTANT_URL" ]; then EN_ARGS+=(--assistant-url "$ASSISTANT_URL"); fi
+            java -jar proofstack-cli/target/proofstack.jar "${EN_ARGS[@]}"
+          else
+            java -jar proofstack-cli/target/proofstack.jar "${ARGS[@]}"
+          fi
       # The site links to cv/cv.pdf: print it with the Chrome that GitHub-hosted runners already have.
       - name: CV to PDF
         run: |
-          google-chrome --headless=new --disable-gpu --no-sandbox --no-pdf-header-footer \
-            --print-to-pdf=dist/cv/cv.pdf "file://$PWD/dist/cv/cv.html"
-          test -s dist/cv/cv.pdf
+          for dir in dist dist/en; do
+            [ -f "$dir/cv/cv.html" ] || continue
+            google-chrome --headless=new --disable-gpu --no-sandbox --no-pdf-header-footer \
+              --print-to-pdf="$dir/cv/cv.pdf" "file://$PWD/$dir/cv/cv.html"
+            test -s "$dir/cv/cv.pdf"
+          done
       - name: Guide
         run: cp -r docs/guide dist/guide
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
