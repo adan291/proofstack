@@ -439,6 +439,64 @@ async function removeProject() {
   showProjects();
 }
 // ------------------------------------------------------------------ 5. publish
+// Traduce un hallazgo técnico (ruta JSONPath + mensaje en inglés) a una frase para el usuario.
+function describeFinding(f) {
+  const m = /^\$\.(\w+)(?:\[(\d+)\])?/.exec(f.path) ?? [];
+  const [, section, idx] = m;
+  const i = idx == null ? null : Number(idx);
+  const doc = state.doc ?? {};
+  let where = 'Tu perfil';
+  let step = null;
+  let project = null;
+  if (section === 'projects' && i != null) {
+    const p = doc.projects?.[i];
+    where = `Proyecto «${shown(p?.name) || p?.id || i + 1}»`;
+    step = 'projects';
+    project = i;
+  } else if (section === 'experience') {
+    const e = i != null ? doc.experience?.[i] : null;
+    where = e ? `Experiencia «${[e.role, e.company].filter(Boolean).join(' en ')}»` : 'Experiencia';
+  } else if (section === 'evidence' && i != null) {
+    const e = doc.evidence?.[i];
+    where = `Evidencia «${shown(e?.title) || e?.id || i + 1}»`;
+  } else if (section === 'certifications' && i != null) {
+    where = `Certificación «${shown(doc.certifications?.[i]?.name) || i + 1}»`;
+  } else if (section === 'person') {
+    where = 'Tus datos';
+    step = 'you';
+  } else if (section === 'skills') {
+    where = 'Habilidades';
+  }
+  const msg = f.message ?? '';
+  let what;
+  let m2;
+  if ((m2 = /^placeholder still present: "(.*)"$/.exec(msg))) {
+    what = `texto de relleno sin sustituir («${m2[1]}»). Cámbialo por información real o quita el campo.`;
+  } else if ((m2 = /^sample or generic URL: (.*)$/.exec(msg))) {
+    what = `enlace de ejemplo o genérico (${m2[1]}). Usa tu propio perfil, repositorio o demo.`;
+  } else if ((m2 = /^sample email address: (.*)$/.exec(msg))) {
+    what = `correo de ejemplo (${m2[1]}). Usa tu correo real o quita el campo.`;
+  } else if (/has no link$/.test(msg)) {
+    what = 'falta un enlace (repositorio, demo, artículo o vídeo) para que se pueda verificar.';
+  } else if (/does not say which problem/.test(msg)) {
+    what = 'falta explicar qué problema resolvía y cómo lo resolviste.';
+  } else if (/is not linked to any experience or project/.test(msg)) {
+    what = 'no está asociada a ninguna experiencia ni proyecto. Añade su id en la lista «evidence» del trabajo o proyecto que demuestra.';
+  } else if (msg === 'no summary') {
+    what = 'falta el resumen. Escribe 2-3 frases: qué construyes, para quién y qué estás explorando.';
+  } else if (msg === 'no way to contact you') {
+    what = 'no hay forma de contactarte. Añade al menos LinkedIn o GitHub.';
+  } else if (msg === 'no experience listed') {
+    what = 'no hay experiencia. Una sola entrada ya da contexto a tus proyectos.';
+  } else if (msg === 'no highlights') {
+    what = 'faltan logros. Añade 1-3 logros concretos, sin frases vacías.';
+  } else if (msg === 'no skills') {
+    what = 'faltan habilidades. Sirven para colocarte en el mapa de arquitectura.';
+  } else {
+    what = f.hint ? `${msg}. ${f.hint}` : msg;
+  }
+  return { text: `${where}: ${what}`, step, project };
+}
 function showPublish() {
   const errors = state.findings.filter((f) => f.severity === 'error');
   const warnings = state.findings.filter((f) => f.severity !== 'error');
@@ -450,7 +508,19 @@ function showPublish() {
   $('#publish-issues').replaceChildren(...[...errors, ...warnings].slice(0, 30).map((f) => {
     const li = document.createElement('li');
     li.className = `issue issue--${f.severity}`;
-    li.textContent = `${f.path} — ${f.hint ? `${f.message}. ${f.hint}` : f.message}`;
+    const { text, step, project } = describeFinding(f);
+    li.append(text);
+    if (step) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'issue__fix';
+      b.textContent = ' Corregir';
+      b.addEventListener('click', () => {
+        if (project != null) state.projectIndex = project;
+        go(step);
+      });
+      li.append(' ', b);
+    }
     return li;
   }));
   const { owner, repo, profilePath } = state.setup;

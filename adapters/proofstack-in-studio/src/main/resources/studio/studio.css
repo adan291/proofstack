@@ -161,3 +161,5 @@ a { color: var(--accent); }
 .wizard__tag--profile { color: var(--ok); }
 .wizard__tag--new { color: var(--accent); }
 #github-show { width: auto; }
+
+.wizard__list .issue__fix { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
