@@ -200,3 +200,5 @@ input[type="radio"] { width: auto; }
 .ai__text ins { color: var(--ok); text-decoration: underline; }
 .ai__warn { margin: .5rem 0; padding: .5rem .75rem; border: 1px solid var(--warn); border-left-width: 4px; border-radius: 4px; color: var(--warn); }
 .ai__list { margin: 0 0 .5rem; padding-left: 1.25rem; }
+.ai__ask { display: flex; gap: .5rem; }
+.ai__ask input { flex: 1; }

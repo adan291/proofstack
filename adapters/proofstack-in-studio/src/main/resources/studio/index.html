@@ -164,8 +164,11 @@
     </div>
     <div class="field">
       <label for="ai-request">¿Qué quieres?</label>
-      <input id="ai-request" type="text" maxlength="2000" autocomplete="off" aria-describedby="ai-request-hint">
-      <p id="ai-request-hint" class="hint">Opcional. Pulsa Intro para pedir una mejora, o elige un atajo.</p>
+      <div class="ai__ask">
+        <input id="ai-request" type="text" maxlength="2000" autocomplete="off" aria-describedby="ai-request-hint">
+        <button id="ai-send" class="btn btn--primary" type="button">Enviar</button>
+      </div>
+      <p id="ai-request-hint" class="hint">Opcional. Escribe lo que quieres y pulsa Enviar (o Intro), o elige un atajo.</p>
     </div>
     <div id="ai-shortcuts" class="ai__shortcuts" role="group" aria-label="Atajos"></div>
     <div id="ai-offer-row" class="field" hidden>

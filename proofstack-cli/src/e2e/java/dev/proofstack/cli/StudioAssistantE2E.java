@@ -136,6 +136,16 @@ class StudioAssistantE2E extends AiE2E {
     }
 
     @Test
+    void theRequestCanBeSentWithTheSendButton() {
+        open();
+        openSummaryPanel();
+        page.locator("#ai-request").fill("hazlo mas claro");
+        exactButton("Enviar").click();
+        assertThat(page.locator("#ai-proposal")).hasText(PROPOSAL);
+        assertThat(provider.requests.getFirst()).contains("hazlo mas claro");
+    }
+
+    @Test
     void aJobOfferAsksForThePastedOffer() {
         open();
         openSummaryPanel();

@@ -165,7 +165,7 @@ function setState(text, kind = 'info') {
 
 function setBusy(busy) {
   $('#ai-cancel').hidden = !busy;
-  document.querySelectorAll('#ai-shortcuts button, #ai-offer-go, #ai-retry, #ai-accept, #ai-edit-btn').forEach((b) => {
+  document.querySelectorAll('#ai-shortcuts button, #ai-send, #ai-offer-go, #ai-retry, #ai-accept, #ai-edit-btn').forEach((b) => {
     b.disabled = busy;
   });
   $('#ai-panel').setAttribute('aria-busy', String(busy));
@@ -526,6 +526,7 @@ function wire() {
     run({ mode: 'job-offer', request: offer });
   });
   $('#ai-line').addEventListener('change', () => { panel.line = Number($('#ai-line').value); });
+  $('#ai-send').addEventListener('click', () => run({ mode: 'improve', request: $('#ai-request').value.trim() }));
   $('#ai-request').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); run({ mode: 'improve', request: $('#ai-request').value.trim() }); }
   });

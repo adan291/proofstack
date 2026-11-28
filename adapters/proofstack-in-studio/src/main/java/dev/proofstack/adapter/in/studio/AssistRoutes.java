@@ -218,7 +218,7 @@ final class AssistRoutes {
                 body.set("violations", violations(i.violations()));
                 yield new Reply(422, body);
             }
-            case EditProfileUseCase.Conflict c ->
+            case EditProfileUseCase.Conflict _ ->
                     error(409, "conflict", translation.fileName() + " changed on disk; try again");
         };
     }
