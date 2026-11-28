@@ -1,6 +1,7 @@
 // Proofstack Studio: loads profile.yaml through the local API, edits it with forms built from the schema,
 // shows what `doctor` says next to each field and previews the saved CV and site.
 import { SchemaForm, label, settleIds } from './schema-form.js';
+import { initAssist, attachAssist } from './assist.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -57,6 +58,9 @@ async function start() {
     return;
   }
   state.form = new SchemaForm(schema.body, onChange);
+  // The AI buttons exist only when a provider is configured: initAssist finds out before the first render.
+  await initAssist({ api, announce, state: () => state, rerender: () => show(state.section) });
+  state.form.assist = attachAssist;
   const draft = JSON.parse(sessionStorage.getItem(DRAFT) ?? 'null');
   take(profile.body);
   if (draft && JSON.stringify(draft.doc) !== JSON.stringify(state.doc)) {

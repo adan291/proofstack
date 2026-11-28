@@ -169,3 +169,34 @@ a { color: var(--accent); }
 #github-show { width: auto; }
 
 .wizard__list .issue__fix { background: none; border: 0; padding: 0; color: inherit; text-decoration: underline; cursor: pointer; font: inherit; }
+
+/* AI text assistant (ADR-017) */
+.field__head { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; margin-bottom: .25rem; }
+.field__head label { margin-bottom: 0; }
+.ai__btn { flex: none; font-family: var(--mono); font-weight: 700; color: var(--accent); }
+.ai { max-width: 52rem; max-height: calc(100vh - 2rem); overflow: auto; }
+input[type="radio"] { width: auto; }
+.ai__keys { margin: 0 0 .85rem; padding: .6rem .9rem; border: 1px solid var(--border); border-radius: 8px; }
+.ai__keys legend { padding: 0 .3rem; font-weight: 600; }
+.ai__radio { display: flex; align-items: baseline; gap: .5rem; margin: .25rem 0; }
+.ai__more { margin: 0 0 .85rem; }
+.ai__more > summary { cursor: pointer; font-weight: 600; margin-bottom: .5rem; }
+.ai__shortcuts { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: .85rem; }
+.ai__consent { margin: 0 0 .85rem; padding: .75rem 1rem; border: 1px solid var(--warn); border-radius: 8px; background: var(--bg); }
+.ai__consent button { margin-right: .5rem; }
+.ai__state { margin: .5rem 0; color: var(--muted); }
+.ai__state:empty { display: none; }
+.ai__state[data-kind="ok"] { color: var(--ok); }
+.ai__state[data-kind="warn"] { color: var(--warn); }
+.ai__state[data-kind="error"] { color: var(--error); }
+.ai__title { margin: .75rem 0 .5rem; font-size: 1.05rem; color: var(--accent); }
+.ai__title:focus { outline: none; }
+.ai__compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 700px) { .ai__compare { grid-template-columns: 1fr; } }
+.ai__sub { margin: .5rem 0 .25rem; font: 600 .8rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.ai__text { margin: 0 0 .5rem; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); white-space: pre-wrap; word-break: break-word; }
+.ai__text del { color: var(--error); text-decoration: line-through; }
+.ai__text ins { color: var(--ok); text-decoration: underline; }
+.ai__warn { margin: .5rem 0; padding: .5rem .75rem; border: 1px solid var(--warn); border-left-width: 4px; border-radius: 4px; color: var(--warn); }
+.ai__list { margin: 0 0 .5rem; padding-left: 1.25rem; }

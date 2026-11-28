@@ -114,6 +114,7 @@ export class SchemaForm {
     });
     wrap.append(lab, input);
     hint(wrap, input, HINTS[key] ?? node.description);
+    if (input.tagName !== 'SELECT') this.assist?.(wrap, input, path, label(key));
     return wrap;
   }
 
@@ -154,6 +155,7 @@ export class SchemaForm {
     });
     wrap.append(lab, input);
     hint(wrap, input, HINTS[key] ?? 'Uno por línea.');
+    this.assist?.(wrap, input, path, label(key));
     return wrap;
   }
 

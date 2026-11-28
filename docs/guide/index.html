@@ -355,7 +355,40 @@ git push                                               <span class="c"># la web 
     </article>
 
     <article class="recipe">
-      <h3>Tu perfil dentro de Kiro (MCP)</h3>
+      <h3>Un asistente de IA para redactar tus textos, con el modelo que quieras</h3>
+      <p>Studio puede mejorar y traducir el resumen, el titular, los proyectos, los logros, las frases por área, las evidencias y el mensaje de contacto. Es opcional: sin configurarlo, los campos no tienen botón de IA. Funciona con modelos en la nube (OpenAI, Anthropic, Gemini, Mistral, Groq, OpenRouter, DeepSeek, Azure OpenAI...) y con modelos en tu equipo (Ollama, LM Studio, llama.cpp, vLLM...).</p>
+      <ol>
+        <li>Abre Studio y pulsa <strong>Ajustes de IA</strong>. Elige el proveedor, revisa la URL y el modelo, y pulsa <strong>Probar conexión</strong>.</li>
+        <li>En cualquier campo de texto pulsa <strong>IA</strong>. Elige un atajo (<em>Mejorar</em>, <em>Más corto</em>, <em>Más técnico</em>, <em>Para una oferta</em>, <em>Corregir faltas</em>, <em>Traducir</em>) o escribe lo que quieres.</li>
+        <li>Revisa la propuesta, los cambios y las preguntas de la IA, y pulsa <strong>Aceptar</strong>, <strong>Editar antes de aceptar</strong>, <strong>Probar otra vez</strong> o <strong>Descartar</strong>. Aceptar solo cambia el campo; el fichero cambia cuando pulsas <strong>Guardar</strong>.</li>
+      </ol>
+      <p>La configuración se guarda en <code>~/.proofstack/ai.json</code> (en Windows, <code>%USERPROFILE%\.proofstack\ai.json</code>), fuera del repositorio. Guarda el <em>nombre</em> de la variable de entorno que contiene la clave, no la clave. Ejemplos:</p>
+      <pre><code>// OpenAI
+{ "preset": "openai", "model": "gpt-4o-mini", "apiKeyEnv": "OPENAI_API_KEY" }
+
+// Anthropic
+{ "preset": "anthropic", "model": "claude-3-5-haiku-latest", "apiKeyEnv": "ANTHROPIC_API_KEY" }
+
+// Gemini
+{ "preset": "gemini", "apiKeyEnv": "GEMINI_API_KEY" }
+
+// Ollama, en tu equipo y sin clave (ollama pull llama3.2)
+{ "preset": "ollama", "model": "llama3.2" }
+
+// LM Studio, en tu equipo y sin clave (activa su servidor local)
+{ "preset": "lmstudio", "model": "qwen2.5-7b-instruct" }
+
+// OpenRouter
+{ "preset": "openrouter", "model": "anthropic/claude-3.5-haiku", "apiKeyEnv": "OPENROUTER_API_KEY" }
+
+// Personalizado: cualquier servidor compatible con OpenAI
+{ "protocol": "openai", "baseUrl": "https://mi-servidor.example.com/v1", "model": "mi-modelo",
+  "apiKeyEnv": "MI_CLAVE", "authHeader": "api-key", "headers": { "X-Equipo": "portfolio" },
+  "timeoutSeconds": 90, "temperature": 0.3 }</code></pre>
+      <p>Define la variable de la clave en tu terminal (PowerShell: <code>$env:OPENAI_API_KEY="..."</code>) antes de abrir Studio. También puedes configurarlo todo con variables, sin fichero: <code>PROOFSTACK_AI_PROTOCOL</code>, <code>PROOFSTACK_AI_BASE_URL</code>, <code>PROOFSTACK_AI_MODEL</code> y <code>PROOFSTACK_AI_API_KEY</code>; tienen prioridad sobre el fichero.</p>
+      <p>Antes de la primera petición a un proveedor que no esté en tu equipo, Studio te pregunta y no envía nada sin tu permiso. Nunca se envían el teléfono ni el email. Si la IA añade una cifra que no está en tu perfil, el panel te avisa: compruébala o quítala. <strong>Traducir</strong> escribe en el mismo campo de <code>profile.en.yaml</code> (o de <code>profile.yaml</code>) y guarda ese fichero; solo aparece si el otro fichero existe.</p>
+    </article>
+
       <pre><code>mvn -DskipTests package -pl proofstack-mcp-server -am</code></pre>
       <p>Copia <code>docs/kiro-mcp.example.json</code> a <code>.kiro/settings/mcp.json</code> y cambia las dos rutas: el jar (<code>proofstack-mcp-server/target/proofstack-mcp-server-&lt;versión&gt;.jar</code>) y tu perfil. Después pide a Kiro, por ejemplo: <em>«Usa proofstack y escribe un post sobre mi proyecto agent-life»</em>. Solo lee el perfil, nunca lo modifica.</p>
     </article>

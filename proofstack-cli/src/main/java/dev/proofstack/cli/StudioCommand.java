@@ -4,7 +4,10 @@ import java.util.Map;
 import dev.proofstack.adapter.in.github.GitHubProjectSource;
 import dev.proofstack.adapter.in.linkedin.LinkedInMemberDataSource;
 import dev.proofstack.adapter.in.linkedin.LinkedInSettings;
+import dev.proofstack.adapter.in.studio.StudioAssistant;
 import dev.proofstack.adapter.in.studio.StudioImports;
+import dev.proofstack.adapter.in.studio.StudioTranslation;
+import dev.proofstack.adapter.out.llm.AiSettingsStore;
 import dev.proofstack.adapter.yaml.YamlProfileJsonCodec;
 import dev.proofstack.core.application.DraftImportService;
 import java.awt.Desktop;
@@ -103,7 +106,7 @@ final class StudioCommand implements Callable<Integer> {
         YamlProfileSource source = new YamlProfileSource();
         StudioServer server = new StudioServer(new ProfileEditingService(new YamlProfileDocumentStore(file)),
                 () -> source.load(file), new ArchitectureThemeRenderer(), new CvRenderer(), schema(), port,
-                imports(env, log, file));
+                imports(env, log, file), assistant(env), translation(file));
         try {
             server.start();
             return server;
@@ -111,6 +114,34 @@ final class StudioCommand implements Callable<Integer> {
             server.close();
             throw e;
         }
+    }
+
+    /** The AI text assistant. Without a provider configured it is still there: Studio asks its status and shows no button. */
+    static StudioAssistant assistant(Map<String, String> env) {
+        return new AiStudioAssistant(new AiSettingsStore(AiSettingsStore.file(env), env), new YamlProfileJsonCodec());
+    }
+
+    /** Where a translation goes: profile.yaml and profile.en.yaml are each other's other language. */
+    static StudioTranslation translation(Path profile) {
+        Path other = otherLanguageFile(profile);
+        if (other == null) {
+            return null;
+        }
+        return new StudioTranslation(other.getFileName().toString(), () -> Files.isRegularFile(other),
+                new ProfileEditingService(new YamlProfileDocumentStore(other)));
+    }
+
+    static Path otherLanguageFile(Path profile) {
+        String name = profile.getFileName().toString();
+        String other;
+        if (name.endsWith(".en.yaml")) {
+            other = name.substring(0, name.length() - ".en.yaml".length()) + ".yaml";
+        } else if (name.endsWith(".yaml")) {
+            other = name.substring(0, name.length() - ".yaml".length()) + ".en.yaml";
+        } else {
+            return null;
+        }
+        return profile.resolveSibling(other);
     }
 
     /** LinkedIn and GitHub for the import buttons. The LinkedIn app comes from proofstack setup or the environment. */

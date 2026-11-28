@@ -41,7 +41,7 @@ import tools.jackson.databind.node.ObjectNode;
  * Driving adapter: Studio, the local editor of one {@code profile.yaml}.
  *
  * <p>Routes: {@code /} and {@code /assets/*} (the editor, from the classpath), {@code GET /api/schema},
- * {@code GET|PUT /api/profile}, {@code /preview/site/*} and {@code /preview/cv/*} (the saved profile rendered in
+ * {@code GET|PUT /api/profile}, {@code /api/ai/*} (the text assistant, see {@link AssistRoutes}), {@code /preview/site/*} and {@code /preview/cv/*} (the saved profile rendered in
  * memory, never written to disk). Listens on the loopback interface only; see {@link StudioGuard} for who may talk
  * to it.
  */
@@ -54,7 +54,8 @@ public final class StudioServer implements AutoCloseable {
             "wizard.js", "text/javascript; charset=utf-8",
             "studio.css", "text/css; charset=utf-8",
             "studio.js", "text/javascript; charset=utf-8",
-            "schema-form.js", "text/javascript; charset=utf-8");
+            "schema-form.js", "text/javascript; charset=utf-8",
+            "assist.js", "text/javascript; charset=utf-8");
     private static final String UI_CSP = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
             + "frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'";
     private static final String PREVIEW_CSP = "default-src 'self'; img-src 'self' data:; frame-ancestors 'self'; "
@@ -66,6 +67,7 @@ public final class StudioServer implements AutoCloseable {
     private final PortfolioRenderer cv;
     private final String schema;
     private final StudioImports imports;
+    private final AssistRoutes ai;
     /** One LinkedIn login at a time: its callback listens on a fixed port. */
     private final java.util.concurrent.atomic.AtomicBoolean linkedInBusy = new java.util.concurrent.atomic.AtomicBoolean();
     private final JsonMapper json = JsonMapper.builder().build();
@@ -96,7 +98,19 @@ public final class StudioServer implements AutoCloseable {
     /** @param imports the LinkedIn and GitHub buttons, or {@code null} to answer 404 on their routes */
     public StudioServer(EditProfileUseCase editor, Supplier<Profile> saved, PortfolioRenderer site,
                         PortfolioRenderer cv, String schema, int port, StudioImports imports) {
+        this(editor, saved, site, cv, schema, port, imports, null, null);
+    }
+
+    /**
+     * @param assistant   the AI text assistant, or {@code null} for a Studio without it: no AI route answers and the
+     *                    editor shows no AI button
+     * @param translation the other-language file, or {@code null} when translating is not possible
+     */
+    public StudioServer(EditProfileUseCase editor, Supplier<Profile> saved, PortfolioRenderer site,
+                        PortfolioRenderer cv, String schema, int port, StudioImports imports,
+                        StudioAssistant assistant, StudioTranslation translation) {
         this.imports = imports;
+        this.ai = new AssistRoutes(assistant, saved, translation, json);
         this.editor = Objects.requireNonNull(editor, "editor");
         this.saved = Objects.requireNonNull(saved, "saved");
         this.site = Objects.requireNonNull(site, "site");
@@ -194,6 +208,10 @@ public final class StudioServer implements AutoCloseable {
             }
             return;
         }
+        if (path.startsWith("/api/ai/")) {
+            aiRoute(exchange, method, path);
+            return;
+        }
         if (path.equals("/api/profile/merge")) {
             if (method.equals("POST")) {
                 mergeProfile(exchange);
@@ -232,6 +250,46 @@ public final class StudioServer implements AutoCloseable {
     }
 
     // ------------------------------------------------------------------ API
+
+    // ------------------------------------------------------------------ AI assistant
+
+    /** {@code /api/ai/*}: see {@link AssistRoutes}. Without an assistant only {@code status} answers, as "not configured". */
+    private void aiRoute(HttpExchange exchange, String method, String path) throws IOException {
+        String expected = switch (path) {
+            case "/api/ai/status", "/api/ai/config" -> method.equals("PUT") && path.endsWith("config") ? "PUT" : "GET";
+            case "/api/ai/test", "/api/ai/suggest", "/api/ai/consent", "/api/ai/apply-translation" -> "POST";
+            default -> null;
+        };
+        if (expected == null) {
+            error(exchange, 404, "not found");
+            return;
+        }
+        if (!method.equals(expected)) {
+            error(exchange, 405, "use " + expected + (path.endsWith("config") ? " or PUT" : ""));
+            return;
+        }
+        if (!ai.available() && !path.equals("/api/ai/status")) {
+            error(exchange, 404, "the AI assistant is not available in this Studio");
+            return;
+        }
+        AssistRoutes.Reply reply;
+        if (expected.equals("GET")) {
+            reply = path.endsWith("status") ? ai.status() : ai.config();
+        } else {
+            JsonNode request = jsonBody(exchange);
+            if (request == null) {
+                return;
+            }
+            reply = switch (path) {
+                case "/api/ai/config" -> ai.saveConfig(request);
+                case "/api/ai/test" -> ai.test();
+                case "/api/ai/consent" -> ai.consent(request);
+                case "/api/ai/suggest" -> ai.suggest(request);
+                default -> ai.applyTranslation(request);
+            };
+        }
+        sendJson(exchange, reply.status(), reply.body());
+    }
 
     private void getProfile(HttpExchange exchange) throws IOException {
         Snapshot snapshot;

@@ -18,11 +18,24 @@ final class OllamaClient implements LlmClient {
     private final HttpJson http;
     private final URI host;
     private final String model;
+    private final double temperature;
+    private final Map<String, String> headers;
 
     OllamaClient(HttpJson http, URI host, String model) {
+        this(http, host, model, 0.4, Map.of());
+    }
+
+    /** Key and extra headers are optional: a local Ollama needs none, one behind a proxy may need both. */
+    OllamaClient(HttpJson http, AiSettings settings) {
+        this(http, settings.baseUrl(), settings.model(), settings.temperature(), settings.requestHeaders());
+    }
+
+    private OllamaClient(HttpJson http, URI host, String model, double temperature, Map<String, String> headers) {
         this.http = http;
         this.host = host;
         this.model = model;
+        this.temperature = temperature;
+        this.headers = headers;
     }
 
     @Override
@@ -34,11 +47,11 @@ final class OllamaClient implements LlmClient {
         ArrayNode messages = body.putArray("messages");
         messages.addObject().put("role", "system").put("content", systemPrompt);
         messages.addObject().put("role", "user").put("content", userPrompt);
-        body.putObject("options").put("temperature", 0.4);
+        body.putObject("options").put("temperature", temperature);
 
         JsonNode response;
         try {
-            response = http.post(host.resolve("/api/chat"), Map.of(), body, "Ollama", null);
+            response = http.post(HttpJson.endpoint(host, "api/chat"), headers, body, "Ollama", null);
         } catch (HttpJson.HttpStatusException e) {
             String hint = e.status() == 404 ? " (run: ollama pull " + model + ")" : "";
             throw new ContentGenerationException(e.getMessage() + hint, Kind.PROVIDER_UNAVAILABLE, e);

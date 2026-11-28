@@ -150,7 +150,7 @@ proofstack studio profiles/yo/profile.yaml
 
 Decisiones en [ADR-014](docs/adr/ADR-014-studio-local-editor.md).
 
-### cv
+
 
 ```bash
 proofstack cv profiles/yo/profile.yaml --out dist/cv                        # cv.md, cv.html y cv.docx
@@ -218,6 +218,7 @@ Mientras un proyecto tenga `TODO`, `doctor` bloquea el despliegue: un pull reque
 - **Importadores:** nunca traen email ni teléfono. El email solo aparece si lo escribes tú en el perfil, y el teléfono nunca se publica.
 - **Claves de LinkedIn:** se guardan en tu carpeta de usuario, con permisos solo para ti. El token de acceso vive en memoria y nunca se escribe.
 - **Studio:** solo es accesible desde tu equipo, con un token por sesión, comprobación de origen y CSP.
+- **Asistente de IA:** apagado salvo que lo configures. Pide tu permiso antes de enviar el perfil a un proveedor que no esté en tu equipo, nunca envía teléfono ni email, y guarda la clave fuera del repositorio.
 - **Web y CV:** estáticos y sin scripts de terceros. La CSP impide cargar nada de fuera.
 - **Ficheros fuera de Git:** `profile.linkedin.yaml` y `dist/` no se suben.
 

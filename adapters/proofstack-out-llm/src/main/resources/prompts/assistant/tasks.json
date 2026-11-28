@@ -1,0 +1,5 @@
+{
+  "improve": "Rewrite <current-text> for its purpose, following <request> if given.",
+  "translate": "Translate <current-text> to {{targetLanguage}} for the same purpose. Natural wording for a recruiter, not literal. Same facts and numbers.",
+  "job-offer": "Rewrite <current-text> to highlight what matches <job-offer>, using only facts from the profile. Never claim a skill the profile does not show."
+}

@@ -24,6 +24,7 @@
     <button id="import-linkedin" class="btn" type="button" disabled>Traer de LinkedIn</button>
     <button id="import-github" class="btn" type="button" disabled>Traer repos de GitHub</button>
   </div>
+  <button id="ai-settings-open" class="btn" type="button" hidden>Ajustes de IA</button>
   <button id="download" class="btn" type="button" disabled>Descargar mis cambios</button>
   <button id="reload" class="btn" type="button" hidden>Recargar desde el disco</button>
   <button id="save" class="btn btn--primary" type="button" disabled>Guardar <kbd>Ctrl+S</kbd></button>
@@ -80,5 +81,140 @@
     </div>
   </form>
 </dialog>
-</body>
+<dialog id="ai-settings" class="merge ai" aria-labelledby="ai-settings-title">
+  <form id="ai-settings-form" method="dialog" novalidate>
+    <h2 id="ai-settings-title" class="merge__title">Ajustes de IA</h2>
+    <p class="hint">La IA es opcional. Esta configuración se guarda en tu carpeta personal (~/.proofstack/ai.json), nunca en el repositorio ni en el navegador.</p>
+    <p id="ai-env-note" class="hint" hidden></p>
+    <div class="field">
+      <label for="ai-preset">Proveedor</label>
+      <select id="ai-preset"></select>
+    </div>
+    <div class="field">
+      <label for="ai-protocol">Protocolo</label>
+      <select id="ai-protocol">
+        <option value="openai">Compatible con OpenAI</option>
+        <option value="anthropic">Anthropic</option>
+        <option value="gemini">Gemini</option>
+        <option value="ollama">Ollama</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="ai-url">URL base</label>
+      <input id="ai-url" type="url" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="field">
+      <label for="ai-model">Modelo</label>
+      <input id="ai-model" type="text" autocomplete="off" spellcheck="false">
+    </div>
+    <fieldset class="ai__keys">
+      <legend>Clave de API</legend>
+      <label class="ai__radio"><input type="radio" name="ai-key" value="none"> Sin clave (modelo local)</label>
+      <label class="ai__radio"><input type="radio" name="ai-key" value="env"> Leerla de una variable de entorno (recomendado)</label>
+      <div id="ai-key-env-row" class="field" hidden>
+        <label for="ai-key-env">Nombre de la variable</label>
+        <input id="ai-key-env" type="text" autocomplete="off" spellcheck="false" placeholder="OPENAI_API_KEY">
+      </div>
+      <label class="ai__radio"><input type="radio" name="ai-key" value="file"> Guardarla en el fichero (menos seguro)</label>
+      <div id="ai-key-file-row" class="field" hidden>
+        <label for="ai-key-value">Clave</label>
+        <input id="ai-key-value" type="password" autocomplete="off" spellcheck="false">
+        <p class="hint">Se guarda en texto plano en ai.json. Es más seguro guardar solo el nombre de la variable de entorno.</p>
+      </div>
+    </fieldset>
+    <details class="ai__more">
+      <summary>Opciones avanzadas</summary>
+      <div class="field">
+        <label for="ai-auth">Cabecera de autenticación</label>
+        <input id="ai-auth" type="text" autocomplete="off" spellcheck="false" placeholder="Authorization">
+        <p class="hint">Vacío usa la del protocolo. Azure OpenAI usa api-key.</p>
+      </div>
+      <div class="field">
+        <label for="ai-headers">Cabeceras extra</label>
+        <textarea id="ai-headers" rows="3" spellcheck="false" placeholder="HTTP-Referer: http://localhost"></textarea>
+        <p class="hint">Una por línea, con el formato «Nombre: valor». No pongas claves aquí.</p>
+      </div>
+      <div class="field">
+        <label for="ai-timeout">Tiempo máximo de espera (segundos)</label>
+        <input id="ai-timeout" type="number" min="1" max="600" step="1">
+      </div>
+      <div class="field">
+        <label for="ai-temperature">Temperatura (0 a 2)</label>
+        <input id="ai-temperature" type="number" min="0" max="2" step="0.1">
+      </div>
+      <div class="field field--check">
+        <input id="ai-insecure" type="checkbox">
+        <label for="ai-insecure">Permitir http sin cifrar a un servidor que no es esta máquina</label>
+      </div>
+    </details>
+    <p id="ai-settings-msg" class="ai__state" role="status" aria-live="polite"></p>
+    <div class="merge__actions">
+      <button id="ai-settings-close" class="btn" type="button">Cerrar</button>
+      <button id="ai-settings-save" class="btn" type="button">Guardar</button>
+      <button id="ai-settings-test" class="btn btn--primary" type="button">Probar conexión</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="ai-panel" class="merge ai ai--panel" aria-labelledby="ai-panel-title">
+  <div>
+    <h2 id="ai-panel-title" class="merge__title"></h2>
+    <div id="ai-line-row" class="field" hidden>
+      <label for="ai-line">Línea</label>
+      <select id="ai-line"></select>
+    </div>
+    <div class="field">
+      <label for="ai-request">¿Qué quieres?</label>
+      <input id="ai-request" type="text" maxlength="2000" autocomplete="off" aria-describedby="ai-request-hint">
+      <p id="ai-request-hint" class="hint">Opcional. Pulsa Intro para pedir una mejora, o elige un atajo.</p>
+    </div>
+    <div id="ai-shortcuts" class="ai__shortcuts" role="group" aria-label="Atajos"></div>
+    <div id="ai-offer-row" class="field" hidden>
+      <label for="ai-offer">Oferta de trabajo</label>
+      <textarea id="ai-offer" rows="6" maxlength="2000"></textarea>
+      <p class="hint">Pega la oferta (hasta 2000 caracteres). La IA solo destacará lo que tu perfil ya demuestra.</p>
+      <button id="ai-offer-go" class="btn btn--small" type="button">Adaptar a la oferta</button>
+    </div>
+    <div id="ai-consent" class="ai__consent" hidden>
+      <p id="ai-consent-text"></p>
+      <button id="ai-consent-yes" class="btn btn--primary btn--small" type="button">Aceptar y continuar</button>
+      <button id="ai-consent-no" class="btn btn--small" type="button">No enviar nada</button>
+    </div>
+    <p id="ai-state" class="ai__state" role="status" aria-live="polite"></p>
+    <div id="ai-result" hidden>
+      <h3 id="ai-result-title" class="ai__title" tabindex="-1">Propuesta</h3>
+      <div class="ai__compare">
+        <section aria-labelledby="ai-current-title">
+          <h4 id="ai-current-title" class="ai__sub">Texto actual</h4>
+          <p id="ai-current" class="ai__text"></p>
+        </section>
+        <section aria-labelledby="ai-proposal-title">
+          <h4 id="ai-proposal-title" class="ai__sub">Propuesta</h4>
+          <p id="ai-proposal" class="ai__text"></p>
+          <label id="ai-edit-label" for="ai-edit" hidden>Edita la propuesta</label>
+          <textarea id="ai-edit" rows="6" maxlength="4000" hidden></textarea>
+        </section>
+      </div>
+      <p id="ai-warning" class="ai__warn" role="alert" hidden></p>
+      <p id="ai-target-note" class="hint" hidden></p>
+      <section aria-labelledby="ai-changes-title">
+        <h4 id="ai-changes-title" class="ai__sub">Cambios</h4>
+        <ul id="ai-changes" class="ai__list"></ul>
+      </section>
+      <section aria-labelledby="ai-questions-title">
+        <h4 id="ai-questions-title" class="ai__sub">Para hacerlo más fuerte</h4>
+        <ul id="ai-questions" class="ai__list"></ul>
+      </section>
+      <div class="merge__actions">
+        <button id="ai-accept" class="btn btn--primary" type="button">Aceptar</button>
+        <button id="ai-edit-btn" class="btn" type="button">Editar antes de aceptar</button>
+        <button id="ai-retry" class="btn" type="button">Probar otra vez</button>
+        <button id="ai-discard" class="btn" type="button">Descartar</button>
+      </div>
+    </div>
+    <div class="merge__actions">
+      <button id="ai-cancel" class="btn" type="button" hidden>Cancelar la petición</button>
+      <button id="ai-close" class="btn" type="button">Cerrar</button>
+    </div>
+  </div>
+</dialog>
 </html>

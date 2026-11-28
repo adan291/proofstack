@@ -108,7 +108,8 @@ class LinkedInImportCommandsTest {
 
     @Test
     void apiImportWithoutCredentialsExplainsSetup() {
-        assertThat(run(Map.of(), "import", "linkedin-api", "--out", tmp.resolve("x.yaml").toString())).isEqualTo(1);
+        // An empty home: the developer's own saved LinkedIn app must not leak in and open a real login.
+        assertThat(run(Map.of("PROOFSTACK_HOME", tmp.resolve("home").toString()), "import", "linkedin-api", "--out", tmp.resolve("x.yaml").toString())).isEqualTo(1);
         assertThat(err.toString()).contains("LINKEDIN_CLIENT_ID").contains("docs/linkedin-api.md");
     }
 }

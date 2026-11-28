@@ -1,0 +1,89 @@
+[
+  {
+    "id": "openai",
+    "label": "OpenAI",
+    "protocol": "openai",
+    "baseUrl": "https://api.openai.com/v1",
+    "model": "gpt-4o-mini",
+    "apiKeyEnv": "OPENAI_API_KEY"
+  },
+  {
+    "id": "anthropic",
+    "label": "Anthropic",
+    "protocol": "anthropic",
+    "baseUrl": "https://api.anthropic.com",
+    "model": "claude-3-5-haiku-latest",
+    "apiKeyEnv": "ANTHROPIC_API_KEY"
+  },
+  {
+    "id": "gemini",
+    "label": "Gemini",
+    "protocol": "gemini",
+    "baseUrl": "https://generativelanguage.googleapis.com",
+    "model": "gemini-3.8-flash",
+    "apiKeyEnv": "GEMINI_API_KEY"
+  },
+  {
+    "id": "mistral",
+    "label": "Mistral",
+    "protocol": "openai",
+    "baseUrl": "https://api.mistral.ai/v1",
+    "model": "mistral-small-latest",
+    "apiKeyEnv": "MISTRAL_API_KEY"
+  },
+  {
+    "id": "groq",
+    "label": "Groq",
+    "protocol": "openai",
+    "baseUrl": "https://api.groq.com/openai/v1",
+    "model": "llama-3.3-70b-versatile",
+    "apiKeyEnv": "GROQ_API_KEY"
+  },
+  {
+    "id": "openrouter",
+    "label": "OpenRouter",
+    "protocol": "openai",
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "model": "openai/gpt-4o-mini",
+    "apiKeyEnv": "OPENROUTER_API_KEY",
+    "headers": { "HTTP-Referer": "http://localhost", "X-Title": "Proofstack Studio" }
+  },
+  {
+    "id": "deepseek",
+    "label": "DeepSeek",
+    "protocol": "openai",
+    "baseUrl": "https://api.deepseek.com/v1",
+    "model": "deepseek-chat",
+    "apiKeyEnv": "DEEPSEEK_API_KEY"
+  },
+  {
+    "id": "azure",
+    "label": "Azure OpenAI",
+    "protocol": "openai",
+    "baseUrl": "https://RECURSO.openai.azure.com/openai/deployments/DESPLIEGUE?api-version=2024-10-21",
+    "model": "DESPLIEGUE",
+    "apiKeyEnv": "AZURE_OPENAI_API_KEY",
+    "authHeader": "api-key"
+  },
+  {
+    "id": "ollama",
+    "label": "Ollama",
+    "protocol": "ollama",
+    "baseUrl": "http://localhost:11434",
+    "model": "llama3.2"
+  },
+  {
+    "id": "lmstudio",
+    "label": "LM Studio",
+    "protocol": "openai",
+    "baseUrl": "http://localhost:1234/v1",
+    "model": "local-model"
+  },
+  {
+    "id": "custom",
+    "label": "Personalizado",
+    "protocol": "openai",
+    "baseUrl": "",
+    "model": ""
+  }
+]

@@ -19,14 +19,27 @@ final class FakeLlmServer implements AutoCloseable {
     volatile long delayMillis;
 
     volatile String lastPath;
+    volatile String lastQuery;
     volatile String lastBody;
     final Map<String, String> lastHeaders = new ConcurrentHashMap<>();
+    /** Every request body received, in order. */
+    final java.util.List<String> bodies = new java.util.concurrent.CopyOnWriteArrayList<>();
+    private final java.util.Queue<int[]> scriptedStatus = new java.util.concurrent.ConcurrentLinkedQueue<>();
+    private final java.util.Queue<String> scriptedBody = new java.util.concurrent.ConcurrentLinkedQueue<>();
+
+    /** The next unanswered request gets this reply; once the queue is empty the default status and body apply. */
+    void enqueue(int replyStatus, String body) {
+        scriptedStatus.add(new int[] {replyStatus});
+        scriptedBody.add(body);
+    }
 
     FakeLlmServer() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         server.createContext("/", exchange -> {
             lastPath = exchange.getRequestURI().getPath();
+            lastQuery = exchange.getRequestURI().getRawQuery();
             lastBody = new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8);
+            bodies.add(lastBody);
             lastHeaders.clear();
             exchange.getRequestHeaders().forEach((k, v) -> lastHeaders.put(k.toLowerCase(), String.join(",", v)));
             if (delayMillis > 0) {
@@ -36,9 +49,12 @@ final class FakeLlmServer implements AutoCloseable {
                     Thread.currentThread().interrupt();
                 }
             }
-            byte[] bytes = responseBody.getBytes(StandardCharsets.UTF_8);
+            int[] next = scriptedStatus.poll();
+            String reply = next == null ? responseBody : scriptedBody.poll();
+            int replyCode = next == null ? status : next[0];
+            byte[] bytes = reply.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().add("Content-Type", "application/json");
-            exchange.sendResponseHeaders(status, bytes.length);
+            exchange.sendResponseHeaders(replyCode, bytes.length);
             try (OutputStream out = exchange.getResponseBody()) {
                 out.write(bytes);
             }

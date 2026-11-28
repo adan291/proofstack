@@ -1,0 +1,16 @@
+{
+  "person.headline": "One line: role and main stack. Max 80 characters. No adjectives.",
+  "person.summary": "2 or 3 sentences: who they are, what they work on and what makes them different. It is the first thing a recruiter reads.",
+  "person.contactMessage": "1 to 3 short sentences: availability, preferred work mode and how to get in touch.",
+  "projects[].summary": "One sentence: what the project is. Shown on the featured card.",
+  "projects[].problem": "One sentence: the situation before, and why it mattered.",
+  "projects[].solution": "2 to 4 sentences: how it was built, with the key technical decisions.",
+  "projects[].learnings[]": "One sentence: a concrete lesson, not a generic one.",
+  "projects[].areaNotes.{area}": "One sentence: what this project proves in {area}. Do not repeat the project summary.",
+  "experience[].highlights[]": "One CV bullet: past-tense action verb, how (technology), result. Max 30 words. ATS friendly.",
+  "evidence[].title": "A short title for the evidence: what happened, in a few words. No adjectives.",
+  "evidence[].context": "Context: the situation before the author acted. Only facts from the data.",
+  "evidence[].action": "Action: what the author did, in first person. Only facts from the data.",
+  "evidence[].result": "Result: what changed; only facts from the data.",
+  "labs[].description": "2 or 3 sentences: what this group of experiments explores and why it matters for the author's work."
+}

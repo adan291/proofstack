@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.junit.jupiter.api.AfterAll;
@@ -71,7 +72,9 @@ abstract class StudioE2E {
     void startStudio() throws IOException {
         profile = tmp.resolve("profile.yaml");
         Files.copy(EXAMPLE, profile);
-        studio = StudioCommand.start(profile, 0);
+        Map<String, String> env = environment();
+        studio = env.isEmpty() ? StudioCommand.start(profile, 0)
+                : StudioCommand.start(profile, 0, env, new java.io.PrintWriter(java.io.Writer.nullWriter()));
         context = browser.newContext();
         page = context.newPage();
         page.onConsoleMessage(m -> {
@@ -91,6 +94,11 @@ abstract class StudioE2E {
         // CSP violations are reported as console errors too, but this also catches them in the preview frame.
         page.addInitScript("document.addEventListener('securitypolicyviolation', e => "
                 + "console.error('CSP violation: ' + e.violatedDirective + ' ' + e.blockedURI), true);");
+    }
+
+    /** Environment Studio is started with; tests that need a provider or a clean home override it. */
+    Map<String, String> environment() throws IOException {
+        return Map.of();
     }
 
     @AfterEach

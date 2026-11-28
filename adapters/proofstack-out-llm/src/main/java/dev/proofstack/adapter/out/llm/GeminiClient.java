@@ -23,8 +23,19 @@ final class GeminiClient implements LlmClient {
     private final URI baseUrl;
     private final String apiKey;
     private final String model;
+    private final double temperature;
+    private final Map<String, String> extraHeaders;
 
     GeminiClient(HttpJson http, URI baseUrl, String apiKey, String model) {
+        this(http, baseUrl, apiKey, model, 0.4, Map.of());
+    }
+
+    GeminiClient(HttpJson http, AiSettings settings) {
+        this(http, settings.baseUrl(), settings.apiKey(), settings.model(), settings.temperature(), settings.headers());
+    }
+
+    private GeminiClient(HttpJson http, URI baseUrl, String apiKey, String model, double temperature,
+                         Map<String, String> extraHeaders) {
         if (apiKey == null || apiKey.isBlank()) {
             throw new ContentGenerationException(
                     "GEMINI_API_KEY is not set. Create a key in Google AI Studio and export it as an environment variable",
@@ -34,6 +45,8 @@ final class GeminiClient implements LlmClient {
         this.baseUrl = baseUrl;
         this.apiKey = apiKey;
         this.model = model;
+        this.temperature = temperature;
+        this.extraHeaders = extraHeaders;
     }
 
     @Override
@@ -44,7 +57,7 @@ final class GeminiClient implements LlmClient {
         content.put("role", "user");
         content.putArray("parts").addObject().put("text", userPrompt);
         ObjectNode config = body.putObject("generationConfig");
-        config.put("temperature", 0.4);
+        config.put("temperature", temperature);
         ObjectNode text = config.putObject("responseFormat").putObject("text");
         text.put("mimeType", "application/json");
         text.set("schema", schema);
@@ -52,7 +65,9 @@ final class GeminiClient implements LlmClient {
         URI uri = baseUrl.resolve("/v1beta/models/" + URLEncoder.encode(model, StandardCharsets.UTF_8) + ":generateContent");
         JsonNode response;
         try {
-            response = http.post(uri, Map.of("x-goog-api-key", apiKey), body, "Gemini", apiKey);
+            java.util.Map<String, String> headers = new java.util.LinkedHashMap<>(extraHeaders);
+            headers.put("x-goog-api-key", apiKey);
+            response = http.post(uri, headers, body, "Gemini", apiKey);
         } catch (HttpJson.HttpStatusException e) {
             String hint = switch (e.status()) {
                 case 400 -> " (check the model name and request)";

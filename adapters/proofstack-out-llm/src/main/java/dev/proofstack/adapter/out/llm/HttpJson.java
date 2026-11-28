@@ -82,6 +82,16 @@ final class HttpJson {
         }
     }
 
+    /** {@code base} plus {@code path}, keeping the base's query ({@code ?api-version=...} on Azure). */
+    static URI endpoint(URI base, String path) {
+        String basePath = base.getRawPath() == null ? "" : base.getRawPath();
+        while (basePath.endsWith("/")) {
+            basePath = basePath.substring(0, basePath.length() - 1);
+        }
+        String query = base.getRawQuery() == null ? "" : "?" + base.getRawQuery();
+        return URI.create(base.getScheme() + "://" + base.getRawAuthority() + basePath + "/" + path + query);
+    }
+
     private String write(JsonNode body) {
         try {
             return json.writeValueAsString(body);
@@ -95,6 +105,7 @@ final class HttpJson {
         if (secret != null && !secret.isEmpty()) {
             safe = safe.replace(secret, "***");
         }
+        safe = safe.replaceAll("(?i)(bearer\\s+)\\S+", "$1***").replaceAll("\\b(sk|key|AIza)[-_A-Za-z0-9]{12,}", "***");
         safe = safe.replaceAll("\\s+", " ").strip();
         return safe.length() > MAX_ERROR_BODY ? safe.substring(0, MAX_ERROR_BODY) + "…" : safe;
     }

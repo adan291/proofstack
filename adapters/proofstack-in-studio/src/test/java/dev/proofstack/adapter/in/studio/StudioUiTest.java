@@ -22,7 +22,7 @@ class StudioUiTest {
 
     @Test
     void loadsNothingFromOutside() throws IOException {
-        for (String name : new String[]{"index.html", "studio.js", "schema-form.js", "studio.css"}) {
+        for (String name : new String[]{"index.html", "studio.js", "schema-form.js", "assist.js", "studio.css"}) {
             String text = resource(name);
             assertThat(text).as(name).doesNotContainPattern("(src|href)=\"(https?:)?//")
                     .doesNotContainPattern("import [^;]*from '(https?:)?//")
